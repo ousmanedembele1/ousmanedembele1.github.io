@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body{
+    overflow: hidden;
+    text-align: center;
+}
+</style>
+</head>
+<body>
+    <canvas id = "myCanvas" width="602" height="700"></canvas>
+<script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+<script>
+var keyCodes = {
+    32: 'space',
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    49: 'one',
+    50: 'two',
+    51: 'three',
+    52: 'four',
+    82: 'r'
+};
+var keysPressed = {
+    space: false,
+    left: false,
+    up: false,
+    right: false,
+    down: false,
+    one: false,
+    two: false,
+    three: false,
+    four: false,
+    r: false
+};
+var gridSize = 8;
+var gridPixels = 600;
+var gameState = 'choosing';
+var score = 0;
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+var animationTime = 150;
+var snake = {
+    len: 4,
+    segments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+    newSegments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+    currentDirection: 'right',
+    newDirection: null
+};
+var apple = {x:Math.ceil(gridSize*3/4),y:Math.floor(gridSize/2)};
+function setUp(){
+    snake = {
+        len: 4,
+        segments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+        newSegments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+        currentDirection: 'right',
+        newDirection: null
+    };
+    apple = {x:Math.ceil(gridSize*3/4),y:Math.floor(gridSize/2)};
+    score = 0;
+    animationTime = 150;
+}
+function drawBoard(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for (var i = 0; i<gridSize; i++){
+        for (var j=0; j<gridSize; j++){
+            if ((j+i)%2===1){
+                ctx.fillStyle = 'hsl('+((i+j)*5+100)+', 20%, 85%)';
+                ctx.fillRect((i*gridPixels/gridSize+1), (j*gridPixels/gridSize +1), gridPixels/gridSize, gridPixels/gridSize);
+            };
+        };
+    };
+    ctx.fillStyle = 'hsl(104, 96%, 48%)';
+    ctx.beginPath();
+    ctx.arc(apple.x*gridPixels/gridSize+gridPixels/(2*gridSize)+1, apple.y*gridPixels/gridSize+gridPixels/(2*gridSize)+1, gridPixels/(2*gridSize), 0, 2*Math.PI);
+    ctx.fill();
+    ctx.fillStyle = 'black'
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    var space = c.height-c.width;
+    ctx.font = space/2 + 'px Sans-serif'
+    ctx.fillText('Score: '+score, gridPixels/2, (c.width+c.height)/2);
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(0.25,0.25,c.width-0.5, c.width-0.5)
+    for (var i=0; i<snake.segments.length; i++){
+        ctx.fillStyle = 'hsl('+(30*(snake.segments.length-i-1)/(snake.segments.length-1))+', 100%, 50%)';
+        ctx.fillRect(snake.segments[snake.segments.length-i-1].x*gridPixels/gridSize+1, snake.segments[snake.segments.length-i-1].y*gridPixels/gridSize+1, gridPixels/gridSize,gridPixels/gridSize);
+    };
+};
+function moveSnake(){
+    snake.currentDirection = snake.newDirection;
+    snake.newSegments = [];
+    for (var i = 0; i<snake.segments.length; i++){
+        snake.newSegments.push(snake.segments[i]);
+    };
+    if (snake.currentDirection === 'left'){
+        snake.newSegments.unshift({ x: snake.segments[0].x-1, y:snake.segments[0].y});
+    } else if (snake.currentDirection === 'right'){
+        snake.newSegments.unshift({ x: snake.segments[0].x+1, y:snake.segments[0].y});
+    } else if (snake.currentDirection === 'up'){
+        snake.newSegments.unshift({ x: snake.segments[0].x, y:snake.segments[0].y-1});
+    } else {
+        snake.newSegments.unshift({ x: snake.segments[0].x, y:snake.segments[0].y+1});
+    }
+    if (snake.newSegments[0].x === apple.x && snake.newSegments[0].y === apple.y){
+        score += 1;
+        snake.len+=1
+        if (animationTime>50){
+            animationTime-=1;
+        };
+        if (snake.len === gridSize**2){
+            gameState = 'end'
+            return null
+        }
+        var touching = true;
+        while (touching){
+            touching = false;
+            apple.x = Math.floor(Math.random()*gridSize);
+            apple.y = Math.floor(Math.random()*gridSize);
+            for (var i=0; i<snake.newSegments.length; i++){
+                if (snake.newSegments[i].x === apple.x && snake.newSegments[i].y === apple.y){
+                    touching = true;
+                };
+            };
+        };
+    };
+    while (snake.newSegments.length>snake.len){
+        snake.newSegments.pop();
+    };
+    if (checkDeath(snake.newSegments)){
+        gameOver();
+    } else{
+        snake.segments = [];
+        snake.segments = snake.newSegments.slice(0);
+    };
+};
+function gameOver(){
+    gameState = 'end';
+};
+function checkDeath(lst){
+    for (var i=1; i<lst.length; i++){
+        if (lst[0].x === lst[i].x && lst[0].y === lst[i].y){
+            return true
+        };
+    };
+    if (lst[0].x>gridSize-1 || lst[0].x<0 || lst[0].y>gridSize-1 || lst[0].y<0){
+            return true
+    }
+    return false
+}
+function mainLoop(){
+    if (120*Math.floor(window.innerHeight*0.9/120) === 0){
+        gridPixels = 120;
+    }else{
+        gridPixels = 120*Math.floor(window.innerHeight*0.9/120);
+    }
+    c.width = gridPixels+2;
+    c.height = window.innerHeight-gridPixels/75;
+    c.style.margin = gridPixels/75 + 'px';
+    
+    
+    // Move snake
+    if (gameState === 'playing'){
+        moveSnake();
+    }
+    
+    drawBoard();
+    if (gameState === 'choosing'){
+        ctx.fillStyle = 'hsla(0, 100%, 100%, 0.8)'
+        ctx.fillRect(0,0,c.width,c.height);
+
+    }
+    var timeoutID = setTimeout(mainLoop, animationTime);
+    
+}
+$("body").keydown(function (event) {
+    keysPressed[keyCodes[event.keyCode]] = true;
+    if (keysPressed.left && snake.currentDirection != 'right' && gameState != 'end' && gameState != 'choosing'){
+        snake.newDirection = 'left';
+        if (gameState != 'playing'){
+            gameState = 'playing'
+        }
+    } else if (keysPressed.up && snake.currentDirection != 'down' && gameState != 'end' && gameState != 'choosing'){
+        snake.newDirection = 'up';
+        if (gameState != 'playing'){
+            gameState = 'playing'
+        }
+    } else if (keysPressed.right && snake.currentDirection != 'left' && gameState != 'end' && gameState != 'choosing'){
+        snake.newDirection = 'right';
+        if (gameState != 'playing'){
+            gameState = 'playing'
+        }
+    } else if (keysPressed.down && snake.currentDirection != 'up' && gameState != 'end' && gameState != 'choosing'){
+        snake.newDirection = 'down';
+        if (gameState != 'playing'){
+            gameState = 'playing'
+        }
+    };
+    if (gameState === 'choosing'){
+        if (keysPressed.one){
+            gridSize = 8;
+            setUp();
+        } else if (keysPressed.two){
+            gridSize = 10;
+            setUp();
+        } else if (keysPressed.three){
+            gridSize = 15;
+            setUp();
+        } else if (keysPressed.four){
+            gridSize = 20;
+            setUp();
+        };
+        if (keysPressed.space){
+            gameState = 'start'
+            setUp();
+        }
+    }
+    if (gameState === 'end' && keysPressed.r){
+        gameState = 'choosing'
+        setUp();
+    };
+});
+
+$("body").keyup(function (event) {
+    keysPressed[keyCodes[event.keyCode]] = false;
+    if (keysPressed.left && snake.currentDirection != 'right'){
+        snake.newDirection = 'left';
+    } else if (keysPressed.up && snake.currentDirection != 'down'){
+        snake.newDirection = 'up';
+    } else if (keysPressed.right && snake.currentDirection != 'left'){
+        snake.newDirection = 'right';
+    } else if (keysPressed.down && snake.currentDirection != 'up'){
+        snake.newDirection = 'down';
+    };
+});
+mainLoop();
+</script>
+</body>
+</html>
