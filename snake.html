@@ -12,32 +12,31 @@ body{
     <canvas id = "myCanvas" width="602" height="700"></canvas>
 <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
 <script>
-var keyCodes = {
-    32: 'space',
-    37: 'left',
-    38: 'up',
-    39: 'right',
-    40: 'down',
-    49: 'one',
-    50: 'two',
-    51: 'three',
-    52: 'four',
-    82: 'r'
-};
+
 var keysPressed = {
-    space: false,
-    left: false,
-    up: false,
-    right: false,
-    down: false,
-    one: false,
-    two: false,
-    three: false,
-    four: false,
+    " ": false,
+    ArrowLeft: false,
+    ArrowUp: false,
+    ArrowRight: false,
+    ArrowDown: false,
+    "1": false,
+    "2": false,
+    "3": false,
+    "4": false,
+    m: false,
     r: false
 };
-var gridSize = 8;
+var highScores = {
+    5: 0,
+    8: 0,
+    10: 0,
+    16: 0,
+    20: 0
+}
+var gameModes = [5,8,10,16,20];
+var gridSize = 10;
 var gridPixels = 600;
+var scaleFactor = gridPixels/600;
 var gameState = 'choosing';
 var score = 0;
 var c = document.getElementById("myCanvas");
@@ -52,16 +51,37 @@ var snake = {
 };
 var apple = {x:Math.ceil(gridSize*3/4),y:Math.floor(gridSize/2)};
 function setUp(){
-    snake = {
-        len: 4,
-        segments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
-        newSegments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
-        currentDirection: 'right',
-        newDirection: null
+    if (gridSize === 5){
+        snake = {
+            len: 4,
+            segments: [{x:3,y:Math.floor(gridSize/2)}, {x:2,y:Math.floor(gridSize/2)},{x:1,y:Math.floor(gridSize/2)}, {x:0,y:Math.floor(gridSize/2)}],
+            newSegments: [{x:3,y:Math.floor(gridSize/2)}, {x:2,y:Math.floor(gridSize/2)},{x:1,y:Math.floor(gridSize/2)}, {x:0,y:Math.floor(gridSize/2)}],
+            currentDirection: 'right',
+            newDirection: null
+        };
+    } else {
+        snake = {
+            len: 4,
+            segments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+            newSegments: [{x:4,y:Math.floor(gridSize/2)}, {x:3,y:Math.floor(gridSize/2)},{x:2,y:Math.floor(gridSize/2)}, {x:1,y:Math.floor(gridSize/2)}],
+            currentDirection: 'right',
+            newDirection: null
+        };
     };
     apple = {x:Math.ceil(gridSize*3/4),y:Math.floor(gridSize/2)};
     score = 0;
     animationTime = 150;
+}
+function drawGameOver(){
+    ctx.fillStyle = 'hsla(0, 100%, 100%, 0.5)'
+    ctx.fillRect(0,0,c.width,c.width);
+    ctx.fillStyle = 'black';
+    ctx.font = 110*scaleFactor+'px sans-serif';
+    ctx.fillText('Game Over', c.width/2, 150*scaleFactor);
+    ctx.font = 70*scaleFactor+'px sans-serif';
+    ctx.fillText('Press r to reset', c.width/2, 250*scaleFactor);
+    ctx.fillText('Press m for menu', c.width/2, 350*scaleFactor);
+    ctx.fillText('High Score: ' + highScores[gridSize], c.width/2, 450*scaleFactor)
 }
 function drawBoard(){
     ctx.clearRect(0,0,c.width,c.height);
@@ -91,6 +111,43 @@ function drawBoard(){
         ctx.fillRect(snake.segments[snake.segments.length-i-1].x*gridPixels/gridSize+1, snake.segments[snake.segments.length-i-1].y*gridPixels/gridSize+1, gridPixels/gridSize,gridPixels/gridSize);
     };
 };
+function drawMenu(){
+    ctx.fillStyle = 'hsla(0, 100%, 100%, 0.5)'
+    ctx.fillRect(0,0,c.width,c.width);
+    ctx.fillStyle = 'black';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 75*scaleFactor+'px sans-serif';
+    ctx.fillText('SNAKE', c.width/2, 70*scaleFactor);
+    ctx.font = 50*scaleFactor+'px sans-serif';
+    ctx.fillText('Chose the grid size', c.width/2, 150*scaleFactor);
+    ctx.font = 35*scaleFactor+'px sans-serif';
+    for (var i = 0; i<4; i++){
+        var textWidth = 114.8;
+        ctx.fillText(gameModes[i]+' x ' + gameModes[i], (90+140*i)*scaleFactor, 230*scaleFactor);
+        ctx.fillText(i+1, (90+140*i)*gridPixels/600,290*gridPixels/600)
+        ctx.lineWidth = 3;
+        if(gameModes.indexOf(gridSize) === i){
+            ctx.strokeStyle = 'green'
+        } else {
+            ctx.strokeStyle = 'black';
+        }
+        ctx.strokeRect((80+140*i-textWidth/2)*gridPixels/600, 202.5*gridPixels/600, (textWidth+20)*gridPixels/600, 55*gridPixels/600);
+
+    }
+    ctx.fillText('20 x 20', c.width/2, 425*scaleFactor);
+    if(gameModes.indexOf(gridSize) === 4){
+        ctx.strokeStyle = 'green'
+    } else {
+        ctx.strokeStyle = 'black';
+    }
+    ctx.strokeRect((300-textWidth/2-10)*scaleFactor, (425-35/2-10)*scaleFactor, (textWidth+20)*scaleFactor, 55*scaleFactor);
+    ctx.fillText('5', c.width/2, 485*scaleFactor);
+    ctx.font = 50*scaleFactor+'px sans-serif';
+    ctx.fillText('Or', c.width/2, 350*scaleFactor);
+    ctx.font = 60*scaleFactor+'px sans-serif';
+    ctx.fillText('Press space to begin', c.width/2, 550*scaleFactor);
+}
 function moveSnake(){
     snake.currentDirection = snake.newDirection;
     snake.newSegments = [];
@@ -113,33 +170,42 @@ function moveSnake(){
             animationTime-=1;
         };
         if (snake.len === gridSize**2){
-            gameState = 'end'
+            snake.segments = [];
+            snake.segments = snake.newSegments.slice(0);
+            gameOver()
             return null
-        }
-        var touching = true;
-        while (touching){
-            touching = false;
-            apple.x = Math.floor(Math.random()*gridSize);
-            apple.y = Math.floor(Math.random()*gridSize);
-            for (var i=0; i<snake.newSegments.length; i++){
-                if (snake.newSegments[i].x === apple.x && snake.newSegments[i].y === apple.y){
-                    touching = true;
+        } else {
+            var touching = true;
+            while (touching){
+                touching = false;
+                apple.x = Math.floor(Math.random()*gridSize);
+                apple.y = Math.floor(Math.random()*gridSize);
+                for (var i=0; i<snake.newSegments.length; i++){
+                    if (snake.newSegments[i].x === apple.x && snake.newSegments[i].y === apple.y){
+                        touching = true;
+                    };
                 };
             };
-        };
+        }
+        
     };
-    while (snake.newSegments.length>snake.len){
-        snake.newSegments.pop();
-    };
+    while(snake.newSegments.length > snake.len){
+    	snake.newSegments.pop();
+    }
     if (checkDeath(snake.newSegments)){
-        gameOver();
-    } else{
-        snake.segments = [];
-        snake.segments = snake.newSegments.slice(0);
-    };
+    	gameOver()
+    } else {
+    	snake.segments = [];
+    	snake.segments = snake.newSegments.slice(0);
+    }
+   
+    
 };
 function gameOver(){
     gameState = 'end';
+    if (score > highScores[gridSize]){
+        highScores[gridSize] = score;
+    };
 };
 function checkDeath(lst){
     for (var i=1; i<lst.length; i++){
@@ -153,11 +219,12 @@ function checkDeath(lst){
     return false
 }
 function mainLoop(){
-    if (120*Math.floor(window.innerHeight*0.9/120) === 0){
-        gridPixels = 120;
+    if (80*Math.floor(window.innerHeight*0.9/80) === 0){
+        gridPixels = 80;
     }else{
-        gridPixels = 120*Math.floor(window.innerHeight*0.9/120);
+        gridPixels = 80*Math.floor(window.innerHeight*0.9/80);
     }
+    scaleFactor = gridPixels/600;
     c.width = gridPixels+2;
     c.height = window.innerHeight-gridPixels/75;
     c.style.margin = gridPixels/75 + 'px';
@@ -167,73 +234,79 @@ function mainLoop(){
     if (gameState === 'playing'){
         moveSnake();
     }
-    
     drawBoard();
     if (gameState === 'choosing'){
-        ctx.fillStyle = 'hsla(0, 100%, 100%, 0.8)'
-        ctx.fillRect(0,0,c.width,c.height);
-
+        drawMenu();
+    }
+    if (gameState === 'end'){
+        drawGameOver();
     }
     var timeoutID = setTimeout(mainLoop, animationTime);
     
 }
 $("body").keydown(function (event) {
-    keysPressed[keyCodes[event.keyCode]] = true;
-    if (keysPressed.left && snake.currentDirection != 'right' && gameState != 'end' && gameState != 'choosing'){
+    keysPressed[event.key] = true;
+    if (keysPressed.ArrowLeft && snake.currentDirection !== 'right' && (gameState === 'playing' || gameState === 'start')){
         snake.newDirection = 'left';
-        if (gameState != 'playing'){
+        if (gameState !== 'playing'){
             gameState = 'playing'
         }
-    } else if (keysPressed.up && snake.currentDirection != 'down' && gameState != 'end' && gameState != 'choosing'){
+    } else if (keysPressed.ArrowUp && snake.currentDirection !== 'down' && (gameState === 'playing' || gameState === 'start')){
         snake.newDirection = 'up';
-        if (gameState != 'playing'){
+        if (gameState !== 'playing'){
             gameState = 'playing'
         }
-    } else if (keysPressed.right && snake.currentDirection != 'left' && gameState != 'end' && gameState != 'choosing'){
+    } else if (keysPressed.ArrowRight && snake.currentDirection !== 'left' && (gameState === 'playing' || gameState === 'start')){
         snake.newDirection = 'right';
-        if (gameState != 'playing'){
+        if (gameState !== 'playing'){
             gameState = 'playing'
         }
-    } else if (keysPressed.down && snake.currentDirection != 'up' && gameState != 'end' && gameState != 'choosing'){
+    } else if (keysPressed.ArrowDown && snake.currentDirection !== 'up' && (gameState === 'playing' || gameState === 'start')){
         snake.newDirection = 'down';
-        if (gameState != 'playing'){
+        if (gameState !== 'playing'){
             gameState = 'playing'
         }
+        
     };
     if (gameState === 'choosing'){
-        if (keysPressed.one){
-            gridSize = 8;
+        if (keysPressed["1"]){
+            gridSize = gameModes[0];
             setUp();
-        } else if (keysPressed.two){
-            gridSize = 10;
+        } else if (keysPressed["2"]){
+            gridSize = gameModes[1];
             setUp();
-        } else if (keysPressed.three){
-            gridSize = 15;
+        } else if (keysPressed["3"]){
+            gridSize = gameModes[2];
             setUp();
-        } else if (keysPressed.four){
-            gridSize = 20;
+        } else if (keysPressed["4"]){
+            gridSize = gameModes[3];
+            setUp();
+        } else if (keysPressed["5"]){
+            gridSize = gameModes[4];
             setUp();
         };
-        if (keysPressed.space){
+        if (keysPressed[" "]){
             gameState = 'start'
-            setUp();
         }
     }
     if (gameState === 'end' && keysPressed.r){
-        gameState = 'choosing'
+        gameState = 'start'
         setUp();
-    };
+    } else if (gameState === 'end' && keysPressed.m){
+        gameState = 'choosing';
+        setUp();
+    }
 });
 
 $("body").keyup(function (event) {
-    keysPressed[keyCodes[event.keyCode]] = false;
-    if (keysPressed.left && snake.currentDirection != 'right'){
+    keysPressed[event.key] = false;
+    if (keysPressed.ArrowLeft && snake.currentDirection !== 'right'){
         snake.newDirection = 'left';
-    } else if (keysPressed.up && snake.currentDirection != 'down'){
+    } else if (keysPressed.ArrowUp && snake.currentDirection !== 'down'){
         snake.newDirection = 'up';
-    } else if (keysPressed.right && snake.currentDirection != 'left'){
+    } else if (keysPressed.ArrowRight && snake.currentDirection !== 'left'){
         snake.newDirection = 'right';
-    } else if (keysPressed.down && snake.currentDirection != 'up'){
+    } else if (keysPressed.ArrowDown && snake.currentDirection !== 'up'){
         snake.newDirection = 'down';
     };
 });
