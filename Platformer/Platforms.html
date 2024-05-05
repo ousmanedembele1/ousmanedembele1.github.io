@@ -26,8 +26,9 @@ var playlist = [
   "epic.mp3",
   "birthofahero.mp3",
 ];
-var music = false;
+
 var currentSong = Math.floor(Math.random()*4);
+let music = false;
 function rectangularCollision(left1, top1, right1, bottom1, left2, top2, right2, bottom2){
     if (bottom1>top2 && top1<bottom2 && left1<right2 && right1>left2){
         return true;
@@ -38,13 +39,12 @@ function startMusic(){
     var audio = new Audio(playlist[currentSong]);
 
     audio.addEventListener("ended", function() {
-    currentSong = (currentSong + 1) % playlist.length;
-    audio.src = playlist[currentSong];
-    audio.play();
+        currentSong = (currentSong + 1) % playlist.length;
+        audio.src = playlist[currentSong];
+        audio.play();
     });
-    music = true
     audio.play();
-    gameState = 'playing';
+    music = true;
 };
 
 function drawDoor(){
@@ -92,7 +92,11 @@ function drawPowerups(){
         powerup.setAttribute("class", "powerup");
         powerup.setAttribute('width', powerups[i].rightX-powerups[i].leftX);
         powerup.setAttribute('height', powerups[i].bottomY-powerups[i].topY);
-        powerup.setAttribute('fill','hsl('+powerups[i].hue+', 100%, 50%)');
+        if (powerups[i].hue === 1){
+            powerup.setAttribute('fill', 'white')
+        } else {
+            powerup.setAttribute('fill','hsl('+powerups[i].hue+', 100%, 50%)');
+        }
         powerup.setAttribute('x', powerups[i].leftX);
         powerup.setAttribute('y', powerups[i].topY);
         $("svg").append(powerup);
@@ -144,6 +148,16 @@ function checkPortal (){
     };
     return false;
 };
+function epicGamer(){
+    for (var i=0; i<fakePlatforms.length; i++){
+        if (fakePlatforms[i].level===1 & level === 1){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, fakePlatforms[i].leftX, fakePlatforms[i].topY, fakePlatforms[i].rightX, fakePlatforms[i].bottomY)){
+                return true;
+            }
+        };
+    };
+    return false;
+}
 function colliding (){
     for (var i=0; i<platforms.length; i++){
         if (platforms[i].level===level){
@@ -186,6 +200,7 @@ function checkCheckpoint (){
 };
 function respawn (){
     currentPowerup = '';
+    sprite.setAttribute('fill','red');
     for (var i=0; i<powerups.length; i++){
         powerups[i].collected = false;
     };
@@ -200,7 +215,7 @@ function respawn (){
         player.xPos = levelStats[level-1].startX;
         player.yPos = levelStats[level-1].startY;
     }
-    sprite.setAttribute('fill','red');
+    
 };
 var player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
 var deaths = 0;
@@ -299,7 +314,6 @@ platforms.push({
     level: 1,
     color: 'white'
 });
-
 //stairs
 
 platforms.push({
@@ -322,8 +336,8 @@ platforms.push({
 platforms.push({
     leftX: 2780,
     topY: 480,
-    rightX: 2990,
-    bottomY: 800,
+    rightX: 3040,
+    bottomY: 805,
     level: 1,
     color: 'white'
 });
@@ -331,7 +345,7 @@ platforms.push({
     leftX: 2980,
     topY: 380,
     rightX: 3190,
-    bottomY: 490,
+    bottomY: 520,
     level: 1,
     color: 'white'
 });
@@ -339,7 +353,7 @@ platforms.push({
     leftX: 3180,
     topY: 280,
     rightX: 3380,
-    bottomY: 490,
+    bottomY: 520,
     level: 1,
     color: 'white'
 });
@@ -1475,6 +1489,7 @@ function mainLoop(){
         for (var i = 0; i<checkpoints.length; i++) {
             checkpoints[i].reached = false;
         };
+        currentPowerup = '';
         respawn();
         gameState = 'starting';
         time = 0;
@@ -1550,6 +1565,13 @@ function mainLoop(){
     for (var i=0; i<fakePlatformsVariable.length; i++){
         if (fakePlatforms[i].level ===level){
             fakePlatformsVariable[i].style.display = 'inline';
+            if (level === 1){
+                if (epicGamer()){
+                    fakePlatformsVariable[i].style.display = 'none'
+                } else {
+                    fakePlatformsVariable[i].style.display = 'inline'
+                }
+            }
         } else {
             fakePlatformsVariable[i].style.display = 'none';
         }
@@ -1661,9 +1683,11 @@ function mainLoop(){
     if (checkPortal()){
         if (level === 4){
             level=1;
-            gameState = 'starting'
-            time = 0;
+            time=0;
             deaths = 0;
+            gameState = 'starting'
+            currentPowerup = '';
+            sprite.setAttribute('fill','red')
             for (var i = 0; i<checkpoints.length; i++) {
                 checkpoints[i].reached = false;
             };
@@ -1703,18 +1727,14 @@ function mainLoop(){
     if (Math.abs(player.xVelocity)<0.01){
         player.xVelocity = 0;
     };
-    if (keysPressed['left'] || keysPressed['up'] || keysPressed ['right'] || keysPressed['down'] || keysPressed['w'] || keysPressed['a'] || keysPressed['s'] || keysPressed['d'] && gameState === 'starting'){
-        gameState = 'playing';
-    }
 };
 var intervalID = setInterval(mainLoop, 10);
 
 $("body").keydown(function (event) {
     if (gameState === 'starting'){
+        gameState = 'playing'
         if (!music){
-            startMusic();
-        } else {
-            gameState = 'playing';
+            startMusic()
         }
     };
     keysPressed[keyCodes[event.keyCode]] = true;
@@ -1728,6 +1748,3 @@ $("body").keyup(function (event) {
 
 </body>
 </html>
-
-
-
