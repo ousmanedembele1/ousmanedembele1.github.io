@@ -169,55 +169,11 @@ function ding(){
 let height = window.innerHeight;
 let squarewidth;
 let margin;
-if (height<900){
-    if (height > 875){
-        squarewidth = 134;
-        margin = 22;
-    } else if (height > 850){
-        squarewidth = 130;
-        margin = 20;
-    } else if (height > 825){
-        squarewidth = 128;
-        margin = 20;
-    } else if (height > 800){
-        squarewidth = 124;
-        margin = 18;
-    } else if (height > 775){
-        squarewidth = 122;
-        margin = 18;
-    } else if (height > 750){
-        squarewidth = 118;
-        margin = 16;
-    } else if (height > 725){
-        squarewidth = 116;
-        margin = 16;
-    } else if (height > 700){
-        squarewidth = 112;
-        margin = 14;
-    } else if (height > 675){
-        squarewidth = 110;
-        margin = 14;
-    } else if (height > 650){
-        squarewidth = 106;
-        margin = 12;
-    } else if (height > 625){
-        squarewidth = 104;
-        margin = 12;
-    } else if (height > 600){
-        squarewidth = 100;
-        margin = 10;
-    } else if (height > 575){
-        squarewidth = 98;
-        margin = 10;
-    } else if (height > 550){
-        squarewidth = 94;
-        margin = 8;
-    } else if (height > 525){
-        squarewidth = 92;
-        margin = 8;
-    }
+if (height > 375){
+    let diffrence = Math.floor((height-375)/25)
+    margin = 6+2*Math.floor(diffrence/5)
+    squarewidth = 64+2*Math.floor((3.7*diffrence)/2)
 }
-
 let totalWidth = 4*squarewidth + 5*margin;
 $("#gameArea, #gameBoard, #gameBackgound, #gameContainer").css({
     width: totalWidth + "px"
