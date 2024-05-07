@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>15-puzzle</title>
+<style>
+body{
+    overflow: hidden;
+}
+#myCanvas{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+</style>
+</head>
+<body>
+<canvas id = "myCanvas" width = "800" height = "700"></canvas>
+<script>
+let canvas = document.getElementById("myCanvas");
+let ctx = canvas.getContext("2d");
+
+//Data for different boards
+let sizes = [
+    {size: 3, holes: [], label: "3 x 3"}, 
+    {size: 4, holes: [], label: "4 x 4"}, 
+    {size: 5, holes: [], label: "5 x 5"}, 
+    {size: 5, holes: [12], label: "donut"},
+    {size: 6, holes: [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35], label: "circle"}
+];
+let sizeIndex = Math.floor(Math.random()*5);
+let currentSize;
+
+
+let squarePositions;
+let emptySquare;
+let currentShape;
+let squaresList;
+let scaleFactor;
+let yOffset;
+let gameEdgeColor;
+function init(){
+    currentShape = sizes[sizeIndex];
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+    currentSize = currentShape.size;
+	scaleFactor = window.innerHeight/793*((20-currentSize*1.5)/16);
+    yOffset = 30*scaleFactor;
+	squarePositions = [];
+
+    for (let i = 0; i<currentSize**2; i++){
+        if (currentShape.holes.includes(i)){
+            squarePositions.push(-2);
+        } else if (i !== currentSize**2-1){
+            squarePositions.push(i);
+        } else{
+            squarePositions.push(-1);
+        }
+    }
+
+    emptySquare = currentSize**2-1;
+    while (currentShape.holes.includes(emptySquare)){
+        emptySquare--;
+    };
+
+
+    squaresList = [];
+    for (let i = 0; i < currentSize**2; i++){
+        if (i !== emptySquare){
+            if (currentShape.holes.includes(i)){
+                squaresList.push(0)
+            } else {
+                squaresList.push(makeSquare(i));
+            }
+        }
+    };
+    gameEdgeColor = "black";
+}
+
+
+function makeSquare(num){
+    let square = {};
+    square.color = "hsl(" + (170+20*sizeIndex+5*(num-countHoles(num, currentShape.holes))) + ", 50%, 50%)"
+
+    square.x = (num%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
+    square.y = Math.floor(num/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
+    return square;
+};
+
+
+
+function countHoles(num, holesList){
+	let holeCount = 0;
+	for (let i = 0; i<holesList.length; i++){
+    	if (num > holesList[i]){
+        	holeCount++;
+        } else {
+        	return holeCount;
+        };
+    }
+    return holeCount;
+	
+}
+	
+function draw(){
+	ctx.clearRect(0,0,canvas.width,canvas.height);
+    //Time and Moves
+    ctx.font = "700 "+50*scaleFactor+"px Arial";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("Time: " + timer.time, canvas.width/2,canvas.height/2-50*currentSize*scaleFactor-90*scaleFactor-yOffset)
+    ctx.fillText("Moves: " + moveCount, canvas.width/2, canvas.height/2-50*currentSize*scaleFactor-30*scaleFactor-yOffset)
+    //Scramble button
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.roundRect(canvas.width/2-130*scaleFactor, canvas.height/2+currentSize*50*scaleFactor+15*scaleFactor-yOffset, 260*scaleFactor, 80*scaleFactor, 10*scaleFactor);
+    ctx.stroke()
+    ctx.fillText("Scramble", canvas.width/2, canvas.height/2+currentSize*50*scaleFactor+55*scaleFactor-yOffset);
+    //Solve button
+    
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.beginPath();
+    ctx.roundRect(canvas.width/2+260*scaleFactor, canvas.height/2-50*currentSize*scaleFactor-210*scaleFactor-yOffset, 180*scaleFactor, 80*scaleFactor, 10*scaleFactor);
+    ctx.stroke()
+    ctx.fillText("Solve", canvas.width/2+350*scaleFactor, canvas.height/2-50*currentSize*scaleFactor-170*scaleFactor-yOffset);
+
+    //size butttons
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    for (let i = 0; i<sizes.length; i++){
+        ctx.beginPath();
+    	ctx.roundRect(canvas.width/2-(80+180*(i-2))*scaleFactor, canvas.height/2+currentSize*50*scaleFactor+110*scaleFactor-yOffset, 160*scaleFactor, 87*scaleFactor, 10*scaleFactor);
+        ctx.stroke();
+        ctx.fillText(sizes[sizes.length-i-1].label, canvas.width/2-(80+180*(i-2)-80)*scaleFactor,canvas.height/2+currentSize*50*scaleFactor+110*scaleFactor+87/2*scaleFactor-yOffset);
+    }
+    //tiles
+	for (let i = 0; i<squaresList.length; i++){
+    	if (squaresList[i] !== -1){
+    		ctx.fillStyle = squaresList[i].color;
+        	ctx.beginPath();
+			ctx.roundRect(squaresList[i].x, squaresList[i].y, 100*scaleFactor, 100*scaleFactor, 10*scaleFactor);
+			ctx.fill();
+        	ctx.strokeStyle = "black";
+        	ctx.lineWidth = 2;
+        	ctx.beginPath()
+        	ctx.roundRect(squaresList[i].x, squaresList[i].y, 100*scaleFactor, 100*scaleFactor, 10*scaleFactor);
+        	ctx.stroke();
+
+        	ctx.textAlign = "center";
+        	ctx.textBaseline = "middle";
+        	ctx.font = "700 "+50*scaleFactor+"px Arial";
+        	ctx.fillStyle = "white";
+    
+            ctx.fillText(i+1-countHoles(i, currentShape.holes), squaresList[i].x+50*scaleFactor, squaresList[i].y+50*scaleFactor)
+            
+        }
+    }
+    //gameBorder
+    ctx.strokeStyle = gameEdgeColor;
+    ctx.lineWidth = 3;
+    if (currentShape.label !== "circle"){
+        ctx.beginPath();
+        ctx.roundRect(canvas.width/2-currentSize*50*scaleFactor, canvas.height/2-currentSize*50*scaleFactor-yOffset, currentSize*100*scaleFactor, currentSize*100*scaleFactor, 10*scaleFactor);
+        ctx.stroke();
+    };
+
+    if (currentShape.label === "donut"){
+    	ctx.beginPath();
+        ctx.roundRect(canvas.width/2-50*scaleFactor, canvas.height/2-50*scaleFactor-yOffset, 100*scaleFactor, 100*scaleFactor, 10*scaleFactor);
+        ctx.stroke();
+    };
+    if (currentShape.label === "circle"){
+        let radius = 10*scaleFactor
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2-100*scaleFactor+radius,canvas.height/2-300*scaleFactor-yOffset);
+        ctx.lineTo(canvas.width/2+100*scaleFactor-radius,canvas.height/2-300*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2+100*scaleFactor-radius,canvas.height/2-300*scaleFactor-yOffset+radius,radius,1.5*Math.PI,0,false);
+        ctx.lineTo(canvas.width/2+100*scaleFactor,canvas.height/2-200*scaleFactor-yOffset-radius);
+        ctx.arc(canvas.width/2+100*scaleFactor+radius,canvas.height/2-200*scaleFactor-yOffset-radius,radius,Math.PI,Math.PI*0.5,true);
+        ctx.lineTo(canvas.width/2+200*scaleFactor-radius,canvas.height/2-200*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2+200*scaleFactor-radius,canvas.height/2-200*scaleFactor-yOffset+radius,radius,1.5*Math.PI,0,false);
+        ctx.lineTo(canvas.width/2+200*scaleFactor,canvas.height/2-100*scaleFactor-yOffset-radius);
+        ctx.arc(canvas.width/2+200*scaleFactor+radius,canvas.height/2-100*scaleFactor-yOffset-radius,radius,Math.PI,Math.PI*0.5,true);
+        ctx.lineTo(canvas.width/2+300*scaleFactor-radius,canvas.height/2-100*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2+300*scaleFactor-radius,canvas.height/2-100*scaleFactor-yOffset+radius,radius,1.5*Math.PI,0,false);
+        ctx.lineTo(canvas.width/2+300*scaleFactor,canvas.height/2+100*scaleFactor-yOffset-radius);
+        ctx.arc(canvas.width/2+300*scaleFactor-radius,canvas.height/2+100*scaleFactor-yOffset-radius,radius, 0, 0.5*Math.PI, false);
+        ctx.lineTo(canvas.width/2+200*scaleFactor+radius,canvas.height/2+100*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2+200*scaleFactor+radius,canvas.height/2+100*scaleFactor-yOffset+radius,radius, 1.5*Math.PI, Math.PI, true);
+        ctx.lineTo(canvas.width/2+200*scaleFactor,canvas.height/2+200*scaleFactor-yOffset-radius);
+        ctx.arc(canvas.width/2+200*scaleFactor-radius,canvas.height/2+200*scaleFactor-yOffset-radius,radius, 0, 0.5*Math.PI, false);
+        ctx.lineTo(canvas.width/2+100*scaleFactor+radius,canvas.height/2+200*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2+100*scaleFactor+radius,canvas.height/2+200*scaleFactor-yOffset+radius,radius, 1.5*Math.PI, Math.PI, true);
+        ctx.lineTo(canvas.width/2+100*scaleFactor,canvas.height/2+300*scaleFactor-yOffset-radius);
+        ctx.arc(canvas.width/2+100*scaleFactor-radius,canvas.height/2+300*scaleFactor-yOffset-radius,radius, 0, 0.5*Math.PI, false);
+        ctx.lineTo(canvas.width/2-100*scaleFactor+radius,canvas.height/2+300*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2-100*scaleFactor+radius,canvas.height/2+300*scaleFactor-yOffset-radius,radius, 0.5*Math.PI, Math.PI, false);
+        ctx.lineTo(canvas.width/2-100*scaleFactor,canvas.height/2+200*scaleFactor-yOffset+radius);
+        ctx.arc(canvas.width/2-100*scaleFactor-radius,canvas.height/2+200*scaleFactor-yOffset+radius,radius,0,1.5*Math.PI, true);
+        ctx.lineTo(canvas.width/2-200*scaleFactor+radius,canvas.height/2+200*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2-200*scaleFactor+radius,canvas.height/2+200*scaleFactor-yOffset-radius,radius, 0.5*Math.PI, Math.PI, false);
+        ctx.lineTo(canvas.width/2-200*scaleFactor,canvas.height/2+100*scaleFactor-yOffset+radius);
+        ctx.arc(canvas.width/2-200*scaleFactor-radius,canvas.height/2+100*scaleFactor-yOffset+radius,radius,0,1.5*Math.PI, true);
+        ctx.lineTo(canvas.width/2-300*scaleFactor+radius,canvas.height/2+100*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2-300*scaleFactor+radius,canvas.height/2+100*scaleFactor-yOffset-radius,radius, 0.5*Math.PI, Math.PI, false);
+        ctx.lineTo(canvas.width/2-300*scaleFactor,canvas.height/2-100*scaleFactor-yOffset+radius);
+        ctx.arc(canvas.width/2-300*scaleFactor+radius,canvas.height/2-100*scaleFactor-yOffset+radius, radius, Math.PI, 1.5*Math.PI, false);
+        ctx.lineTo(canvas.width/2-200*scaleFactor-radius,canvas.height/2-100*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2-200*scaleFactor-radius,canvas.height/2-100*scaleFactor-yOffset-radius, radius, 0.5*Math.PI, 0, true);
+        ctx.lineTo(canvas.width/2-200*scaleFactor,canvas.height/2-200*scaleFactor-yOffset+radius);
+        ctx.arc(canvas.width/2-200*scaleFactor+radius,canvas.height/2-200*scaleFactor-yOffset+radius, radius, Math.PI, 1.5*Math.PI, false);
+        ctx.lineTo(canvas.width/2-100*scaleFactor-radius,canvas.height/2-200*scaleFactor-yOffset);
+        ctx.arc(canvas.width/2-100*scaleFactor-radius,canvas.height/2-200*scaleFactor-yOffset-radius, radius, 0.5*Math.PI, 0, true);
+        ctx.lineTo(canvas.width/2-100*scaleFactor,canvas.height/2-300*scaleFactor-yOffset+radius);
+        ctx.arc(canvas.width/2-100*scaleFactor+radius,canvas.height/2-300*scaleFactor-yOffset+radius, radius, Math.PI, 1.5*Math.PI, false);
+        ctx.stroke();
+    }    
+}
+
+//function for moving tiles
+function move(object, dir, time, multiplier, speed){
+    object[dir] += speed*multiplier*scaleFactor;
+    if (time<(Math.floor(100/speed)-1)){
+        setTimeout(function(){
+            move(object, dir, time+1, multiplier,speed);
+        }, 4)
+    } else {
+        object[dir] += (100-speed*Math.floor(100/speed))*multiplier*scaleFactor;
+    }
+    draw()
+};
+function checkWall(key){
+    if (key === "ArrowRight"){
+        if (emptySquare%currentSize === 0){
+            return true;
+        };
+        if (squarePositions[emptySquare-1] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowLeft"){
+        if (emptySquare%currentSize === currentSize-1){
+            return true;
+        };
+        if (squarePositions[emptySquare+1] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowDown"){
+        if (Math.floor(emptySquare/currentSize) === 0){
+            return true;
+        };
+        if (squarePositions[emptySquare-currentSize] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowUp"){
+        if (Math.floor(emptySquare/currentSize) === currentSize-1){
+            return true;
+        };
+        if (squarePositions[emptySquare+currentSize] === -2){
+            return true;
+        };
+    };
+    return false;
+}
+function applyArrows(key, speed, fromScrambler){
+    if (scrambler.scrambling && !fromScrambler){
+        return;
+    }
+    if (checkWall(key)){
+        return;
+    };
+    if (!arrows.includes(key)){
+        return;
+    }
+    if (key === "ArrowRight"){
+        move(squaresList[squarePositions[emptySquare-1]], "x", 0, 1, speed);
+        squarePositions[emptySquare] = squarePositions[emptySquare-1];
+        squarePositions[emptySquare-1] = -1;
+        emptySquare -= 1;
+    };
+    if (key === "ArrowLeft"){
+        move(squaresList[squarePositions[emptySquare+1]], "x", 0, -1, speed)
+        squarePositions[emptySquare] = squarePositions[emptySquare+1];
+        squarePositions[emptySquare+1] = -1;
+        emptySquare += 1;
+    };
+    if (key === "ArrowDown"){
+        move(squaresList[squarePositions[emptySquare-currentSize]], "y", 0, 1, speed);
+        squarePositions[emptySquare] = squarePositions[emptySquare-currentSize];
+        squarePositions[emptySquare-currentSize] = -1;
+        emptySquare -= currentSize;
+    };
+    if (key === "ArrowUp"){
+        move(squaresList[squarePositions[emptySquare+currentSize]], "y", 0, -1, speed);
+        squarePositions[emptySquare] = squarePositions[emptySquare+currentSize];
+        squarePositions[emptySquare+currentSize] = -1;
+        emptySquare += currentSize;
+    };
+    if (!fromScrambler){
+        moveCount++;
+        draw()
+    }
+    if (checkWin()){
+        gameEdgeColor = "lime";
+        if (!fromScrambler){
+        	timer.pause();
+        }
+    } else{
+        gameEdgeColor = "black";
+    };
+};
+
+//Takes a state and returns resulting state from a key being pressed
+function botArrows(key, state){
+    let nodePositions = state.slice(0);
+    let nodeEmptySquare = nodePositions.indexOf(-1);
+    if (key === "ArrowRight"){
+        nodePositions[nodeEmptySquare] = nodePositions[nodeEmptySquare-1];
+        nodePositions[nodeEmptySquare-1] = -1;
+    };
+    if (key === "ArrowLeft"){
+        nodePositions[nodeEmptySquare] = nodePositions[nodeEmptySquare+1];
+        nodePositions[nodeEmptySquare+1] = -1;
+    };
+    if (key === "ArrowDown"){
+        nodePositions[nodeEmptySquare] = nodePositions[nodeEmptySquare-currentSize];
+        nodePositions[nodeEmptySquare-currentSize] = -1;
+    };
+    if (key === "ArrowUp"){
+        nodePositions[nodeEmptySquare] = nodePositions[nodeEmptySquare+currentSize];
+        nodePositions[nodeEmptySquare+currentSize] = -1;
+    }
+    return nodePositions;
+};
+function botCheckWall(key, state){
+    let nodeEmptySquare = state.indexOf(-1);
+    if (key === "ArrowRight"){
+        if (nodeEmptySquare%currentSize === 0){
+            return true;
+        };
+        if (state[nodeEmptySquare-1] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowLeft"){
+        if (nodeEmptySquare%currentSize === currentSize-1){
+            return true;
+        };
+        if (state[nodeEmptySquare+1] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowDown"){
+        if (Math.floor(nodeEmptySquare/currentSize) === 0){
+            return true;
+        };
+        if (state[nodeEmptySquare-currentSize] === -2){
+            return true;
+        };
+    };
+    if (key === "ArrowUp"){
+        if (Math.floor(nodeEmptySquare/currentSize) === currentSize-1){
+            return true;
+        };
+        if (state[nodeEmptySquare+currentSize] === -2){
+            return true;
+        };
+    };
+    return false;
+}
+function checkWin(){
+    let won = true;
+    for (let i = 0; i < currentSize**2; i++){
+        if (!currentShape.holes.includes(i)){
+            if (squarePositions[i] !== i && i!==emptySquare) {
+                won = false;
+                break;
+            }
+        }
+    }
+    return won;
+}
+
+let timer = {
+    timeOutID: 0,
+    time: 0,
+    going: false,
+    start: function(){
+        this.going = true;
+        this.run();
+    },
+    run: function(){
+        this.time++;
+        draw()
+        if (this.going){
+            this.timeOutID  = setTimeout(function(){
+                timer.run()
+            },1000)
+        }
+    },
+    pause: function(){
+        clearTimeout(this.timeOutID)
+        this.going = false;
+    },
+    reset: function(){
+        this.time = 0;
+        this.pause();
+        draw();
+    }
+}
+let moveCount = 0;
+let arrows = ["ArrowRight", "ArrowDown","ArrowLeft", "ArrowUp"];
+let scrambler = {
+	timeoutID: 0,
+    scrambling: false,
+    oldArrow: null,
+    newArrow: null,
+    mix: function(movesDone){
+        this.scrambling = true;
+        this.newArrow = Math.floor(Math.random()*4);
+        while ((this.newArrow-this.oldArrow+4)%4 === 2 || checkWall(arrows[this.newArrow])){
+            this.newArrow = Math.floor(Math.random()*4);
+        };
+        applyArrows(arrows[this.newArrow],8, true);
+        this.oldArrow = this.newArrow;
+        if (movesDone<currentSize**2*10){
+            this.timeoutID = setTimeout(function(){
+                scrambler.mix(movesDone+1)
+            },60);
+        } else{
+            this.scrambling = false;
+            this.oldArrow = null;
+            this.newArrow = null;
+        }   
+    },
+    stop: function(){
+    	clearTimeout(scrambler.timeoutID);
+        this.scrambling = false;
+    }
+};
+
+//matrixes of weights on each tile
+let matrixes = [[
+    1, 1, 1,
+    1, 1, 1,
+    1, 1
+], [
+    5, 5, 5, 5,
+    5, 3, 3, 3,
+    5, 3, 1, 1,
+    5, 3, 1
+], [
+    6000, 6000, 6000, 6000, 6000,
+    6000, 400, 400, 400, 400,
+    6000, 400, 30, 30, 30,
+    6000, 400, 30, 1, 1,
+    6000, 400, 30, 1
+], [
+    12, 12, 12, 6, 6,
+    12, 12, 12, 4, 4,
+    12, 12, 0, 2, 2,
+    6, 4, 2, 1, 1,
+    6, 4, 2, 1
+], [
+    0.5, 0.25, 11.5, 12.5, 0.5, 0.25,
+    0.75, 8.75, 8, 7, 8.25, 0.5,
+    11.5, 3.25, 3, 2, 2.75, 11.5,
+    12, 2.25, 3.75, 3, 1.75, 11.25,
+    0.75, 8.75, 1.75, 1.5, 7.75, 0,
+    1, 0.25, 0.25
+]]
+let bot = {
+    timeOutIDBot: 0,
+	valuation: function(board){
+    	let distance = 0;
+    	let target;
+        let actualPosition;
+        let rows;
+        let columns;
+    	for (let i = 0; i < currentSize**2; i++){
+        	if (!currentShape.holes.includes(i)){
+            	target = i;
+                actualPosition = board.indexOf(target);
+                if (actualPosition !== -1){
+                    columns = Math.abs(i%currentSize-actualPosition%currentSize);
+                    rows = Math.abs(Math.floor(i/currentSize)-Math.floor(actualPosition/currentSize));
+                
+                    if (sizeIndex === 3){
+                        // distance increases because of hole
+                        if (rows === 0 && Math.floor(i/currentSize) === 2 && columns > 1){
+                            distance += 2*matrixes[sizeIndex][i]
+                        }
+                        if (columns === 0 && i%currentSize === 2 && rows > 1){
+                            distance += 2*matrixes[sizeIndex][i]
+                        }
+                    }
+                    distance += (rows + columns)*matrixes[sizeIndex][i];
+                    //linear conflict (not implemented yet)
+                    if (columns === 0){
+
+                    }
+                };
+            }
+        };
+        return distance;
+    },
+    search: function(node){
+        if (this.previousBoards.length > 0 && node.depth > 0){
+            for (let i = 0; i < this.previousBoards.length; i++) {
+                let repeat = true
+                const board = this.previousBoards[i];
+                for (let j = 0; j < board.length; j++) {
+                    if (board[j] !== node.board[j]){
+                        repeat = false
+                        break;
+                    }
+                }
+                if (repeat){
+                    return
+                }
+            }
+        }
+        
+    	node.valuation = this.valuation(node.board);
+
+        node.nodesBelow = [];
+        if (node.depth === 0){
+            for (let i = 0; i<arrows.length; i++){
+      		    if ((node.prevArrow-i+4)%4 !== 2 && !botCheckWall(arrows[i], node.board)){
+            	    let newNode = {prevArrow: i, board: botArrows(arrows[i], node.board), firstMove: i, depth: node.depth+1}
+            	    node.nodesBelow.push(newNode)
+            	    this.nodesToSearch.push(newNode)
+                
+                }
+            }
+        }else if (node.depth < 12){
+            for (let i = 0; i<arrows.length; i++){
+      		    if ((node.prevArrow-i+4)%4 !== 2 && !botCheckWall(arrows[i], node.board)){
+            	    let newNode = {prevArrow: i, board: botArrows(arrows[i], node.board), firstMove: node.firstMove, depth: node.depth+1}
+            	    node.nodesBelow.push(newNode)
+            	    this.nodesToSearch.push(newNode)
+                
+                }
+            }
+        }
+        
+        
+        
+        if ((this.bestValue.value === null || node.valuation<this.bestValue.value )&& node.depth !== 0){
+            if (node.nodesBelow.length !== 0){
+                this.bestValue.value = node.valuation
+                this.bestValue.move = node.firstMove
+            }
+            
+        }
+    },
+    startSearch: function(){
+        this.bestValue = {value: null, move: null, depth: null},
+        this.nodesToSearch = [{prevArrow: this.prevArrow, valuation: null, nodesBelow:[], board: [], firstMove: null, depth: 0}]
+        this.nodesToSearch[0].board = squarePositions.slice(0)
+        let counter = 0
+        while (counter < this.nodesToSearch.length){
+            this.search(this.nodesToSearch[counter])  
+            counter++
+        }
+    },
+    run: function(randomMoveNumber){
+        if (randomMoveNumber < 0 || randomMoveNumber > 50){
+            this.startSearch()
+            if (this.bestValue.move === null){
+                bot.run(0)
+                console.log("bot struggling")
+            } else {
+                let arrow = this.bestValue.move;
+                this.prevArrow = arrow
+                applyArrows(arrows[arrow], 8, false);
+                if (checkWin()){
+                    return;
+                } 
+                this.previousBoards.push(squarePositions.slice(0))
+                this.timeOutIDBot = setTimeout(function(){
+                    bot.run(-1)
+                }, 50)
+            }
+        } else{
+            let newArrow = Math.floor(Math.random()*4)
+            while ((this.prevArrow-newArrow+4)%4 === 2 || checkWall(arrows[newArrow])){
+                newArrow = Math.floor(Math.random()*4);
+            };
+            applyArrows(arrows[newArrow], 8, false)
+            this.prevArrow = newArrow
+            this.timeOutIDBot = setTimeout(function(){
+                bot.run(randomMoveNumber+1)
+            }, 50)
+        }
+        
+    },
+    startrun: function(){
+        this.stop()
+        this.previousBoards = [];
+        if (!scrambler.scrambling && !checkWin()){
+            this.run(-1)
+        }
+    },
+    stop: function(){
+        clearInterval(this.timeOutIDBot);
+    },
+    nodesToSearch: null,
+    bestValue: null,
+    previousBoards: [],
+    prevArrow: -3
+};
+function scramble(){
+    timer.reset()
+    moveCount = 0;
+    draw()
+    if (scrambler.scrambling){
+    	scrambler.stop();
+    }
+    scrambler.mix(0)
+};
+
+window.onload = function(){
+	init()
+    scramble()
+};
+window.onkeydown = function(e){
+    applyArrows(e.key, 9, false);
+    if (!scrambler.scrambling && !timer.going && !checkWin() && arrows.includes(e.key)){
+        timer.start()
+    };
+};
+window.onclick = function (e) {
+    let xPos = e.clientX;
+    let yPos = e.clientY;
+    //scramble
+    if (xPos>canvas.width/2-130*scaleFactor && xPos<canvas.width/2+130*scaleFactor && yPos>canvas.height/2+currentSize*50*scaleFactor+10*scaleFactor && yPos<canvas.height/2+currentSize*50*scaleFactor+90*scaleFactor){
+        bot.stop()
+        scramble()
+    };
+    //solve
+    if (xPos>canvas.width/2+260*scaleFactor && xPos<canvas.width/2+440*scaleFactor && yPos>canvas.height/2-50*currentSize*scaleFactor-210*scaleFactor-yOffset && yPos<canvas.height/2-50*currentSize*scaleFactor-130*scaleFactor-yOffset){
+        bot.startrun()
+    };
+    //size change
+    for (let i = 0; i<sizes.length; i++){
+    	if(xPos>canvas.width/2-(80+180*(i-2))*scaleFactor && xPos<canvas.width/2-(80+180*(i-2))*scaleFactor+160*scaleFactor && yPos>canvas.height/2+currentSize*50*scaleFactor+110*scaleFactor-yOffset && yPos<canvas.height/2+currentSize*50*scaleFactor+110*scaleFactor-yOffset+87*scaleFactor){
+            sizeIndex = sizes.length-i-1;
+            bot.stop()
+            init()
+            scramble()
+        }
+    }
+    draw()
+}
+window.onresize = function(){
+    let oldSF = scaleFactor;
+    let oldWidth = canvas.width
+    scaleFactor = window.innerHeight/793*((20-currentSize*1.5)/16);
+    canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+    yOffset = 30*scaleFactor;
+    for (let i = 0; i < squaresList.length; i++) {
+        squaresList[i].x -= oldWidth/2
+        squaresList[i].x *= scaleFactor/oldSF
+        squaresList[i].x += canvas.width/2
+        squaresList[i].y *= scaleFactor/oldSF
+    }
+    draw()
+}
+</script>
+</body>
+</html>
+
