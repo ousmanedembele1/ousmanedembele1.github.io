@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title> Treasure</title>
+<style>
+body{
+    background-image: linear-gradient(to right, rgb(56, 21, 21) , rgb(43, 20, 56));
+    color: white;
+    text-align: center;
+    user-select: none;
+    }
+h1{
+    margin: 1vh;
+    font-weight: 900;
+    font-size: 5.5vh;
+}
+p{
+    margin: 1vh;
+    font-size: 4.5vh;
+}
+canvas{
+    margin: 0;
+}
+
+</style>
+</head>
+
+<body>
+    <h1> Find the buried treasure!</h1>
+    <canvas id = "myCanvas" width=1430 height = 808></canvas>
+
+    <img id="x" width = 1 height = 1 src = "x.png">
+    <img id="background" width = 800 height = 800 src = "dark-world-map-animate-background-free-video.png">
+
+    <p id = 'clicks'> Clicks: 0 </p>
+
+    <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+    
+
+    <script>
+    let height = Math.round(window.innerHeight*0.8);
+    let width = Math.round(height*1.7775);
+    let margin = Math.round(height*0.005);
+    let xSize = Math.round(height*0.034);
+    let clickRadius = Math.round(height*0.021)
+    let clicks = 0;
+    let won = false;
+    let image = document.getElementById("x");
+    let background = document.getElementById("background");    
+    let canvas = document.getElementById('myCanvas');
+    canvas.width = width + 2*margin;
+    canvas.height = height + 2*margin;
+    let ctx = canvas.getContext("2d");
+
+    // Pick location of treasure
+    let xPosition = 0;
+    let yPosition = 0;
+    while (xPosition < xSize || xPosition > width-xSize || yPosition<xSize || yPosition>height-xSize){
+        xPosition = Math.floor(Math.random()*width)+margin;
+        yPosition = Math.floor(Math.random()*height)+margin;
+    };
+    
+    $("#x").hide();
+    $("#background").hide();
+
+    //Gradient Border for the canvas
+    let gradient = ctx.createLinearGradient(0,0,width+2*margin, 0);
+    gradient.addColorStop(0,'rgb(152, 206, 168)');
+    gradient.addColorStop(1,"rgb(146, 169, 199)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,width+2*margin,height+2*margin);
+    
+    ctx.drawImage(background,margin,margin,width,height);
+    function mapClicked (event) {
+        ctx.fillStyle = "hsl(0, 83%, 37%)";
+        if (!won){
+            clicks ++;
+            let xPositionClicked = event.offsetX;
+            let yPositionClicked = event.offsetY;
+            let distance = Math.sqrt((xPositionClicked-xPosition)**2 + (yPositionClicked-yPosition)**2);
+            let color = distance*729/(5*window.innerHeight)
+            if (distance < clickRadius){
+                $("#clicks").text("X marks the spot! You took " + clicks + " clicks.");
+                ctx.drawImage(image,xPositionClicked-xSize,yPositionClicked-xSize,2*xSize,2*xSize);
+                won = true;
+                return;
+            };
+            ctx.fillStyle = "hsl("+ color + ", 83%, 37%)";
+            ctx.beginPath();
+            ctx.arc(xPositionClicked, yPositionClicked, clickRadius, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fill();
+            $("#clicks").text("Clicks: " + clicks);
+        };
+    };
+    $("#myCanvas").click(mapClicked);
+    </script>
+</body>
+</html>
