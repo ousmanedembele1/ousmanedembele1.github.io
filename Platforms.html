@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title> Platformer</title>
+<style>
+
+   
+html, body, svg{
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+</style>
+</head>
+
+<body>
+<svg width = "100" height = "100" id = "svg" style = "background-color: black;">
+</svg>
+<script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+<script>
+var playlist = [
+  "goinghigher.mp3",
+  "evolution.mp3",
+  "epic.mp3",
+  "birthofahero.mp3",
+];
+
+var currentSong = Math.floor(Math.random()*4);
+let music = false;
+function rectangularCollision(left1, top1, right1, bottom1, left2, top2, right2, bottom2){
+    if (bottom1>top2 && top1<bottom2 && left1<right2 && right1>left2){
+        return true;
+    }; 
+    return false;
+};
+function startMusic(){
+    var audio = new Audio(playlist[currentSong]);
+
+    audio.addEventListener("ended", function() {
+        currentSong = (currentSong + 1) % playlist.length;
+        audio.src = playlist[currentSong];
+        audio.play();
+    });
+    audio.play();
+    music = true;
+};
+
+function drawDoor(){
+    for (var i=0; i<doorLocations.length; i++){
+        var door = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        door.setAttribute('x', doorLocations[i].x);
+        door.setAttribute('y', doorLocations[i].y);
+        door.setAttribute('width', 100);
+        door.setAttribute('height', 200);
+        door.setAttribute("class","door");
+        door.setAttribute("fill", "lightblue");
+        $("svg").append(door);
+    };
+};
+var dattribute = 0;
+function drawCheckpoints(){
+    for (var i=0; i<checkpoints.length; i++){
+        var  flag = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        var x = checkpoints[i].x-50;
+        var y = checkpoints[i].y-100;
+        dattribute = "M"+x+" "+String(y+200)+"L"+x+' '+y+'L' +String(x+10)+' '+y + 'L' +String(x+100)+' '+String(y+40)+ 'L' +String(x+10)+' '+String(y+80)+ 'L' +String(x+10)+' '+String(y+200)+'Z';
+        flag.setAttribute("class","flag")
+        flag.setAttribute("d", dattribute);
+        flag.setAttribute("fill", 'grey');
+        $("svg").append(flag);
+    };
+};
+function drawText(){
+    for (var i=0; i<texts.length; i++){
+        var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class",'text');
+        text.setAttribute("x", texts[i].x);
+        text.setAttribute("y", texts[i].y);
+        text.setAttribute("fill", 'white');
+        text.setAttribute("font-size", "70px");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("text-anchor", "middle");
+        text.textContent = texts[i].words;
+        $("svg").append(text);
+    };
+};
+function drawPowerups(){
+    for (var i=0; i<powerups.length; i++){
+        var powerup = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        powerup.setAttribute("class", "powerup");
+        powerup.setAttribute('width', powerups[i].rightX-powerups[i].leftX);
+        powerup.setAttribute('height', powerups[i].bottomY-powerups[i].topY);
+        if (powerups[i].hue === 1){
+            powerup.setAttribute('fill', 'white')
+        } else {
+            powerup.setAttribute('fill','hsl('+powerups[i].hue+', 100%, 50%)');
+        }
+        powerup.setAttribute('x', powerups[i].leftX);
+        powerup.setAttribute('y', powerups[i].topY);
+        $("svg").append(powerup);
+    };
+};
+function drawPlatforms(){
+    for (var i=0; i<platforms.length; i++){
+        var platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        platform.setAttribute("class", "platform");
+        platform.setAttribute('width', platforms[i].rightX-platforms[i].leftX);
+        platform.setAttribute('height', platforms[i].bottomY-platforms[i].topY);
+        platform.setAttribute('fill',platforms[i].color);
+        platform.setAttribute('x', platforms[i].leftX);
+        platform.setAttribute('y', platforms[i].topY);
+        $("svg").append(platform);
+    };
+};
+function drawLavas(){
+    for (var i=0; i<lavas.length; i++){
+        var lava = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        lava.setAttribute("class", "lava");
+        lava.setAttribute('width', lavas[i].rightX-lavas[i].leftX);
+        lava.setAttribute('height', lavas[i].bottomY-lavas[i].topY);
+        lava.setAttribute('fill','red');
+        lava.setAttribute('x', lavas[i].leftX);
+        lava.setAttribute('y', lavas[i].topY);
+        $("svg").append(lava);
+    };
+};
+function drawFakePlatforms(){
+    for (var i=0; i<fakePlatforms.length; i++){
+        var fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        fakePlatform.setAttribute("class", "fakeplatform");
+        fakePlatform.setAttribute('width', fakePlatforms[i].rightX-fakePlatforms[i].leftX);
+        fakePlatform.setAttribute('height', fakePlatforms[i].bottomY-fakePlatforms[i].topY);
+        fakePlatform.setAttribute('fill','white');
+        fakePlatform.setAttribute('x', fakePlatforms[i].leftX);
+        fakePlatform.setAttribute('y', fakePlatforms[i].topY);
+        $("svg").append(fakePlatform);
+    };
+};
+function checkPortal (){
+    var i = level-1;
+    if (level > doorLocations.length){
+        return false;
+    };
+    if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, doorLocations[i].x, doorLocations[i].y, doorLocations[i].x+100, doorLocations[i].y+200)){
+        return true;
+    };
+    return false;
+};
+function epicGamer(){
+    for (var i=0; i<fakePlatforms.length; i++){
+        if (fakePlatforms[i].level===1 & level === 1){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, fakePlatforms[i].leftX, fakePlatforms[i].topY, fakePlatforms[i].rightX, fakePlatforms[i].bottomY)){
+                return true;
+            }
+        };
+    };
+    return false;
+}
+function colliding (){
+    for (var i=0; i<platforms.length; i++){
+        if (platforms[i].level===level){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, platforms[i].leftX, platforms[i].topY, platforms[i].rightX, platforms[i].bottomY)){
+                return [true, platforms[i]];
+            }
+        };
+    };
+    return [false, null];
+};
+function checkLavas (){
+    for (var i=0; i<lavas.length; i++){
+        if (lavas[i].level===level){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, lavas[i].leftX, lavas[i].topY, lavas[i].rightX, lavas[i].bottomY)){
+                return true;
+            };
+        };
+    };
+    return false;
+};
+function checkPowerup (){
+    for (var i=0; i<powerups.length; i++){
+        if (powerups[i].level===level && powerups[i].collected === false){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, powerups[i].leftX, powerups[i].topY, powerups[i].rightX, powerups[i].bottomY)){
+                return [true, i];
+            };
+        };
+    };
+    return [false, null];
+};
+function checkCheckpoint (){
+    for (var i=0; i<checkpoints.length; i++){
+        if (checkpoints[i].level===level){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, checkpoints[i].x, checkpoints[i].y, checkpoints[i].x+100, checkpoints[i].y+200)){
+                return [true, i];
+            };
+        };
+    };
+    return [false, null];
+};
+function respawn (){
+    currentPowerup = '';
+    sprite.setAttribute('fill','red');
+    for (var i=0; i<powerups.length; i++){
+        powerups[i].collected = false;
+    };
+    player.xVelocity = 0;
+    player.yVelocity = 0;
+    player.width = 100;
+    player.height = 100;
+    if (currentCheckpoint>-1){
+        player.xPos = checkpoints[currentCheckpoint].x;
+        player.yPos = checkpoints[currentCheckpoint].y;    
+    } else {
+        player.xPos = levelStats[level-1].startX;
+        player.yPos = levelStats[level-1].startY;
+    }
+    
+};
+var player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
+var deaths = 0;
+var time = 0;
+var jumps = 2;
+var ready = false;
+var level = 4;
+var xScroll = 0;
+var levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*1, startX: 40, startY: 500}, {maxX: 1920*1, startX: 40, startY: 500}];
+var lavas = [];
+var powerups = [];
+var platforms = [];
+var texts = [];
+var checkpoints = [];
+var doorLocations = [];
+var fakePlatforms = [];
+var currentPowerup = '';
+var keyCodes = {
+    37: 'left',
+    38: 'up',
+    39: 'right',
+    40: 'down',
+    65: 'a',
+    68: 'd',
+    82: 'r',
+    83: 's',
+    87: 'w'
+};
+var keysPressed = {
+    left: false,
+    up: false,
+    right: false,
+    down: false
+};
+var widthScaleFactor= window.innerWidth/1920;
+var heightScaleFactor= window.innerHeight/930;
+var currentCheckpoint=-1;
+
+var gameState = 'starting';
+player.xPos = levelStats[level-1].startX;
+player.yPos = levelStats[level-1].startY;
+player.xVelocity = 0;
+player.yVelocity = 0;
+var grounded = false;
+var doorsVariable = document.getElementsByClassName("door");
+var platformsVariable = document.getElementsByClassName("platform");
+var textsVariable = document.getElementsByClassName("text");
+var flagsVariable = document.getElementsByClassName("flag");
+var fakePlatformsVariable = document.getElementsByClassName("fakeplatform");
+var powerupsVariable = document.getElementsByClassName("powerup");
+var lavasVariable = document.getElementsByClassName("lava");
+var svgElement = document.getElementById('svg');
+// add platforms
+fakePlatforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 3180,
+    bottomY: 930,
+    level: 1
+});
+fakePlatforms.push({
+    leftX: 2980,
+    topY: 480,
+    rightX: 3380,
+    bottomY: 930,
+    level: 1
+});
+
+fakePlatforms.push({
+    leftX: 1920*2,
+    topY: 780,
+    rightX: 1920*2+800,
+    bottomY: 930,
+    level: 2
+});
+fakePlatforms.push({
+    leftX: 1920*2+500,
+    topY: 450,
+    rightX: 1920*2+700,
+    bottomY: 500,
+    level: 2
+});
+platforms.push({
+    leftX: 0,
+    topY: 905,
+    rightX: 4500,
+    bottomY: 930,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 100,
+    topY: 780,
+    rightX: 2990,
+    bottomY: 805,
+    level: 1,
+    color: 'white'
+});
+//stairs
+
+platforms.push({
+    leftX: 2380,
+    topY: 680,
+    rightX: 2590,
+    bottomY: 800,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 2580,
+    topY: 580,
+    rightX: 2790,
+    bottomY: 800,
+    level: 1,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 2780,
+    topY: 480,
+    rightX: 3040,
+    bottomY: 805,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 2980,
+    topY: 380,
+    rightX: 3190,
+    bottomY: 520,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 3180,
+    topY: 280,
+    rightX: 3380,
+    bottomY: 520,
+    level: 1,
+    color: 'white'
+});
+
+
+platforms.push({
+    leftX: 3180,
+    topY: 780,
+    rightX: 4500,
+    bottomY: 930,
+    level: 1,
+    color: 'white'
+});
+
+
+platforms.push({
+    leftX: 3180,
+    topY: 650,
+    rightX: 3380,
+    bottomY: 800,
+    level: 1,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 5100,
+    topY: 780,
+    rightX: 6160,
+    bottomY: 930,
+    level: 1,
+    color: 'white'
+});
+
+//SMALL platform
+platforms.push({
+    leftX: 6640,
+    topY: 780,
+    rightX: 6800,
+    bottomY: 800,
+    level: 1,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 7280,
+    topY: 780,
+    rightX: 7630,
+    bottomY: 930,
+    level: 1,
+    color: 'white'
+});
+// teeny platforms
+platforms.push({
+    leftX: 8160,
+    topY: 580,
+    rightX: 8250,
+    bottomY: 600,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 8710,
+    topY: 480,
+    rightX: 8800,
+    bottomY: 500,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 9360,
+    topY: 680,
+    rightX: 9450,
+    bottomY: 700,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 9660,
+    topY: 360,
+    rightX: 9760,
+    bottomY: 380,
+    level: 1,
+    color: 'white'
+});
+platforms.push({
+    leftX: 10550,
+    topY: 780,
+    rightX: 12470,
+    bottomY: 930,
+    level: 1,
+    color: 'white'
+});
+
+// 3 lines 
+platforms.push({
+    leftX: 0,
+    topY: 880,
+    rightX: 500,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 600,
+    rightX: 500,
+    bottomY: 650,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 320,
+    rightX: 500,
+    bottomY: 370,
+    level: 2,
+    color: 'white'
+});
+// hovering
+platforms.push({
+    leftX: 1200,
+    topY: 220,
+    rightX: 1400,
+    bottomY: 270,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 2100,
+    topY: 420,
+    rightX: 2300,
+    bottomY: 470,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 3000,
+    topY: 620,
+    rightX: 3200,
+    bottomY: 670,
+    level: 2,
+    color: 'white'
+});
+
+//base
+platforms.push({
+    leftX: 1920*2,
+    topY: 780,
+    rightX: 1920*2.5-600,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*3.5+600,
+    topY: 780,
+    rightX: 1920*5,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*5-250,
+    topY:705,
+    rightX: 1920*5-200,
+    bottomY: 755,
+    effect: 'doubleJump',
+    level: 2,
+    hue: 270,
+    collected: false
+});
+// invisible platforms
+platforms.push({
+    leftX: 1920*2+650,
+    topY: 880,
+    rightX: 1920*2+850,
+    bottomY: 930,
+    level: 2,
+    color: 'black'
+});
+platforms.push({
+    leftX: 1920*2+900,
+    topY: 270,
+    rightX: 1920*2+1100,
+    bottomY: 320,
+    level: 2,
+    color: 'black'
+});
+platforms.push({
+    leftX: 1920*2+1300,
+    topY: 580,
+    rightX: 1920*2+1500,
+    bottomY: 630,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2+1450,
+    topY: 150,
+    rightX: 1920*2+1650,
+    bottomY: 200,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*3+700,
+    topY: 550,
+    rightX: 1920*3+900,
+    bottomY: 600,
+    level: 2,
+    color: 'white'
+});
+// base
+platforms.push({
+    leftX: 1920*3.5+600,
+    topY: 780,
+    rightX: 1920*5,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*6,
+    topY: 780,
+    rightX: 1920*6.5-300,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*6.5+100,
+    topY: 180,
+    rightX: 1920*7-300,
+    bottomY: 230,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*8,
+    topY: 780,
+    rightX: 1920*9,
+    bottomY: 930,
+    level: 2,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 1920,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920-75,
+    topY:705,
+    rightX: 1920-25,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: 3,
+    hue: 20,
+    collected: false
+});
+platforms.push({
+    leftX: 1920,
+    topY: 0,
+    rightX: 1920*1.5 - 300,
+    bottomY: 150,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*1.5-75,
+    topY: 400,
+    rightX: 1920*1.5+75,
+    bottomY: 450,
+    level: 3,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 1920*2-75,
+    topY: 550,
+    rightX: 1920*2+75,
+    bottomY: 600,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5-75,
+    topY: 250,
+    rightX: 1920*2.5+75,
+    bottomY: 300,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*3,
+    topY: 0,
+    rightX: 1920*3.5,
+    bottomY: 150,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*3.5+200,
+    topY: 550,
+    rightX: 1920*3.5+350,
+    bottomY: 600,
+    level: 3,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*3.5+250,
+    topY:470,
+    rightX: 1920*3.5+300,
+    bottomY: 520,
+    effect: '',
+    level: 3,
+    hue: 0,
+    collected: false
+});
+platforms.push({
+    leftX: 1920*4,
+    topY: 780,
+    rightX: 1920*4.5+700,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5+100,
+    topY: 220,
+    rightX: 1920*4.5+200,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5-100,
+    topY: 500,
+    rightX: 1920*4.5+200,
+    bottomY: 550,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5-100,
+    topY: 220,
+    rightX: 1920*4.5+200,
+    bottomY: 270,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5+350,
+    topY: -700,
+    rightX: 1920*4.5+450,
+    bottomY: 680,
+    level: 3,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*4.5+375,
+    topY:705,
+    rightX: 1920*4.5+425,
+    bottomY: 755,
+    effect: 'inverse',
+    level: 3,
+    hue: 240,
+    collected: false
+});
+platforms.push({
+    leftX: 1920*4.5+600,
+    topY: 520,
+    rightX: 1920*4.5+700,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+lavas.push({
+    leftX: 1920*6-200,
+    rightX: 1920*6-150,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-550,
+    rightX: 1920*6-500,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-900,
+    rightX: 1920*6-850,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-1250,
+    rightX: 1920*6-1200,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-1600,
+    rightX: 1920*6-1550,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-1950,
+    rightX: 1920*6-1900,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+lavas.push({
+    leftX: 1920*6-2300,
+    rightX: 1920*6-2250,
+    topY: 309,
+    bottomY: 360,
+    level: 3
+});
+platforms.push({
+    leftX: 1920*4.5+440,
+    topY: 310,
+    rightX: 1920*6,
+    bottomY: 410,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*6-2300,
+    topY: 100,
+    rightX: 1920*6+200,
+    bottomY: 110,
+    level: 3,
+    color: 'white'
+});
+
+
+// small platforms
+platforms.push({
+    leftX: 1920*5+200,
+    topY: 900,
+    rightX: 1920*5+300,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*5+860,
+    topY: 900,
+    rightX: 1920*5+960,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*5+1520,
+    topY: 900,
+    rightX: 1920*5+1620,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*6+150,
+    topY: 650,
+    rightX: 1920*6+250,
+    bottomY: 680,
+    level: 3,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*6+175,
+    topY:575,
+    rightX: 1920*6+225,
+    bottomY: 625,
+    effect: '',
+    level: 3,
+    hue: 0,
+    collected: false
+});
+
+platforms.push({
+    leftX: 1920*6.5+650,
+    topY: 830,
+    rightX: 1920*7.5,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+lavas.push({
+    leftX: 13615,
+    rightX: 14015,
+    topY: 829,
+    bottomY: 930,
+    level: 3
+});
+powerups.push({
+    leftX: 1920*7.5+180,
+    topY:570,
+    rightX: 1920*7.5+230,
+    bottomY: 620,
+    effect: 'Lengthen',
+    level: 3,
+    hue: 70,
+    collected: false
+});
+platforms.push({
+    leftX: 1920*7.5+200,
+    topY: 630,
+    rightX: 1920*7.5+210,
+    bottomY: 640,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*8,
+    topY: 430,
+    rightX: 1920*8+10,
+    bottomY: 440,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*8+500,
+    topY: 230,
+    rightX: 1920*8+510,
+    bottomY: 240,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*8.5+800,
+    topY: 920,
+    rightX: 1920*8.5+810,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*9,
+    topY: 580,
+    rightX: 1920*9+10,
+    bottomY: 590,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*9+500,
+    topY: 280,
+    rightX: 1920*9+510,
+    bottomY: 290,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*10-100,
+    topY: 780,
+    rightX: 1920*10.5-400,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*10.5+200,
+    topY: 780,
+    rightX: 1920*11,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*10.5+400,
+    topY: 430,
+    rightX: 1920*11,
+    bottomY: 480,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*11-50,
+    topY: 440,
+    rightX: 1920*11,
+    bottomY: 880,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*10.5+400,
+    topY: 440,
+    rightX: 1920*10.5+450,
+    bottomY: 680,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*11-400,
+    topY: 600,
+    rightX: 1920*11-350,
+    bottomY: 880,
+    level: 3,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 1920*11+460,
+    topY: 280,
+    rightX: 1920*11+580,
+    bottomY: 290,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*11.5+260,
+    topY: 580,
+    rightX: 1920*11.5+380,
+    bottomY: 590,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*12+260,
+    topY: 480,
+    rightX: 1920*12+380,
+    bottomY: 490,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*12.5-20,
+    topY: 560,
+    rightX: 1920*12.5+100,
+    bottomY: 570,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*12.5+360,
+    topY: 920,
+    rightX: 1920*12.5+480,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*13,
+    topY: 780,
+    rightX: 1920*14,
+    bottomY: 930,
+    level: 3,
+    color: 'white'
+});
+lavas.push({
+    leftX: 1920*13.5-275,
+    rightX: 1920*13.5-225,
+    topY: 550,
+    bottomY: 780,
+    level: 3
+});
+
+lavas.push({
+    leftX: 1920*13.5+225,
+    rightX: 1920*13.5+275,
+    topY: 550,
+    bottomY: 780,
+    level: 3
+});
+platforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 1920,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 1920,
+    bottomY: 930,
+    level: 5,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 0,
+    rightX: 1920,
+    bottomY: 150,
+    level: 5,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*0.5-175,
+    topY:705,
+    rightX: 1920*0.5-125,
+    bottomY: 755,
+    effect: '',
+    level: 5,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 25,
+    topY:175,
+    rightX: 75,
+    bottomY: 225,
+    effect: '',
+    level: 5,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 1920-75,
+    topY:175,
+    rightX: 1920-25,
+    bottomY: 225,
+    effect: '',
+    level: 5,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-100,
+    topY:705,
+    rightX: 1920*0.5-50,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: 5,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-250,
+    topY:705,
+    rightX: 1920*0.5-200,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: 5,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+200,
+    topY:705,
+    rightX: 1920*0.5+250,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: 5,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-25,
+    topY:705,
+    rightX: 1920*0.5+25,
+    bottomY: 755,
+    effect: 'Lengthen',
+    level: 5,
+    hue: 70,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+50,
+    topY:705,
+    rightX: 1920*0.5+100,
+    bottomY: 755,
+    effect: 'inverse',
+    level: 5,
+    hue: 240,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+125,
+    topY:705,
+    rightX: 1920*0.5+175,
+    bottomY: 755,
+    effect: 'doubleJump',
+    level: 5,
+    hue: 270,
+    collected: false
+});
+texts.push({
+    x: 960,
+    y:100,
+    words: "Use 🢀 and 🢂  or A and D to move",
+    level: 1
+});
+texts.push({
+    x: 2880,
+    y:100,
+    words: "Use 🢁  or W to jump",
+    level: 1
+});
+texts.push({
+    x: 4800,
+    y:100,
+    words: "Don't fall!",
+    level: 1
+});
+texts.push({
+    x: 6720,
+    y:100,
+    words: "Use 🢃 or S to drop",
+    level: 1
+});
+texts.push({
+    x: 8640,
+    y:100,
+    words: "Checkpoints save your progress",
+    level: 1
+});
+texts.push({
+    x: 11630,
+    y:100,
+    words: "Reach the portal to move on to the next level",
+    level: 1
+});
+texts.push({
+    x: 1920/2,
+    y:100,
+    words: "Physics sometimes doesn't apply!",
+    level: 2
+});
+texts.push({
+    x: 1920*2.5,
+    y:100,
+    words: "Things are not always as they seem...",
+    level: 2
+});
+texts.push({
+    x: 1920*4.5,
+    y:100,
+    words: "A powerup! Maybe it will help!",
+    level: 2
+});
+texts.push({
+    x: 1920*0.5,
+    y:100,
+    words: "Powerups can do many different things",
+    level: 3
+});
+texts.push({
+    x: 1920*1.5,
+    y: 830,
+    words: "Press r to reset the game at any time",
+    level: 3
+});
+texts.push({
+    x: 1920*3.5,
+    y:830,
+    words: "Red powerups return you to your normal state",
+    level: 3
+});
+texts.push({
+    x: 1920*4.5,
+    y:100,
+    words: "What's this powerup?",
+    level: 3
+});
+texts.push({
+    x: 1920*5.5,
+    y:655,
+    words: "I don't think that lava is good for you...",
+    level: 3
+});
+texts.push({
+    x: 1920*7+375,
+    y:100,
+    words: "This powerup looks interesting...",
+    level: 3
+});
+texts.push({
+    x: 1920*13.5,
+    y:100,
+    words: "What next?",
+    level: 3
+});
+texts.push({
+    x: 1920*0.5,
+    y:465-120,
+    words: "You win!",
+    level: 5
+});
+texts.push({
+    x: 1920*0.5,
+    y:465-40,
+    words: "Reach the portal to restart",
+    level: 5
+});
+texts.push({
+    x: 1920*0.5,
+    y:465+40,
+    words: "Time: ",
+    level: 5
+});
+texts.push({
+    x: 1920*0.5,
+    y:465+120,
+    words: "Deaths: ",
+    level: 5
+});
+checkpoints.push({
+	x:7530,
+    y:580,
+    reached: false,
+    level: 1
+});
+checkpoints.push({
+	x:1920*2,
+    y:580,
+    reached: false,
+    level: 2
+});
+checkpoints.push({
+	x:1920*3.5+600,
+    y:580,
+    reached: false,
+    level: 2
+});
+checkpoints.push({
+	x:1920*4,
+    y:580,
+    reached: false,
+    level: 3
+});
+checkpoints.push({
+    x: 1920*6.5+750,
+    y: 630,
+    reached: false,
+    level: 3
+});
+checkpoints.push({
+    x: 1920*14-300,
+    y: 580,
+    reached: false,
+    level: 3
+});
+doorLocations.push({
+    x:12270,
+    y:580
+});
+doorLocations.push({
+    x:1920*9-200,
+    y:580
+});
+doorLocations.push({
+    x:1920*11-300,
+    y:580
+});
+doorLocations.push({
+    x:1920-100,
+    y:580
+});
+doorLocations.push({
+    x:1920-100,
+    y:580
+});
+drawPlatforms();
+drawPowerups();
+drawCheckpoints();
+drawLavas();
+drawFakePlatforms();
+drawText();
+drawDoor();
+var sprite = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+sprite.setAttribute("id", "mySprite");
+sprite.setAttribute('width', player.width);
+sprite.setAttribute('height', player.height);
+sprite.setAttribute('fill','red');
+sprite.setAttribute('x', 0);
+sprite.setAttribute('y', 0);
+$("svg").append(sprite);
+var border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+border.setAttribute('x', 0);
+border.setAttribute('y', 0);
+border.setAttribute('width', 251);
+border.setAttribute('height', 121);
+border.setAttribute("fill", "white");
+$("svg").append(border);
+var box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+box.setAttribute('x', 0);
+box.setAttribute('y', 0);
+box.setAttribute('width', 250);
+box.setAttribute('height', 120);
+box.setAttribute("fill", "black");
+$("svg").append(box);
+var deathCount = document.createElementNS("http://www.w3.org/2000/svg", "text");
+deathCount.setAttribute("x", 125);
+deathCount.setAttribute("y", 90);
+deathCount.setAttribute("fill", 'white');
+deathCount.setAttribute("font-size", "40px");
+deathCount.setAttribute("font-weight", "bold");
+deathCount.setAttribute("text-anchor", "middle");
+deathCount.textContent = 'Deaths:';
+$("svg").append(deathCount);
+var timer = document.createElementNS("http://www.w3.org/2000/svg", "text");
+timer.setAttribute("x", 125);
+timer.setAttribute("y", 40);
+timer.setAttribute("fill", 'white');
+timer.setAttribute("font-size", "30px");
+timer.setAttribute("font-weight", "bold");
+timer.setAttribute("text-anchor", "middle");
+timer.textContent = 'Deaths:';
+$("svg").append(timer);
+
+
+
+svgElement.setAttribute('width',window.innerWidth);
+svgElement.setAttribute('height',window.innerHeight);
+function mainLoop(){
+    if (gameState === 'playing'){
+        time+=1;
+    }
+    if (checkPowerup()[0]){
+        sprite.setAttribute('fill', 'hsl('+powerups[checkPowerup()[1]].hue+', 100%,50%)');
+        currentPowerup = powerups[checkPowerup()[1]].effect;
+        powerups[checkPowerup()[1]].collected = true;
+        if (currentPowerup === 'Lengthen'){
+            player.xPos-=100-player.width/2
+            player.width = 200;
+        } else if (player.width === 200){
+        	player.width = 100;
+        	player.xPos+=100-player.width/2
+        }
+    };
+
+    widthScaleFactor= window.innerWidth/1920;
+    heightScaleFactor= window.innerHeight/930;
+
+    
+
+    svgElement.setAttribute('width',window.innerWidth);
+    svgElement.setAttribute('height',window.innerHeight);
+
+    if (currentPowerup ==='doubleJump'){
+        player.xVelocity*= 29/32;
+        player.yVelocity += 1;
+        if (grounded){
+            jumps = 2;
+            if ((keysPressed['up'] || keysPressed['w']) && !(keysPressed['down'] || keysPressed['s'])){
+                player.yVelocity = -27;
+                grounded = false;
+                jumps -= 1;
+            }; 
+        } else if ((keysPressed['up'] || keysPressed['w']) && !(keysPressed['down'] || keysPressed['s']) && jumps >0 && ready){
+            player.yVelocity = -27;
+            grounded = false;
+            jumps -= 1;
+        };
+        if (!(keysPressed['up'] || keysPressed['w'])){
+            ready = true;
+        } else {
+            ready = false;
+        };
+        if ((keysPressed['left'] || keysPressed['a'])){
+            player.xVelocity -=2;
+        };
+        if ((keysPressed['right'] || keysPressed['d'])){
+            player.xVelocity +=2;
+        };
+        if ((keysPressed['down'] || keysPressed['s'])){
+            player.yVelocity += 20;
+        };
+
+        if (player.yPos + player.height>=930){
+            deaths+=1;
+            respawn();
+        };
+    } else if (currentPowerup === 'upsideDown'){
+        player.xVelocity*= 29/32;
+        player.yVelocity -= 1;
+        if ((keysPressed['up'] || keysPressed['w']) && grounded && !(keysPressed['down'] || keysPressed['s'])){
+            player.yVelocity = 27;
+            grounded = false;
+        };
+        if ((keysPressed['down'] || keysPressed['s'])){
+            player.yVelocity -= 20;
+        };
+        if ((keysPressed['right'] || keysPressed['d'])){
+            player.xVelocity +=2;
+        };
+        if ((keysPressed['left'] || keysPressed['a'])){
+            player.xVelocity -=2;
+        };
+
+        if (player.yPos <= 0){
+            deaths+=1;
+            respawn();
+        };
+    } else if (currentPowerup === 'inverse'){
+        player.xVelocity*= 29/32;
+        player.yVelocity += 1;
+        if ((keysPressed['down'] || keysPressed['s']) && grounded && !(keysPressed['up'] || keysPressed['w'])){
+        player.yVelocity = -27;
+        grounded = false;
+        };
+        if ((keysPressed['left'] || keysPressed['a'])){
+        player.xVelocity +=2;
+        };
+        if ((keysPressed['up'] || keysPressed['w'])){
+            player.yVelocity += 20;
+        };
+        if ((keysPressed['right'] || keysPressed['d'])){
+            player.xVelocity -=2;
+        };
+
+        if (player.yPos + player.height>=930){
+            deaths+=1;
+            respawn();
+        };
+    } else {
+        player.xVelocity*= 0.9;
+        player.yVelocity += 1;
+        if ((keysPressed['up'] || keysPressed['w']) && grounded && !(keysPressed['down'] || keysPressed['s'])){
+        player.yVelocity = -27;
+        grounded = false;
+        };
+        if ((keysPressed['right'] || keysPressed['d'])){
+        player.xVelocity +=2;
+        };
+        if ((keysPressed['down'] || keysPressed['s'])){
+            player.yVelocity += 20;
+        };
+        if ((keysPressed['left'] || keysPressed['a'])){
+            player.xVelocity -=2;
+        };
+
+        if (player.yPos + player.height>=930){
+            deaths+=1;
+            respawn();
+        };
+    };
+    if (keysPressed['r'] && level !=5){
+        level = 1;
+        currentCheckpoint = -1;
+        for (var i = 0; i<checkpoints.length; i++) {
+            checkpoints[i].reached = false;
+        };
+        currentPowerup = '';
+        respawn();
+        gameState = 'starting';
+        time = 0;
+        deaths = 0;
+    }
+    if (checkLavas()){
+        deaths+=1;
+        respawn();
+    };
+    timer.setAttribute("x",125*widthScaleFactor);
+    timer.setAttribute("y",40*heightScaleFactor);
+    timer.setAttribute("font-size",30*Math.min(heightScaleFactor,widthScaleFactor)+'px');
+    if (time%100 === 0){
+        timer.textContent = 'Time: ' + time/100+'.00';  
+    } else if(time%100 <10){
+        timer.textContent = 'Time: ' + (time-time%100)/100+'.0'+time%100;
+    } else {
+        timer.textContent = 'Time: ' + (time-time%100)/100+'.'+time%100;
+    }
+    deathCount.setAttribute("x",125*widthScaleFactor);
+    deathCount.setAttribute("y",90*heightScaleFactor);
+    deathCount.setAttribute("font-size",40*Math.min(heightScaleFactor,widthScaleFactor)+'px');
+    deathCount.textContent = 'Deaths: ' + deaths;
+    border.setAttribute("width",250*widthScaleFactor+1);
+    border.setAttribute("height",120*heightScaleFactor+1);
+    box.setAttribute("width",250*widthScaleFactor);
+    box.setAttribute("height",120*heightScaleFactor);
+    if (level < 5){
+        box.style.display = 'inline';
+        border.style.display = 'inline';
+        deathCount.style.display = 'inline';
+        timer.style.display = 'inline';
+    } else {
+        box.style.display = 'none';
+        border.style.display = 'none';
+        deathCount.style.display = 'none';
+        timer.style.display = 'none';
+    };
+    for (var i=0; i<platformsVariable.length; i++){
+        if (platforms[i].level ===level){
+            platformsVariable[i].style.display = 'inline';
+        } else {
+            platformsVariable[i].style.display = 'none';
+        }
+        platformsVariable[i].setAttribute('x', (platforms[i].leftX-xScroll)*widthScaleFactor);
+        platformsVariable[i].setAttribute('y',(platforms[i].topY)*heightScaleFactor);
+        platformsVariable[i].setAttribute('width', (platforms[i].rightX-platforms[i].leftX)*widthScaleFactor);
+        platformsVariable[i].setAttribute('height', (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
+    };
+
+    for (var i=0; i<lavasVariable.length; i++){
+        if (lavas[i].level ===level){
+            lavasVariable[i].style.display = 'inline';
+        } else {
+            lavasVariable[i].style.display = 'none';
+        };
+        lavasVariable[i].setAttribute('x', (lavas[i].leftX-xScroll)*widthScaleFactor);
+        lavasVariable[i].setAttribute('y',(lavas[i].topY)*heightScaleFactor);
+        lavasVariable[i].setAttribute('width', (lavas[i].rightX-lavas[i].leftX)*widthScaleFactor);
+        lavasVariable[i].setAttribute('height', (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
+    };
+    for (var i=0; i<powerupsVariable.length; i++){
+        if (powerups[i].level ===level && !powerups[i].collected){
+            powerupsVariable[i].style.display = 'inline';
+        } else {
+            powerupsVariable[i].style.display = 'none';
+        }
+        powerupsVariable[i].setAttribute('x', (powerups[i].leftX-xScroll)*widthScaleFactor);
+        powerupsVariable[i].setAttribute('y',(powerups[i].topY)*heightScaleFactor);
+        powerupsVariable[i].setAttribute('width', (powerups[i].rightX-powerups[i].leftX)*widthScaleFactor);
+        powerupsVariable[i].setAttribute('height', (powerups[i].bottomY-powerups[i].topY)*heightScaleFactor);
+    };
+    for (var i=0; i<fakePlatformsVariable.length; i++){
+        if (fakePlatforms[i].level ===level){
+            fakePlatformsVariable[i].style.display = 'inline';
+            if (level === 1){
+                if (epicGamer()){
+                    fakePlatformsVariable[i].style.display = 'none'
+                } else {
+                    fakePlatformsVariable[i].style.display = 'inline'
+                }
+            }
+        } else {
+            fakePlatformsVariable[i].style.display = 'none';
+        }
+        fakePlatformsVariable[i].setAttribute('x', (fakePlatforms[i].leftX-xScroll)*widthScaleFactor);
+        fakePlatformsVariable[i].setAttribute('y',(fakePlatforms[i].topY)*heightScaleFactor);
+        fakePlatformsVariable[i].setAttribute('width', (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
+        fakePlatformsVariable[i].setAttribute('height', (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
+    };
+    
+    sprite.setAttribute('width', player.width*widthScaleFactor);
+    sprite.setAttribute('height', player.height*heightScaleFactor);
+    for (var i=0; i<textsVariable.length; i++){
+        if (texts[i].level ===level){
+            textsVariable[i].style.display = 'inline';
+            if (level === 5){
+                if (texts[i].words === "Deaths: "){
+                    textsVariable[i].textContent = "Deaths: " + deaths;
+                } else if (texts[i].words === "Time: "){
+                    if (time%100 === 0){
+                        textsVariable[i].textContent = 'Time: ' + time/100+'.00';  
+                    } else if(time%100 <10){
+                        textsVariable[i].textContent = 'Time: ' + (time-time%100)/100+'.0'+time%100;
+                    } else {
+                        textsVariable[i].textContent = 'Time: ' + (time-time%100)/100+'.'+time%100;
+                    }
+                };
+            };
+        } else {
+            textsVariable[i].style.display = 'none';
+        }
+        textsVariable[i].setAttribute('x', (texts[i].x-xScroll)*widthScaleFactor);
+        textsVariable[i].setAttribute('y',(texts[i].y)*heightScaleFactor);
+        textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
+    };
+    for (var i=0; i<doorsVariable.length; i++){
+        if (i+1 === level){
+            doorsVariable[i].style.display = 'inline';
+        } else {
+            doorsVariable[i].style.display = 'none';
+        }
+        doorsVariable[i].setAttribute('x', (doorLocations[i].x-xScroll)*widthScaleFactor);
+        doorsVariable[i].setAttribute('y',(doorLocations[i].y)*heightScaleFactor);
+        doorsVariable[i].setAttribute('width', 100*widthScaleFactor);
+        doorsVariable[i].setAttribute('height', 200*heightScaleFactor);
+    };
+    
+    for (var i=0; i<flagsVariable.length; i++){
+        if (checkpoints[i].level ===level){
+            flagsVariable[i].style.display = 'inline';
+        } else {
+            flagsVariable[i].style.display = 'none';
+        }
+        var x = checkpoints[i].x-xScroll;
+        var y = checkpoints[i].y;
+        dattribute = "M"+x*widthScaleFactor+" "+String((y+200)*heightScaleFactor)+"L"+x*widthScaleFactor+' '+y*heightScaleFactor+'L' +String((x+10)*widthScaleFactor)+' '+y*heightScaleFactor + 'L' +String((x+100)*widthScaleFactor)+' '+String((y+40)*heightScaleFactor)+ 'L' +String((x+10)*widthScaleFactor)+' '+String((y+80)*heightScaleFactor)+ 'L' +String((x+10)*widthScaleFactor)+' '+String((y+200)*heightScaleFactor)+'Z';
+        flagsVariable[i].setAttribute("d", dattribute);
+        if (checkpoints[i].reached){
+            flagsVariable[i].setAttribute("fill", 'DarkTurquoise');
+        } else {
+            flagsVariable[i].setAttribute("fill", "grey");
+        }
+    };
+    for(var i = 0; i<32; i++){
+        player.xPos += player.xVelocity/32
+        if (colliding()[0]){
+            if (player.xVelocity>0){
+                player.xPos = colliding()[1].leftX - player.width;
+                player.xVelocity = 0;
+            } else {
+                player.xPos = colliding()[1].rightX;
+                player.xVelocity = 0;
+            };
+        };
+    };
+
+    for (var i =0; i<128; i++){
+        player.yPos += player.yVelocity/128;
+        if (colliding()[0]){
+            if ((player.yVelocity>=0 && currentPowerup != 'upsideDown') || (player.yVelocity<=0 && currentPowerup === 'upsideDown')){
+                if (currentPowerup === 'upsideDown'){
+                    player.yPos = colliding()[1].bottomY;
+                } else {
+                    player.yPos = colliding()[1].topY -player.height;
+                }
+                player.yVelocity = 0;
+                grounded = true;
+                break;
+            } else {
+                if (currentPowerup === 'upsideDown'){
+                    grounded = false;
+                    player.yPos = colliding()[1].topY-100;
+                    player.yVelocity = 0;
+                    break;
+                } else{
+                    grounded = false;
+                    player.yPos = colliding()[1].bottomY;
+                    player.yVelocity = 0;
+                    break;
+                }
+            }
+        } else {
+            grounded = false;
+        };
+    };
+    if (level === 5){
+        gameState = 'won';
+    };
+
+    if (checkPortal()){
+        if (level === 5){
+            level=1;
+            time=0;
+            deaths = 0;
+            gameState = 'starting'
+            currentPowerup = '';
+            sprite.setAttribute('fill','red')
+            for (var i = 0; i<checkpoints.length; i++) {
+                checkpoints[i].reached = false;
+            };
+        } else {
+            level+=1;
+        }
+        currentCheckpoint = -1;
+        respawn();
+    };
+    if (player.xPos < 0){
+        player.xPos = 0;
+    };
+    
+    sprite.setAttribute('y',player.yPos*heightScaleFactor);
+    if (player.xPos+player.width/2 < 960){
+        sprite.setAttribute('x',player.xPos*widthScaleFactor);
+        xScroll = 0;
+    };
+    if (player.xPos+player.width/2>=960){
+        sprite.setAttribute('x', (960-player.width/2)*widthScaleFactor);
+        xScroll = player.xPos+player.width/2-960
+    };
+    if (player.xPos+player.width/2>=levelStats[level-1].maxX-960){
+        if (player.xPos+player.width>levelStats[level-1].maxX){
+            player.xPos = levelStats[level-1].maxX-player.width;
+        };
+        sprite.setAttribute('x', (1920-levelStats[level-1].maxX+player.xPos)*widthScaleFactor);
+        xScroll = levelStats[level-1].maxX-1920;
+    };
+    
+    if (checkCheckpoint()[0] && checkpoints[checkCheckpoint()[1]].level === level){
+        checkpoints[checkCheckpoint()[1]].reached = true;
+        if (checkCheckpoint()[1]>currentCheckpoint){
+            currentCheckpoint = checkCheckpoint()[1];
+        };
+    };
+    if (Math.abs(player.xVelocity)<0.01){
+        player.xVelocity = 0;
+    };
+};
+var intervalID = setInterval(mainLoop, 10);
+
+$("body").keydown(function (event) {
+    if (gameState === 'starting'){
+        gameState = 'playing'
+        if (!music){
+            startMusic()
+        }
+    };
+    keysPressed[keyCodes[event.keyCode]] = true;
+});
+
+$("body").keyup(function (event) {
+    keysPressed[keyCodes[event.keyCode]] = false;
+});
+
+</script>
+
+</body>
+</html>
