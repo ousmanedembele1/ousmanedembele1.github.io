@@ -222,9 +222,9 @@ var deaths = 0;
 var time = 0;
 var jumps = 2;
 var ready = false;
-var level = 4;
+var level = 1;
 var xScroll = 0;
-var levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*1, startX: 40, startY: 500}, {maxX: 1920*1, startX: 40, startY: 500}];
+var levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*1, startX: 40, startY: 500}];
 var lavas = [];
 var powerups = [];
 var platforms = [];
@@ -1040,18 +1040,10 @@ platforms.push({
 });
 platforms.push({
     leftX: 0,
-    topY: 780,
-    rightX: 1920,
-    bottomY: 930,
-    level: 5,
-    color: 'white'
-});
-platforms.push({
-    leftX: 0,
     topY: 0,
     rightX: 1920,
     bottomY: 150,
-    level: 5,
+    level: 4,
     color: 'white'
 });
 powerups.push({
@@ -1060,7 +1052,7 @@ powerups.push({
     rightX: 1920*0.5-125,
     bottomY: 755,
     effect: '',
-    level: 5,
+    level: 4,
     hue: 0,
     collected: false
 });
@@ -1070,7 +1062,7 @@ powerups.push({
     rightX: 75,
     bottomY: 225,
     effect: '',
-    level: 5,
+    level: 4,
     hue: 0,
     collected: false
 });
@@ -1080,7 +1072,7 @@ powerups.push({
     rightX: 1920-25,
     bottomY: 225,
     effect: '',
-    level: 5,
+    level: 4,
     hue: 0,
     collected: false
 });
@@ -1090,7 +1082,7 @@ powerups.push({
     rightX: 1920*0.5-50,
     bottomY: 755,
     effect: 'upsideDown',
-    level: 5,
+    level: 4,
     hue: 20,
     collected: false
 });
@@ -1100,7 +1092,7 @@ powerups.push({
     rightX: 1920*0.5-200,
     bottomY: 755,
     effect: 'upsideDown',
-    level: 5,
+    level: 4,
     hue: 20,
     collected: false
 });
@@ -1110,7 +1102,7 @@ powerups.push({
     rightX: 1920*0.5+250,
     bottomY: 755,
     effect: 'upsideDown',
-    level: 5,
+    level: 4,
     hue: 20,
     collected: false
 });
@@ -1120,7 +1112,7 @@ powerups.push({
     rightX: 1920*0.5+25,
     bottomY: 755,
     effect: 'Lengthen',
-    level: 5,
+    level: 4,
     hue: 70,
     collected: false
 });
@@ -1130,7 +1122,7 @@ powerups.push({
     rightX: 1920*0.5+100,
     bottomY: 755,
     effect: 'inverse',
-    level: 5,
+    level: 4,
     hue: 240,
     collected: false
 });
@@ -1140,7 +1132,7 @@ powerups.push({
     rightX: 1920*0.5+175,
     bottomY: 755,
     effect: 'doubleJump',
-    level: 5,
+    level: 4,
     hue: 270,
     collected: false
 });
@@ -1244,25 +1236,25 @@ texts.push({
     x: 1920*0.5,
     y:465-120,
     words: "You win!",
-    level: 5
+    level: 4
 });
 texts.push({
     x: 1920*0.5,
     y:465-40,
     words: "Reach the portal to restart",
-    level: 5
+    level: 4
 });
 texts.push({
     x: 1920*0.5,
     y:465+40,
     words: "Time: ",
-    level: 5
+    level: 4
 });
 texts.push({
     x: 1920*0.5,
     y:465+120,
     words: "Deaths: ",
-    level: 5
+    level: 4
 });
 checkpoints.push({
 	x:7530,
@@ -1310,10 +1302,6 @@ doorLocations.push({
 });
 doorLocations.push({
     x:1920*11-300,
-    y:580
-});
-doorLocations.push({
-    x:1920-100,
     y:580
 });
 doorLocations.push({
@@ -1495,7 +1483,7 @@ function mainLoop(){
             respawn();
         };
     };
-    if (keysPressed['r'] && level !=5){
+    if (keysPressed['r'] && level !=4){
         level = 1;
         currentCheckpoint = -1;
         for (var i = 0; i<checkpoints.length; i++) {
@@ -1529,7 +1517,7 @@ function mainLoop(){
     border.setAttribute("height",120*heightScaleFactor+1);
     box.setAttribute("width",250*widthScaleFactor);
     box.setAttribute("height",120*heightScaleFactor);
-    if (level < 5){
+    if (level < 4){
         box.style.display = 'inline';
         border.style.display = 'inline';
         deathCount.style.display = 'inline';
@@ -1598,7 +1586,7 @@ function mainLoop(){
     for (var i=0; i<textsVariable.length; i++){
         if (texts[i].level ===level){
             textsVariable[i].style.display = 'inline';
-            if (level === 5){
+            if (level === 4){
                 if (texts[i].words === "Deaths: "){
                     textsVariable[i].textContent = "Deaths: " + deaths;
                 } else if (texts[i].words === "Time: "){
@@ -1688,12 +1676,12 @@ function mainLoop(){
             grounded = false;
         };
     };
-    if (level === 5){
+    if (level === 4){
         gameState = 'won';
     };
 
     if (checkPortal()){
-        if (level === 5){
+        if (level === 4){
             level=1;
             time=0;
             deaths = 0;
