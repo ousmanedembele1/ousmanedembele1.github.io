@@ -162,8 +162,8 @@ body{
         <button id="button">New Game</button>
     </div>
 <script>
-function ding(){
-    let audio = new Audio("ping-82822.mp3");
+function ding(x){
+    let audio = new Audio("ping" + x + ".wav");
     audio.play();
 };
 let height = window.innerHeight;
@@ -410,7 +410,7 @@ function applyArrow(key){
         }
         let oldScore = score;
         let gameChanged = false;
-        let Ding = false;
+        let Ding = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         if (key === "ArrowRight"){
             for (let i = 0; i < 4; i++) {
                 let currentRow = [];
@@ -424,7 +424,7 @@ function applyArrow(key){
                             moveTile(newRow[j][1],4*i+3-j)
                         } else{
                             combineTiles(newRow[j][1],4*i+3-j, newRow[j][0])
-                            Ding = true;
+                            Ding[newRow[j][0]-2] = true;
                         }
                     }
                 }
@@ -449,7 +449,7 @@ function applyArrow(key){
                             moveTile(newRow[j][1],4*i+j)
                         } else{
                             combineTiles(newRow[j][1],4*i+j, newRow[j][0])
-                            Ding = true;
+                            Ding[newRow[j][0]-2] = true;
                         }
                     }
                 }
@@ -474,7 +474,7 @@ function applyArrow(key){
                             moveTile(newCol[j][1], i+(3-j)*4)
                         } else{
                             combineTiles(newCol[j][1], i+(3-j)*4, newCol[j][0])
-                            Ding = true;
+                            Ding[newCol[j][0]-2] = true;
                         }
                     }
                 }
@@ -499,7 +499,7 @@ function applyArrow(key){
                             moveTile(newCol[j][1], i+j*4)
                         } else{
                             combineTiles(newCol[j][1], i+j*4, newCol[j][0])
-                            Ding = true;
+                            Ding[newCol[j][0]-2] = true;
                         }
                     }
                 }
@@ -515,8 +515,11 @@ function applyArrow(key){
         if (gameChanged){
             let newTileData = newTileRandom(150)
         }
-        if (Ding){
-            ding()
+        for (let i = 0; i<Ding.length; i++){
+            if (Ding[i]){
+                console.log(i)
+                ding(i)
+            }
         }
         scoreText.text(score)
         if (scoreChange > 0){
