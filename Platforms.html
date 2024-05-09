@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 
+
+
+
 <html>
+
+
+
 
 <head>
     <title> Platformer</title>
 <style>
+
+
+
 
    
 html, body, svg{
@@ -15,28 +24,37 @@ html, body, svg{
 </style>
 </head>
 
+
+
+
 <body>
 <svg width = "100" height = "100" id = "svg" style = "background-color: black;">
 </svg>
 <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
 <script>
-var playlist = [
+let playlist = [
   "goinghigher.mp3",
   "evolution.mp3",
   "epic.mp3",
   "birthofahero.mp3",
 ];
 
-var currentSong = Math.floor(Math.random()*4);
+
+
+
+let currentSong = Math.floor(Math.random()*4);
 let music = false;
 function rectangularCollision(left1, top1, right1, bottom1, left2, top2, right2, bottom2){
     if (bottom1>top2 && top1<bottom2 && left1<right2 && right1>left2){
         return true;
-    }; 
+    };
     return false;
 };
 function startMusic(){
-    var audio = new Audio(playlist[currentSong]);
+    let audio = new Audio(playlist[currentSong]);
+
+
+
 
     audio.addEventListener("ended", function() {
         currentSong = (currentSong + 1) % playlist.length;
@@ -47,9 +65,12 @@ function startMusic(){
     music = true;
 };
 
+
+
+
 function drawDoor(){
-    for (var i=0; i<doorLocations.length; i++){
-        var door = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (let i=0; i<doorLocations.length; i++){
+        let door = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         door.setAttribute('x', doorLocations[i].x);
         door.setAttribute('y', doorLocations[i].y);
         door.setAttribute('width', 100);
@@ -59,12 +80,12 @@ function drawDoor(){
         $("svg").append(door);
     };
 };
-var dattribute = 0;
+let dattribute = 0;
 function drawCheckpoints(){
-    for (var i=0; i<checkpoints.length; i++){
-        var  flag = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        var x = checkpoints[i].x-50;
-        var y = checkpoints[i].y-100;
+    for (let i=0; i<checkpoints.length; i++){
+        let  flag = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        let x = checkpoints[i].x-50;
+        let y = checkpoints[i].y-100;
         dattribute = "M"+x+" "+String(y+200)+"L"+x+' '+y+'L' +String(x+10)+' '+y + 'L' +String(x+100)+' '+String(y+40)+ 'L' +String(x+10)+' '+String(y+80)+ 'L' +String(x+10)+' '+String(y+200)+'Z';
         flag.setAttribute("class","flag")
         flag.setAttribute("d", dattribute);
@@ -73,8 +94,8 @@ function drawCheckpoints(){
     };
 };
 function drawText(){
-    for (var i=0; i<texts.length; i++){
-        var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    for (let i=0; i<texts.length; i++){
+        let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("class",'text');
         text.setAttribute("x", texts[i].x);
         text.setAttribute("y", texts[i].y);
@@ -87,8 +108,8 @@ function drawText(){
     };
 };
 function drawPowerups(){
-    for (var i=0; i<powerups.length; i++){
-        var powerup = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (let i=0; i<powerups.length; i++){
+        let powerup = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         powerup.setAttribute("class", "powerup");
         powerup.setAttribute('width', powerups[i].rightX-powerups[i].leftX);
         powerup.setAttribute('height', powerups[i].bottomY-powerups[i].topY);
@@ -103,8 +124,8 @@ function drawPowerups(){
     };
 };
 function drawPlatforms(){
-    for (var i=0; i<platforms.length; i++){
-        var platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (let i=0; i<platforms.length; i++){
+        let platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         platform.setAttribute("class", "platform");
         platform.setAttribute('width', platforms[i].rightX-platforms[i].leftX);
         platform.setAttribute('height', platforms[i].bottomY-platforms[i].topY);
@@ -115,8 +136,8 @@ function drawPlatforms(){
     };
 };
 function drawLavas(){
-    for (var i=0; i<lavas.length; i++){
-        var lava = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (let i=0; i<lavas.length; i++){
+        let lava = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         lava.setAttribute("class", "lava");
         lava.setAttribute('width', lavas[i].rightX-lavas[i].leftX);
         lava.setAttribute('height', lavas[i].bottomY-lavas[i].topY);
@@ -127,8 +148,8 @@ function drawLavas(){
     };
 };
 function drawFakePlatforms(){
-    for (var i=0; i<fakePlatforms.length; i++){
-        var fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    for (let i=0; i<fakePlatforms.length; i++){
+        let fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         fakePlatform.setAttribute("class", "fakeplatform");
         fakePlatform.setAttribute('width', fakePlatforms[i].rightX-fakePlatforms[i].leftX);
         fakePlatform.setAttribute('height', fakePlatforms[i].bottomY-fakePlatforms[i].topY);
@@ -139,7 +160,7 @@ function drawFakePlatforms(){
     };
 };
 function checkPortal (){
-    var i = level-1;
+    let i = level-1;
     if (level > doorLocations.length){
         return false;
     };
@@ -149,7 +170,7 @@ function checkPortal (){
     return false;
 };
 function epicGamer(){
-    for (var i=0; i<fakePlatforms.length; i++){
+    for (let i=0; i<fakePlatforms.length; i++){
         if (fakePlatforms[i].level===1 & level === 1){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, fakePlatforms[i].leftX, fakePlatforms[i].topY, fakePlatforms[i].rightX, fakePlatforms[i].bottomY)){
                 return true;
@@ -159,7 +180,7 @@ function epicGamer(){
     return false;
 }
 function colliding (){
-    for (var i=0; i<platforms.length; i++){
+    for (let i=0; i<platforms.length; i++){
         if (platforms[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, platforms[i].leftX, platforms[i].topY, platforms[i].rightX, platforms[i].bottomY)){
                 return [true, platforms[i]];
@@ -169,7 +190,7 @@ function colliding (){
     return [false, null];
 };
 function checkLavas (){
-    for (var i=0; i<lavas.length; i++){
+    for (let i=0; i<lavas.length; i++){
         if (lavas[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, lavas[i].leftX, lavas[i].topY, lavas[i].rightX, lavas[i].bottomY)){
                 return true;
@@ -179,7 +200,7 @@ function checkLavas (){
     return false;
 };
 function checkPowerup (){
-    for (var i=0; i<powerups.length; i++){
+    for (let i=0; i<powerups.length; i++){
         if (powerups[i].level===level && powerups[i].collected === false){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, powerups[i].leftX, powerups[i].topY, powerups[i].rightX, powerups[i].bottomY)){
                 return [true, i];
@@ -189,7 +210,7 @@ function checkPowerup (){
     return [false, null];
 };
 function checkCheckpoint (){
-    for (var i=0; i<checkpoints.length; i++){
+    for (let i=0; i<checkpoints.length; i++){
         if (checkpoints[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, checkpoints[i].x, checkpoints[i].y, checkpoints[i].x+100, checkpoints[i].y+200)){
                 return [true, i];
@@ -201,7 +222,7 @@ function checkCheckpoint (){
 function respawn (){
     currentPowerup = '';
     sprite.setAttribute('fill','red');
-    for (var i=0; i<powerups.length; i++){
+    for (let i=0; i<powerups.length; i++){
         powerups[i].collected = false;
     };
     player.xVelocity = 0;
@@ -215,25 +236,26 @@ function respawn (){
         player.xPos = levelStats[level-1].startX;
         player.yPos = levelStats[level-1].startY;
     }
-    
+   
 };
-var player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
-var deaths = 0;
-var time = 0;
-var jumps = 2;
-var ready = false;
-var level = 1;
-var xScroll = 0;
-var levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*1, startX: 40, startY: 500}];
-var lavas = [];
-var powerups = [];
-var platforms = [];
-var texts = [];
-var checkpoints = [];
-var doorLocations = [];
-var fakePlatforms = [];
-var currentPowerup = '';
-var keyCodes = {
+let player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
+let deaths = 0;
+let time = 0;
+let jumps = 2;
+let ready = false;
+let level = 1;
+let xScroll = 0;
+let levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*15, startX: 40, startY: 500}, {maxX: 1920*1, startX: 40, startY: 500}];
+let finalLevel =  5;
+let lavas = [];
+let powerups = [];
+let platforms = [];
+let texts = [];
+let checkpoints = [];
+let doorLocations = [];
+let fakePlatforms = [];
+let currentPowerup = '';
+let keyCodes = {
     37: 'left',
     38: 'up',
     39: 'right',
@@ -244,30 +266,33 @@ var keyCodes = {
     83: 's',
     87: 'w'
 };
-var keysPressed = {
+let keysPressed = {
     left: false,
     up: false,
     right: false,
     down: false
 };
-var widthScaleFactor= window.innerWidth/1920;
-var heightScaleFactor= window.innerHeight/930;
-var currentCheckpoint=-1;
+let widthScaleFactor= window.innerWidth/1920;
+let heightScaleFactor= window.innerHeight/930;
 
-var gameState = 'starting';
+
+
+
+let currentCheckpoint=-1;
+let gameState = 'starting';
 player.xPos = levelStats[level-1].startX;
 player.yPos = levelStats[level-1].startY;
 player.xVelocity = 0;
 player.yVelocity = 0;
-var grounded = false;
-var doorsVariable = document.getElementsByClassName("door");
-var platformsVariable = document.getElementsByClassName("platform");
-var textsVariable = document.getElementsByClassName("text");
-var flagsVariable = document.getElementsByClassName("flag");
-var fakePlatformsVariable = document.getElementsByClassName("fakeplatform");
-var powerupsVariable = document.getElementsByClassName("powerup");
-var lavasVariable = document.getElementsByClassName("lava");
-var svgElement = document.getElementById('svg');
+let grounded = false;
+let doorsVariable = document.getElementsByClassName("door");
+let platformsVariable = document.getElementsByClassName("platform");
+let textsVariable = document.getElementsByClassName("text");
+let flagsVariable = document.getElementsByClassName("flag");
+let fakePlatformsVariable = document.getElementsByClassName("fakeplatform");
+let powerupsVariable = document.getElementsByClassName("powerup");
+let lavasVariable = document.getElementsByClassName("lava");
+let svgElement = document.getElementById('svg');
 // add platforms
 fakePlatforms.push({
     leftX: 0,
@@ -282,21 +307,6 @@ fakePlatforms.push({
     rightX: 3380,
     bottomY: 930,
     level: 1
-});
-
-fakePlatforms.push({
-    leftX: 1920*2,
-    topY: 780,
-    rightX: 1920*2+800,
-    bottomY: 930,
-    level: 2
-});
-fakePlatforms.push({
-    leftX: 1920*2+500,
-    topY: 450,
-    rightX: 1920*2+700,
-    bottomY: 500,
-    level: 2
 });
 platforms.push({
     leftX: 0,
@@ -316,6 +326,9 @@ platforms.push({
 });
 //stairs
 
+
+
+
 platforms.push({
     leftX: 2380,
     topY: 680,
@@ -332,6 +345,9 @@ platforms.push({
     level: 1,
     color: 'white'
 });
+
+
+
 
 platforms.push({
     leftX: 2780,
@@ -359,6 +375,12 @@ platforms.push({
 });
 
 
+
+
+
+
+
+
 platforms.push({
     leftX: 3180,
     topY: 780,
@@ -367,6 +389,12 @@ platforms.push({
     level: 1,
     color: 'white'
 });
+
+
+
+
+
+
 
 
 platforms.push({
@@ -378,6 +406,9 @@ platforms.push({
     color: 'white'
 });
 
+
+
+
 platforms.push({
     leftX: 5100,
     topY: 780,
@@ -386,6 +417,9 @@ platforms.push({
     level: 1,
     color: 'white'
 });
+
+
+
 
 //SMALL platform
 platforms.push({
@@ -396,6 +430,9 @@ platforms.push({
     level: 1,
     color: 'white'
 });
+
+
+
 
 platforms.push({
     leftX: 7280,
@@ -446,8 +483,79 @@ platforms.push({
     level: 1,
     color: 'white'
 });
+texts.push({
+    x: 960,
+    y:100,
+    words: "Use 🢀 and 🢂  or A and D to move",
+    level: 1
+});
+texts.push({
+    x: 2880,
+    y:100,
+    words: "Use 🢁  or W to jump",
+    level: 1
+});
+texts.push({
+    x: 4800,
+    y:100,
+    words: "Don't fall!",
+    level: 1
+});
+texts.push({
+    x: 6720,
+    y:100,
+    words: "Use 🢃 or S to drop",
+    level: 1
+});
+texts.push({
+    x: 8640,
+    y:100,
+    words: "Checkpoints save your progress",
+    level: 1
+});
+texts.push({
+    x: 11630,
+    y:100,
+    words: "Reach the portal to move on to the next level",
+    level: 1
+});
+checkpoints.push({
+    x:7530,
+    y:580,
+    reached: false,
+    level: 1
+});
 
-// 3 lines 
+
+
+
+
+
+
+
+fakePlatforms.push({
+    leftX: 1920*2,
+    topY: 780,
+    rightX: 1920*2+800,
+    bottomY: 930,
+    level: 2
+});
+fakePlatforms.push({
+    leftX: 1920*2+500,
+    topY: 450,
+    rightX: 1920*2+700,
+    bottomY: 500,
+    level: 2
+});
+
+
+
+
+
+
+
+
+// 3 lines
 platforms.push({
     leftX: 0,
     topY: 880,
@@ -497,6 +605,9 @@ platforms.push({
     level: 2,
     color: 'white'
 });
+
+
+
 
 //base
 platforms.push({
@@ -599,6 +710,44 @@ platforms.push({
     level: 2,
     color: 'white'
 });
+
+
+
+
+texts.push({
+    x: 1920/2,
+    y:100,
+    words: "Physics sometimes doesn't apply!",
+    level: 2
+});
+texts.push({
+    x: 1920*2.5,
+    y:100,
+    words: "Things are not always as they seem...",
+    level: 2
+});
+texts.push({
+    x: 1920*4.5,
+    y:100,
+    words: "A powerup! Maybe it will help!",
+    level: 2
+});
+checkpoints.push({
+    x:1920*2,
+    y:580,
+    reached: false,
+    level: 2
+});
+checkpoints.push({
+    x:1920*3.5+600,
+    y:580,
+    reached: false,
+    level: 2
+});
+
+
+
+
 platforms.push({
     leftX: 0,
     topY: 780,
@@ -633,6 +782,9 @@ platforms.push({
     level: 3,
     color: 'white'
 });
+
+
+
 
 platforms.push({
     leftX: 1920*2-75,
@@ -794,11 +946,17 @@ platforms.push({
 platforms.push({
     leftX: 1920*6-2300,
     topY: 100,
-    rightX: 1920*6+200,
+    rightX: 1920*6+450,
     bottomY: 110,
     level: 3,
     color: 'white'
 });
+
+
+
+
+
+
 
 
 // small platforms
@@ -845,8 +1003,11 @@ powerups.push({
     collected: false
 });
 
+
+
+
 platforms.push({
-    leftX: 1920*6.5+650,
+    leftX: 1920*6.5+750,
     topY: 830,
     rightX: 1920*7.5,
     bottomY: 930,
@@ -967,6 +1128,9 @@ platforms.push({
     color: 'white'
 });
 
+
+
+
 platforms.push({
     leftX: 1920*11+460,
     topY: 280,
@@ -1023,172 +1187,15 @@ lavas.push({
     level: 3
 });
 
+
+
+
 lavas.push({
     leftX: 1920*13.5+225,
     rightX: 1920*13.5+275,
     topY: 550,
     bottomY: 780,
     level: 3
-});
-platforms.push({
-    leftX: 0,
-    topY: 780,
-    rightX: 1920,
-    bottomY: 930,
-    level: 4,
-    color: 'white'
-});
-platforms.push({
-    leftX: 0,
-    topY: 0,
-    rightX: 1920,
-    bottomY: 150,
-    level: 4,
-    color: 'white'
-});
-powerups.push({
-    leftX: 1920*0.5-175,
-    topY:705,
-    rightX: 1920*0.5-125,
-    bottomY: 755,
-    effect: '',
-    level: 4,
-    hue: 0,
-    collected: false
-});
-powerups.push({
-    leftX: 25,
-    topY:175,
-    rightX: 75,
-    bottomY: 225,
-    effect: '',
-    level: 4,
-    hue: 0,
-    collected: false
-});
-powerups.push({
-    leftX: 1920-75,
-    topY:175,
-    rightX: 1920-25,
-    bottomY: 225,
-    effect: '',
-    level: 4,
-    hue: 0,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5-100,
-    topY:705,
-    rightX: 1920*0.5-50,
-    bottomY: 755,
-    effect: 'upsideDown',
-    level: 4,
-    hue: 20,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5-250,
-    topY:705,
-    rightX: 1920*0.5-200,
-    bottomY: 755,
-    effect: 'upsideDown',
-    level: 4,
-    hue: 20,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5+200,
-    topY:705,
-    rightX: 1920*0.5+250,
-    bottomY: 755,
-    effect: 'upsideDown',
-    level: 4,
-    hue: 20,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5-25,
-    topY:705,
-    rightX: 1920*0.5+25,
-    bottomY: 755,
-    effect: 'Lengthen',
-    level: 4,
-    hue: 70,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5+50,
-    topY:705,
-    rightX: 1920*0.5+100,
-    bottomY: 755,
-    effect: 'inverse',
-    level: 4,
-    hue: 240,
-    collected: false
-});
-powerups.push({
-    leftX: 1920*0.5+125,
-    topY:705,
-    rightX: 1920*0.5+175,
-    bottomY: 755,
-    effect: 'doubleJump',
-    level: 4,
-    hue: 270,
-    collected: false
-});
-texts.push({
-    x: 960,
-    y:100,
-    words: "Use 🢀 and 🢂  or A and D to move",
-    level: 1
-});
-texts.push({
-    x: 2880,
-    y:100,
-    words: "Use 🢁  or W to jump",
-    level: 1
-});
-texts.push({
-    x: 4800,
-    y:100,
-    words: "Don't fall!",
-    level: 1
-});
-texts.push({
-    x: 6720,
-    y:100,
-    words: "Use 🢃 or S to drop",
-    level: 1
-});
-texts.push({
-    x: 8640,
-    y:100,
-    words: "Checkpoints save your progress",
-    level: 1
-});
-texts.push({
-    x: 11630,
-    y:100,
-    words: "Reach the portal to move on to the next level",
-    level: 1
-});
-texts.push({
-    x: 1920/2,
-    y:100,
-    words: "Physics sometimes doesn't apply!",
-    level: 2
-});
-texts.push({
-    x: 1920*2.5,
-    y:100,
-    words: "Things are not always as they seem...",
-    level: 2
-});
-texts.push({
-    x: 1920*4.5,
-    y:100,
-    words: "A powerup! Maybe it will help!",
-    level: 2
 });
 texts.push({
     x: 1920*0.5,
@@ -1232,50 +1239,8 @@ texts.push({
     words: "What next?",
     level: 3
 });
-texts.push({
-    x: 1920*0.5,
-    y:465-120,
-    words: "You win!",
-    level: 4
-});
-texts.push({
-    x: 1920*0.5,
-    y:465-40,
-    words: "Reach the portal to restart",
-    level: 4
-});
-texts.push({
-    x: 1920*0.5,
-    y:465+40,
-    words: "Time: ",
-    level: 4
-});
-texts.push({
-    x: 1920*0.5,
-    y:465+120,
-    words: "Deaths: ",
-    level: 4
-});
 checkpoints.push({
-	x:7530,
-    y:580,
-    reached: false,
-    level: 1
-});
-checkpoints.push({
-	x:1920*2,
-    y:580,
-    reached: false,
-    level: 2
-});
-checkpoints.push({
-	x:1920*3.5+600,
-    y:580,
-    reached: false,
-    level: 2
-});
-checkpoints.push({
-	x:1920*4,
+    x:1920*4,
     y:580,
     reached: false,
     level: 3
@@ -1292,6 +1257,518 @@ checkpoints.push({
     reached: false,
     level: 3
 });
+
+
+
+
+platforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 1920*0.5,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+texts.push({
+    x: 1920/2,
+    y:100,
+    words: "This level is hard. Good luck!",
+    level: 4
+});
+platforms.push({
+    leftX: 1920*0.5+550,
+    topY: 920,
+    rightX: 1920*0.5+590,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920+610,
+    topY: 920,
+    rightX: 1920+650,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*1.5+730,
+    topY: 870,
+    rightX: 1920*1.5+770,
+    bottomY: 880,
+    level: 4,
+    color: 'white'
+});
+
+platforms.push({
+    leftX: 1920*2.5,
+    topY: 920,
+    rightX: 1920*4.5,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+200,
+    topY: 620,
+    rightX: 1920*4.5,
+    bottomY: 630,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+200,
+    topY: 420,
+    rightX: 1920*4.5,
+    bottomY: 430,
+    level: 4,
+    color: 'white'
+});
+lavas.push({
+    leftX: 1920*2.5+200,
+    topY: 410,
+    rightX: 1920*4.5,
+    bottomY: 421,
+    level: 4
+});
+platforms.push({
+    leftX: 1920*2.5+200,
+    topY: 420,
+    rightX: 1920*2.5+210,
+    bottomY: 630,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5-10,
+    topY: 420,
+    rightX: 1920*4.5,
+    bottomY: 630,
+    level: 4,
+    color: 'white'
+});
+texts.push({
+    x: 1920*3.5+100,
+    y:540,
+    words: "Which ones are safe? Which ones are safe? Which ones are safe? Which ones are safe?",
+    level: 4
+});
+platforms.push({
+    leftX: 1920*2.5+200,
+    topY: 770,
+    rightX: 1920*2.5 + 500,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+700,
+    topY: 770,
+    rightX: 1920*2.5 + 1000,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+1200,
+    topY: 770,
+    rightX: 1920*2.5 + 1500,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+1700,
+    topY: 770,
+    rightX: 1920*2.5 + 2000,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+2200,
+    topY: 770,
+    rightX: 1920*2.5 + 2500,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+2700,
+    topY: 770,
+    rightX: 1920*2.5 + 3000,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+3200,
+    topY: 770,
+    rightX: 1920*2.5 + 3500,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*2.5+3700,
+    topY: 770,
+    rightX: 1920*4.5 + 200,
+    bottomY: 780,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*4.5,
+    topY: 920,
+    rightX: 1920*4.5 + 250,
+    bottomY: 930,
+    level: 4,
+    color: 'black'
+});
+lavas.push({
+    leftX: 1920*2.5+325,
+    rightX: 1920*2.5+375,
+    topY: 675,
+    bottomY: 725,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+325,
+    rightX: 1920*2.5+375,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 825,
+    bottomY: 875,
+    level: 4,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*2.5+825,
+    rightX: 1920*2.5+875,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 675,
+    bottomY: 725,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+825,
+    rightX: 1920*2.5+875,
+    topY: 825,
+    bottomY: 875,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+1325,
+    rightX: 1920*2.5+1375,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 825,
+    bottomY: 875,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+1325,
+    rightX: 1920*2.5+1375,
+    topY: 675,
+    bottomY: 725,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+1825,
+    rightX: 1920*2.5+1875,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 825,
+    bottomY: 875,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+1825,
+    rightX: 1920*2.5+1875,
+    topY: 675,
+    bottomY: 725,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+2325,
+    rightX: 1920*2.5+2375,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 675,
+    bottomY: 725,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+2325,
+    rightX: 1920*2.5+2375,
+    topY: 825,
+    bottomY: 875,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+2825,
+    rightX: 1920*2.5+2875,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 675,
+    bottomY: 725,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+2825,
+    rightX: 1920*2.5+2875,
+    topY: 825,
+    bottomY: 875,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+3325,
+    rightX: 1920*2.5+3375,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 825,
+    bottomY: 875,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+3325,
+    rightX: 1920*2.5+3375,
+    topY: 675,
+    bottomY: 725,
+    level: 4
+});
+powerups.push({
+    leftX: 1920*2.5+3825,
+    rightX: 1920*2.5+3875,
+    bottomY: 520,
+    effect: '',
+    level: 4,
+    hue: 0,
+    topY: 825,
+    bottomY: 875,
+    level: 4,
+    collected: false
+});
+lavas.push({
+    leftX: 1920*2.5+3825,
+    rightX: 1920*2.5+3875,
+    topY: 675,
+    bottomY: 725,
+    level: 4
+});
+platforms.push({
+    leftX: 1920*5+100,
+    topY: 620,
+    rightX: 1920*5 + 190,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*5+120,
+    rightX: 1920*5+170,
+    bottomY: 520,
+    effect: 'inverse',
+    level: 4,
+    hue: 240,
+    topY: 560,
+    bottomY: 610,
+    level: 4,
+    collected: false
+});
+platforms.push({
+    leftX: 1920*5+1000,
+    topY: 780,
+    rightX: 1920*6,
+    bottomY: 930,
+    level: 4,
+    color: 'white'
+});
+platforms.push({
+    leftX: 1920*6-30,
+    topY: 0,
+    rightX: 1920*6,
+    bottomY: 690,
+    level: 4,
+    color: 'white'
+});
+checkpoints.push({
+    x:1920*5+1000,
+    y:580,
+    reached: false,
+    level: 4
+});
+platforms.push({
+    leftX: 1920*6-150,
+    topY: 420,
+    rightX: 1920*6,
+    bottomY: 450,
+    level: 4,
+    color: 'white'
+});
+
+
+
+
+
+
+
+
+platforms.push({
+    leftX: 0,
+    topY: 780,
+    rightX: 1920,
+    bottomY: 930,
+    level: finalLevel,
+    color: 'white'
+});
+platforms.push({
+    leftX: 0,
+    topY: 0,
+    rightX: 1920,
+    bottomY: 150,
+    level: finalLevel,
+    color: 'white'
+});
+powerups.push({
+    leftX: 1920*0.5-175,
+    topY:705,
+    rightX: 1920*0.5-125,
+    bottomY: 755,
+    effect: '',
+    level: finalLevel,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 25,
+    topY:175,
+    rightX: 75,
+    bottomY: 225,
+    effect: '',
+    level: finalLevel,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 1920-75,
+    topY:175,
+    rightX: 1920-25,
+    bottomY: 225,
+    effect: '',
+    level: finalLevel,
+    hue: 0,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-100,
+    topY:705,
+    rightX: 1920*0.5-50,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: finalLevel,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-250,
+    topY:705,
+    rightX: 1920*0.5-200,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: finalLevel,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+200,
+    topY:705,
+    rightX: 1920*0.5+250,
+    bottomY: 755,
+    effect: 'upsideDown',
+    level: finalLevel,
+    hue: 20,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5-25,
+    topY:705,
+    rightX: 1920*0.5+25,
+    bottomY: 755,
+    effect: 'Lengthen',
+    level: finalLevel,
+    hue: 70,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+50,
+    topY:705,
+    rightX: 1920*0.5+100,
+    bottomY: 755,
+    effect: 'inverse',
+    level: finalLevel,
+    hue: 240,
+    collected: false
+});
+powerups.push({
+    leftX: 1920*0.5+125,
+    topY:705,
+    rightX: 1920*0.5+175,
+    bottomY: 755,
+    effect: 'doubleJump',
+    level: finalLevel,
+    hue: 270,
+    collected: false
+});
+texts.push({
+    x: 1920*0.5,
+    y:465-120,
+    words: "You win!",
+    level: finalLevel
+});
+texts.push({
+    x: 1920*0.5,
+    y:465-40,
+    words: "Reach the portal to restart",
+    level: finalLevel
+});
+texts.push({
+    x: 1920*0.5,
+    y:465+40,
+    words: "Time: ",
+    level: finalLevel
+});
+texts.push({
+    x: 1920*0.5,
+    y:465+120,
+    words: "Deaths: ",
+    level: finalLevel
+});
+
+
+
+
 doorLocations.push({
     x:12270,
     y:580
@@ -1305,6 +1782,10 @@ doorLocations.push({
     y:580
 });
 doorLocations.push({
+    x:1920*8-100,
+    y:580
+});
+doorLocations.push({
     x:1920-100,
     y:580
 });
@@ -1315,7 +1796,7 @@ drawLavas();
 drawFakePlatforms();
 drawText();
 drawDoor();
-var sprite = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+let sprite = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 sprite.setAttribute("id", "mySprite");
 sprite.setAttribute('width', player.width);
 sprite.setAttribute('height', player.height);
@@ -1323,21 +1804,21 @@ sprite.setAttribute('fill','red');
 sprite.setAttribute('x', 0);
 sprite.setAttribute('y', 0);
 $("svg").append(sprite);
-var border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+let border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 border.setAttribute('x', 0);
 border.setAttribute('y', 0);
 border.setAttribute('width', 251);
 border.setAttribute('height', 121);
 border.setAttribute("fill", "white");
 $("svg").append(border);
-var box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+let box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 box.setAttribute('x', 0);
 box.setAttribute('y', 0);
 box.setAttribute('width', 250);
 box.setAttribute('height', 120);
 box.setAttribute("fill", "black");
 $("svg").append(box);
-var deathCount = document.createElementNS("http://www.w3.org/2000/svg", "text");
+let deathCount = document.createElementNS("http://www.w3.org/2000/svg", "text");
 deathCount.setAttribute("x", 125);
 deathCount.setAttribute("y", 90);
 deathCount.setAttribute("fill", 'white');
@@ -1346,7 +1827,7 @@ deathCount.setAttribute("font-weight", "bold");
 deathCount.setAttribute("text-anchor", "middle");
 deathCount.textContent = 'Deaths:';
 $("svg").append(deathCount);
-var timer = document.createElementNS("http://www.w3.org/2000/svg", "text");
+let timer = document.createElementNS("http://www.w3.org/2000/svg", "text");
 timer.setAttribute("x", 125);
 timer.setAttribute("y", 40);
 timer.setAttribute("fill", 'white');
@@ -1355,6 +1836,15 @@ timer.setAttribute("font-weight", "bold");
 timer.setAttribute("text-anchor", "middle");
 timer.textContent = 'Deaths:';
 $("svg").append(timer);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1372,18 +1862,30 @@ function mainLoop(){
             player.xPos-=100-player.width/2
             player.width = 200;
         } else if (player.width === 200){
-        	player.width = 100;
-        	player.xPos+=100-player.width/2
+            player.width = 100;
+            player.xPos+=100-player.width/2
         }
     };
+
+
+
 
     widthScaleFactor= window.innerWidth/1920;
     heightScaleFactor= window.innerHeight/930;
 
-    
+
+
+
+   
+
+
+
 
     svgElement.setAttribute('width',window.innerWidth);
     svgElement.setAttribute('height',window.innerHeight);
+
+
+
 
     if (currentPowerup ==='doubleJump'){
         player.xVelocity*= 29/32;
@@ -1394,7 +1896,7 @@ function mainLoop(){
                 player.yVelocity = -27;
                 grounded = false;
                 jumps -= 1;
-            }; 
+            };
         } else if ((keysPressed['up'] || keysPressed['w']) && !(keysPressed['down'] || keysPressed['s']) && jumps >0 && ready){
             player.yVelocity = -27;
             grounded = false;
@@ -1414,6 +1916,9 @@ function mainLoop(){
         if ((keysPressed['down'] || keysPressed['s'])){
             player.yVelocity += 20;
         };
+
+
+
 
         if (player.yPos + player.height>=930){
             deaths+=1;
@@ -1436,6 +1941,9 @@ function mainLoop(){
             player.xVelocity -=2;
         };
 
+
+
+
         if (player.yPos <= 0){
             deaths+=1;
             respawn();
@@ -1456,6 +1964,9 @@ function mainLoop(){
         if ((keysPressed['right'] || keysPressed['d'])){
             player.xVelocity -=2;
         };
+
+
+
 
         if (player.yPos + player.height>=930){
             deaths+=1;
@@ -1478,15 +1989,18 @@ function mainLoop(){
             player.xVelocity -=2;
         };
 
+
+
+
         if (player.yPos + player.height>=930){
             deaths+=1;
             respawn();
         };
     };
-    if (keysPressed['r'] && level !=4){
+    if (keysPressed['r'] && level !=finalLevel){
         level = 1;
         currentCheckpoint = -1;
-        for (var i = 0; i<checkpoints.length; i++) {
+        for (let i = 0; i<checkpoints.length; i++) {
             checkpoints[i].reached = false;
         };
         currentPowerup = '';
@@ -1517,7 +2031,7 @@ function mainLoop(){
     border.setAttribute("height",120*heightScaleFactor+1);
     box.setAttribute("width",250*widthScaleFactor);
     box.setAttribute("height",120*heightScaleFactor);
-    if (level < 4){
+    if (level < finalLevel){
         box.style.display = 'inline';
         border.style.display = 'inline';
         deathCount.style.display = 'inline';
@@ -1528,7 +2042,7 @@ function mainLoop(){
         deathCount.style.display = 'none';
         timer.style.display = 'none';
     };
-    for (var i=0; i<platformsVariable.length; i++){
+    for (let i=0; i<platformsVariable.length; i++){
         if (platforms[i].level ===level){
             platformsVariable[i].style.display = 'inline';
         } else {
@@ -1540,7 +2054,10 @@ function mainLoop(){
         platformsVariable[i].setAttribute('height', (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
     };
 
-    for (var i=0; i<lavasVariable.length; i++){
+
+
+
+    for (let i=0; i<lavasVariable.length; i++){
         if (lavas[i].level ===level){
             lavasVariable[i].style.display = 'inline';
         } else {
@@ -1551,7 +2068,7 @@ function mainLoop(){
         lavasVariable[i].setAttribute('width', (lavas[i].rightX-lavas[i].leftX)*widthScaleFactor);
         lavasVariable[i].setAttribute('height', (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
     };
-    for (var i=0; i<powerupsVariable.length; i++){
+    for (let i=0; i<powerupsVariable.length; i++){
         if (powerups[i].level ===level && !powerups[i].collected){
             powerupsVariable[i].style.display = 'inline';
         } else {
@@ -1562,7 +2079,7 @@ function mainLoop(){
         powerupsVariable[i].setAttribute('width', (powerups[i].rightX-powerups[i].leftX)*widthScaleFactor);
         powerupsVariable[i].setAttribute('height', (powerups[i].bottomY-powerups[i].topY)*heightScaleFactor);
     };
-    for (var i=0; i<fakePlatformsVariable.length; i++){
+    for (let i=0; i<fakePlatformsVariable.length; i++){
         if (fakePlatforms[i].level ===level){
             fakePlatformsVariable[i].style.display = 'inline';
             if (level === 1){
@@ -1580,13 +2097,13 @@ function mainLoop(){
         fakePlatformsVariable[i].setAttribute('width', (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
         fakePlatformsVariable[i].setAttribute('height', (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
     };
-    
+   
     sprite.setAttribute('width', player.width*widthScaleFactor);
     sprite.setAttribute('height', player.height*heightScaleFactor);
-    for (var i=0; i<textsVariable.length; i++){
+    for (let i=0; i<textsVariable.length; i++){
         if (texts[i].level ===level){
             textsVariable[i].style.display = 'inline';
-            if (level === 4){
+            if (level === finalLevel){
                 if (texts[i].words === "Deaths: "){
                     textsVariable[i].textContent = "Deaths: " + deaths;
                 } else if (texts[i].words === "Time: "){
@@ -1606,7 +2123,7 @@ function mainLoop(){
         textsVariable[i].setAttribute('y',(texts[i].y)*heightScaleFactor);
         textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
     };
-    for (var i=0; i<doorsVariable.length; i++){
+    for (let i=0; i<doorsVariable.length; i++){
         if (i+1 === level){
             doorsVariable[i].style.display = 'inline';
         } else {
@@ -1617,15 +2134,15 @@ function mainLoop(){
         doorsVariable[i].setAttribute('width', 100*widthScaleFactor);
         doorsVariable[i].setAttribute('height', 200*heightScaleFactor);
     };
-    
-    for (var i=0; i<flagsVariable.length; i++){
+   
+    for (let i=0; i<flagsVariable.length; i++){
         if (checkpoints[i].level ===level){
             flagsVariable[i].style.display = 'inline';
         } else {
             flagsVariable[i].style.display = 'none';
         }
-        var x = checkpoints[i].x-xScroll;
-        var y = checkpoints[i].y;
+        let x = checkpoints[i].x-xScroll;
+        let y = checkpoints[i].y;
         dattribute = "M"+x*widthScaleFactor+" "+String((y+200)*heightScaleFactor)+"L"+x*widthScaleFactor+' '+y*heightScaleFactor+'L' +String((x+10)*widthScaleFactor)+' '+y*heightScaleFactor + 'L' +String((x+100)*widthScaleFactor)+' '+String((y+40)*heightScaleFactor)+ 'L' +String((x+10)*widthScaleFactor)+' '+String((y+80)*heightScaleFactor)+ 'L' +String((x+10)*widthScaleFactor)+' '+String((y+200)*heightScaleFactor)+'Z';
         flagsVariable[i].setAttribute("d", dattribute);
         if (checkpoints[i].reached){
@@ -1634,7 +2151,7 @@ function mainLoop(){
             flagsVariable[i].setAttribute("fill", "grey");
         }
     };
-    for(var i = 0; i<32; i++){
+    for(let i = 0; i<32; i++){
         player.xPos += player.xVelocity/32
         if (colliding()[0]){
             if (player.xVelocity>0){
@@ -1647,7 +2164,10 @@ function mainLoop(){
         };
     };
 
-    for (var i =0; i<128; i++){
+
+
+
+    for (let i =0; i<128; i++){
         player.yPos += player.yVelocity/128;
         if (colliding()[0]){
             if ((player.yVelocity>=0 && currentPowerup != 'upsideDown') || (player.yVelocity<=0 && currentPowerup === 'upsideDown')){
@@ -1676,19 +2196,22 @@ function mainLoop(){
             grounded = false;
         };
     };
-    if (level === 4){
+    if (level === finalLevel){
         gameState = 'won';
     };
 
+
+
+
     if (checkPortal()){
-        if (level === 4){
+        if (level === finalLevel){
             level=1;
             time=0;
             deaths = 0;
             gameState = 'starting'
             currentPowerup = '';
             sprite.setAttribute('fill','red')
-            for (var i = 0; i<checkpoints.length; i++) {
+            for (let i = 0; i<checkpoints.length; i++) {
                 checkpoints[i].reached = false;
             };
         } else {
@@ -1700,7 +2223,7 @@ function mainLoop(){
     if (player.xPos < 0){
         player.xPos = 0;
     };
-    
+   
     sprite.setAttribute('y',player.yPos*heightScaleFactor);
     if (player.xPos+player.width/2 < 960){
         sprite.setAttribute('x',player.xPos*widthScaleFactor);
@@ -1717,7 +2240,7 @@ function mainLoop(){
         sprite.setAttribute('x', (1920-levelStats[level-1].maxX+player.xPos)*widthScaleFactor);
         xScroll = levelStats[level-1].maxX-1920;
     };
-    
+   
     if (checkCheckpoint()[0] && checkpoints[checkCheckpoint()[1]].level === level){
         checkpoints[checkCheckpoint()[1]].reached = true;
         if (checkCheckpoint()[1]>currentCheckpoint){
@@ -1728,7 +2251,10 @@ function mainLoop(){
         player.xVelocity = 0;
     };
 };
-var intervalID = setInterval(mainLoop, 10);
+let intervalID = setInterval(mainLoop, 10);
+
+
+
 
 $("body").keydown(function (event) {
     if (gameState === 'starting'){
@@ -1740,11 +2266,16 @@ $("body").keydown(function (event) {
     keysPressed[keyCodes[event.keyCode]] = true;
 });
 
+
+
+
 $("body").keyup(function (event) {
     keysPressed[keyCodes[event.keyCode]] = false;
 });
 
-</script>
 
+</script>
 </body>
 </html>
+
+
