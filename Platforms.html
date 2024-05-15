@@ -50,10 +50,6 @@ function rectangularCollision(left1, top1, right1, bottom1, left2, top2, right2,
 function drawDoor(){
     for (let i=0; i<doorLocations.length; i++){
         let door = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        door.setAttribute("x", doorLocations[i].x);
-        door.setAttribute("y", doorLocations[i].y);
-        door.setAttribute("width", 100);
-        door.setAttribute("height", 200);
         door.setAttribute("class","door");
         door.setAttribute("fill", "lightblue");
         $("svg").append(door);
@@ -62,17 +58,7 @@ function drawDoor(){
 function drawCheckpoints(){
     for (let i=0; i<checkpoints.length; i++){
         let  flag = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        let x = checkpoints[i].x-50;
-        let y = checkpoints[i].y-100;
-        let dattribute = "M" + x +" " + String(y+200)
-            + "L" + x + " " + y + "L" + String(x+10)
-            + " " + y + "L" + String(x+100) + " "
-            + String(y+40) + "L" + String(x+10) + " "
-            + String(y+80) + "L" + String(x+10) + " "
-            + String(y+200)+"Z";
-        flag.setAttribute("class","flag")
-        flag.setAttribute("d", dattribute);
-        flag.setAttribute("fill", "grey");
+        flag.setAttribute("class","flag");
         $("svg").append(flag);
     };
 };
@@ -80,10 +66,7 @@ function drawText(){
     for (let i=0; i<texts.length; i++){
         let text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("class","text");
-        text.setAttribute("x", texts[i].x);
-        text.setAttribute("y", texts[i].y);
         text.setAttribute("fill", "white");
-        text.setAttribute("font-size", "70px");
         text.setAttribute("font-weight", "bold");
         text.setAttribute("text-anchor", "middle");
         text.textContent = texts[i].words;
@@ -94,11 +77,7 @@ function drawPowerups(){
     for (let i=0; i<powerups.length; i++){
         let powerup = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         powerup.setAttribute("class", "powerup");
-        powerup.setAttribute("width", 50);
-        powerup.setAttribute("height", 50);
         powerup.setAttribute("fill",powerups[i].color);
-        powerup.setAttribute("x", powerups[i].x);
-        powerup.setAttribute("y", powerups[i].y);
         $("svg").append(powerup);
     };
 };
@@ -106,6 +85,7 @@ function drawPlatforms(){
     for (let i=0; i<platforms.length; i++){
         let platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         platform.setAttribute("class", "platform");
+        platform.setAttribute("fill",platforms[i].color);
         $("svg").append(platform);
     };
 };
@@ -113,11 +93,7 @@ function drawLavas(){
     for (let i=0; i<lavas.length; i++){
         let lava = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         lava.setAttribute("class", "lava");
-        lava.setAttribute("width", lavas[i].rightX-lavas[i].leftX);
-        lava.setAttribute("height", lavas[i].bottomY-lavas[i].topY);
         lava.setAttribute("fill","red");
-        lava.setAttribute("x", lavas[i].leftX);
-        lava.setAttribute("y", lavas[i].topY);
         $("svg").append(lava);
     };
 };
@@ -125,11 +101,7 @@ function drawFakePlatforms(){
     for (let i=0; i<fakePlatforms.length; i++){
         let fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         fakePlatform.setAttribute("class", "fakeplatform");
-        fakePlatform.setAttribute("width", fakePlatforms[i].rightX-fakePlatforms[i].leftX);
-        fakePlatform.setAttribute("height", fakePlatforms[i].bottomY-fakePlatforms[i].topY);
         fakePlatform.setAttribute("fill","white");
-        fakePlatform.setAttribute("x", fakePlatforms[i].leftX);
-        fakePlatform.setAttribute("y", fakePlatforms[i].topY);
         $("svg").append(fakePlatform);
     };
 };
@@ -217,7 +189,7 @@ let deaths = 0;
 let time = 0;
 let jumps = 2;
 let ready = false;
-let level = 1;
+let level = 2;
 let xScroll = 0;
 let levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*7, startX: 40, startY: 500}, {maxX: 1920*1, startX: 40, startY: 500}];
 let finalLevel =  5;
@@ -515,13 +487,6 @@ fakePlatforms.push({
     bottomY: 930,
     level: 2
 });
-fakePlatforms.push({
-    leftX: 1920*2+500,
-    topY: 450,
-    rightX: 1920*2+700,
-    bottomY: 500,
-    level: 2
-});
 //base
 platforms.push({
     leftX: 1920*2,
@@ -531,23 +496,13 @@ platforms.push({
     level: 2,
     color: "white"
 });
-platforms.push({
-    leftX: 1920*3.5+600,
-    topY: 780,
-    rightX: 1920*5,
-    bottomY: 930,
-    level: 2,
-    color: "white"
+fakePlatforms.push({
+    leftX: 1920*2+500,
+    topY: 450,
+    rightX: 1920*2+700,
+    bottomY: 500,
+    level: 2
 });
-powerups.push({
-    x: 1920*5-250,
-    y: 705,
-    effect: "doubleJump",
-    level: 2,
-    color: "hsl(270, 100%, 50%)",
-    collected: false
-});
-// invisible platforms
 platforms.push({
     leftX: 1920*2+650,
     topY: 880,
@@ -555,6 +510,14 @@ platforms.push({
     bottomY: 930,
     level: 2,
     color: "black"
+});
+platforms.push({
+    leftX: 1920*3.5+600,
+    topY: 780,
+    rightX: 1920*5,
+    bottomY: 930,
+    level: 2,
+    color: "white"
 });
 platforms.push({
     leftX: 1920*2+900,
@@ -596,6 +559,14 @@ platforms.push({
     bottomY: 930,
     level: 2,
     color: "white"
+});
+powerups.push({
+    x: 1920*5-250,
+    y: 705,
+    effect: "doubleJump",
+    level: 2,
+    color: "hsl(270, 100%, 50%)",
+    collected: false
 });
 platforms.push({
     leftX: 1920*6,
@@ -1902,7 +1873,6 @@ function mainLoop(){
 
     widthScaleFactor = window.innerWidth/1920;
     heightScaleFactor = window.innerHeight/930;
-
     svgElement.setAttribute("width" , window.innerWidth);
     svgElement.setAttribute("height" , window.innerHeight);
 
@@ -2055,7 +2025,7 @@ function mainLoop(){
         timer.style.display = "none";
     };
     for (let i=0; i<platformsVariable.length; i++){
-        if (platforms[i].level ===level){
+        if (platforms[i].level === level){
             platformsVariable[i].style.display = "inline";
             platformsVariable[i].setAttribute("x", (platforms[i].leftX-xScroll)*widthScaleFactor);
         	platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
