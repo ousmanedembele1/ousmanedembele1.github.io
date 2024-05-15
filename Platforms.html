@@ -8,6 +8,9 @@ html, body, svg{
     padding: 0px;
     overflow: hidden;
 }
+.text{
+    user-select: none;
+}
 </style>
 </head>
 <body>
@@ -115,14 +118,24 @@ function checkPortal(){
     };
     return false;
 };
-function epicGamer(){
+function revealFake(){
+    let touching = false
     for (let i=0; i<fakePlatforms.length; i++){
-        if (fakePlatforms[i].level===1 & level === 1){
+        if (fakePlatforms[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, fakePlatforms[i].leftX, fakePlatforms[i].topY, fakePlatforms[i].rightX, fakePlatforms[i].bottomY)){
-                return true;
+                touching = true
+                break;
             }
         };
     };
+    if (touching){
+        console.log('hi')
+        for (let i=0; i<fakePlatforms.length; i++){
+            if (fakePlatforms[i].level===level){
+                fakePlatformsVariable[i].style.display = "none"
+            };
+        };
+    }
     return false;
 }
 function colliding (){
@@ -189,7 +202,7 @@ let deaths = 0;
 let time = 0;
 let jumps = 2;
 let ready = false;
-let level = 2;
+let level = 1;
 let xScroll = 0;
 let levelStats = [{maxX: 12470, startX: 100, startY: 400}, {maxX: 1920*9, startX: 50, startY: 700},{maxX: 1920*14, startX: 40, startY: 500},{maxX: 1920*7, startX: 40, startY: 500}, {maxX: 1920*1, startX: 40, startY: 500}];
 let finalLevel =  5;
@@ -2063,13 +2076,6 @@ function mainLoop(){
     for (let i=0; i<fakePlatformsVariable.length; i++){
         if (fakePlatforms[i].level ===level){
             fakePlatformsVariable[i].style.display = "inline";
-            if (level === 1){
-                if (epicGamer()){
-                    fakePlatformsVariable[i].style.display = "none"
-                } else {
-                    fakePlatformsVariable[i].style.display = "inline"
-                }
-            }
         	fakePlatformsVariable[i].setAttribute("x", (fakePlatforms[i].leftX-xScroll)*widthScaleFactor);
         	fakePlatformsVariable[i].setAttribute("y",(fakePlatforms[i].topY)*heightScaleFactor);
         	fakePlatformsVariable[i].setAttribute("width", (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
@@ -2078,7 +2084,7 @@ function mainLoop(){
             fakePlatformsVariable[i].style.display = "none";
         }
     };
-   
+    revealFake()
     sprite.setAttribute("width", player.width*widthScaleFactor);
     sprite.setAttribute("height", player.height*heightScaleFactor);
     for (let i=0; i<textsVariable.length; i++){
