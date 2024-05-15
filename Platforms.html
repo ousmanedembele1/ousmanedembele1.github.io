@@ -2057,44 +2057,38 @@ function mainLoop(){
     for (let i=0; i<platformsVariable.length; i++){
         if (platforms[i].level ===level){
             platformsVariable[i].style.display = "inline";
+            platformsVariable[i].setAttribute("x", (platforms[i].leftX-xScroll)*widthScaleFactor);
+        	platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
+        	platformsVariable[i].setAttribute("width", (platforms[i].rightX-platforms[i].leftX)*widthScaleFactor);
+        	platformsVariable[i].setAttribute("height", (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
+        	platformsVariable[i].setAttribute("fill", platforms[i].color);
         } else {
             platformsVariable[i].style.display = "none";
         }
-        platformsVariable[i].setAttribute("x", (platforms[i].leftX-xScroll)*widthScaleFactor);
-        platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
-        platformsVariable[i].setAttribute("width", (platforms[i].rightX-platforms[i].leftX)*widthScaleFactor);
-        platformsVariable[i].setAttribute("height", (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
-        platformsVariable[i].setAttribute("fill", platforms[i].color);
     };
-
-
-
-
-
-
 
 
     for (let i=0; i<lavasVariable.length; i++){
         if (lavas[i].level ===level){
             lavasVariable[i].style.display = "inline";
+        	lavasVariable[i].setAttribute("x", (lavas[i].leftX-xScroll)*widthScaleFactor);
+        	lavasVariable[i].setAttribute("y",(lavas[i].topY)*heightScaleFactor);
+        	lavasVariable[i].setAttribute("width", (lavas[i].rightX-lavas[i].leftX)*widthScaleFactor);
+        	lavasVariable[i].setAttribute("height", (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
         } else {
             lavasVariable[i].style.display = "none";
         };
-        lavasVariable[i].setAttribute("x", (lavas[i].leftX-xScroll)*widthScaleFactor);
-        lavasVariable[i].setAttribute("y",(lavas[i].topY)*heightScaleFactor);
-        lavasVariable[i].setAttribute("width", (lavas[i].rightX-lavas[i].leftX)*widthScaleFactor);
-        lavasVariable[i].setAttribute("height", (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
     };
     for (let i=0; i<powerupsVariable.length; i++){
         if (powerups[i].level ===level && !powerups[i].collected){
             powerupsVariable[i].style.display = "inline";
+        	powerupsVariable[i].setAttribute("x", (powerups[i].x-xScroll)*widthScaleFactor);
+        	powerupsVariable[i].setAttribute("y",(powerups[i].y)*heightScaleFactor);
+        	powerupsVariable[i].setAttribute("width", 50*widthScaleFactor);
+        	powerupsVariable[i].setAttribute("height", 50*heightScaleFactor);
         } else {
             powerupsVariable[i].style.display = "none";
         }
-        powerupsVariable[i].setAttribute("x", (powerups[i].x-xScroll)*widthScaleFactor);
-        powerupsVariable[i].setAttribute("y",(powerups[i].y)*heightScaleFactor);
-        powerupsVariable[i].setAttribute("width", 50*widthScaleFactor);
-        powerupsVariable[i].setAttribute("height", 50*heightScaleFactor);
     };
     for (let i=0; i<fakePlatformsVariable.length; i++){
         if (fakePlatforms[i].level ===level){
@@ -2106,13 +2100,13 @@ function mainLoop(){
                     fakePlatformsVariable[i].style.display = "inline"
                 }
             }
+        	fakePlatformsVariable[i].setAttribute("x", (fakePlatforms[i].leftX-xScroll)*widthScaleFactor);
+        	fakePlatformsVariable[i].setAttribute("y",(fakePlatforms[i].topY)*heightScaleFactor);
+        	fakePlatformsVariable[i].setAttribute("width", (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
+        	fakePlatformsVariable[i].setAttribute("height", (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
         } else {
             fakePlatformsVariable[i].style.display = "none";
         }
-        fakePlatformsVariable[i].setAttribute("x", (fakePlatforms[i].leftX-xScroll)*widthScaleFactor);
-        fakePlatformsVariable[i].setAttribute("y",(fakePlatforms[i].topY)*heightScaleFactor);
-        fakePlatformsVariable[i].setAttribute("width", (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
-        fakePlatformsVariable[i].setAttribute("height", (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
     };
    
     sprite.setAttribute("width", player.width*widthScaleFactor);
@@ -2133,39 +2127,39 @@ function mainLoop(){
                     }
                 };
             };
+        	textsVariable[i].setAttribute("x", (texts[i].x-xScroll)*widthScaleFactor);
+        	textsVariable[i].setAttribute("y",(texts[i].y)*heightScaleFactor);
+        	textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
         } else {
             textsVariable[i].style.display = "none";
         }
-        textsVariable[i].setAttribute("x", (texts[i].x-xScroll)*widthScaleFactor);
-        textsVariable[i].setAttribute("y",(texts[i].y)*heightScaleFactor);
-        textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
     };
     for (let i=0; i<doorsVariable.length; i++){
         if (i+1 === level){
             doorsVariable[i].style.display = "inline";
+        	doorsVariable[i].setAttribute("x", (doorLocations[i].x-xScroll)*widthScaleFactor);
+        	doorsVariable[i].setAttribute("y",(doorLocations[i].y)*heightScaleFactor);
+        	doorsVariable[i].setAttribute("width", 100*widthScaleFactor);
+        	doorsVariable[i].setAttribute("height", 200*heightScaleFactor);
         } else {
             doorsVariable[i].style.display = "none";
         }
-        doorsVariable[i].setAttribute("x", (doorLocations[i].x-xScroll)*widthScaleFactor);
-        doorsVariable[i].setAttribute("y",(doorLocations[i].y)*heightScaleFactor);
-        doorsVariable[i].setAttribute("width", 100*widthScaleFactor);
-        doorsVariable[i].setAttribute("height", 200*heightScaleFactor);
     };
    
     for (let i=0; i<flagsVariable.length; i++){
         if (checkpoints[i].level ===level){
             flagsVariable[i].style.display = "inline";
+            let x = checkpoints[i].x-xScroll;
+        	let y = checkpoints[i].y;
+        	let dattribute = "M"+x*widthScaleFactor+" "+String((y+200)*heightScaleFactor)+"L"+x*widthScaleFactor+" "+y*heightScaleFactor+"L" +String((x+10)*widthScaleFactor)+" "+y*heightScaleFactor + "L" +String((x+100)*widthScaleFactor)+" "+String((y+40)*heightScaleFactor)+ "L" +String((x+10)*widthScaleFactor)+" "+String((y+80)*heightScaleFactor)+ "L" +String((x+10)*widthScaleFactor)+" "+String((y+200)*heightScaleFactor)+"Z";
+        	flagsVariable[i].setAttribute("d", dattribute);
+        	if (checkpoints[i].reached){
+            	flagsVariable[i].setAttribute("fill", "DarkTurquoise");
+        	} else {
+            	flagsVariable[i].setAttribute("fill", "grey");
+        	}
         } else {
             flagsVariable[i].style.display = "none";
-        }
-        let x = checkpoints[i].x-xScroll;
-        let y = checkpoints[i].y;
-        let dattribute = "M"+x*widthScaleFactor+" "+String((y+200)*heightScaleFactor)+"L"+x*widthScaleFactor+" "+y*heightScaleFactor+"L" +String((x+10)*widthScaleFactor)+" "+y*heightScaleFactor + "L" +String((x+100)*widthScaleFactor)+" "+String((y+40)*heightScaleFactor)+ "L" +String((x+10)*widthScaleFactor)+" "+String((y+80)*heightScaleFactor)+ "L" +String((x+10)*widthScaleFactor)+" "+String((y+200)*heightScaleFactor)+"Z";
-        flagsVariable[i].setAttribute("d", dattribute);
-        if (checkpoints[i].reached){
-            flagsVariable[i].setAttribute("fill", "DarkTurquoise");
-        } else {
-            flagsVariable[i].setAttribute("fill", "grey");
         }
     };
     for(let i = 0; i<32; i++){
