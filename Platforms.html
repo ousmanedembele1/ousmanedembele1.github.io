@@ -260,18 +260,14 @@ let fakePlatformsVariable = document.getElementsByClassName("fakeplatform");
 let powerupsVariable = document.getElementsByClassName("powerup");
 let lavasVariable = document.getElementsByClassName("lava");
 let svgElement = document.getElementById("svg");
-// add platforms
+
+
+//LEVEL 1
+
 fakePlatforms.push({
     leftX: 0,
     topY: 780,
     rightX: 3180,
-    bottomY: 930,
-    level: 1
-});
-fakePlatforms.push({
-    leftX: 2980,
-    topY: 480,
-    rightX: 3380,
     bottomY: 930,
     level: 1
 });
@@ -291,15 +287,12 @@ platforms.push({
     level: 1,
     color: "white"
 });
-//stairs
-
-
-
-
-
-
-
-
+texts.push({
+    x: 960,
+    y:100,
+    words: "Use 🢀 and 🢂  or A and D to move",
+    level: 1
+});
 platforms.push({
     leftX: 2380,
     topY: 680,
@@ -316,14 +309,6 @@ platforms.push({
     level: 1,
     color: "white"
 });
-
-
-
-
-
-
-
-
 platforms.push({
     leftX: 2780,
     topY: 480,
@@ -331,6 +316,12 @@ platforms.push({
     bottomY: 805,
     level: 1,
     color: "white"
+});
+texts.push({
+    x: 2880,
+    y:100,
+    words: "Use 🢁  or W to jump",
+    level: 1
 });
 platforms.push({
     leftX: 2980,
@@ -340,6 +331,13 @@ platforms.push({
     level: 1,
     color: "white"
 });
+fakePlatforms.push({
+    leftX: 2980,
+    topY: 480,
+    rightX: 3380,
+    bottomY: 930,
+    level: 1
+});
 platforms.push({
     leftX: 3180,
     topY: 280,
@@ -348,46 +346,6 @@ platforms.push({
     level: 1,
     color: "white"
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-platforms.push({
-    leftX: 3180,
-    topY: 780,
-    rightX: 4500,
-    bottomY: 930,
-    level: 1,
-    color: "white"
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 platforms.push({
     leftX: 3180,
     topY: 650,
@@ -396,14 +354,20 @@ platforms.push({
     level: 1,
     color: "white"
 });
-
-
-
-
-
-
-
-
+platforms.push({
+    leftX: 3180,
+    topY: 780,
+    rightX: 4500,
+    bottomY: 930,
+    level: 1,
+    color: "white"
+});
+texts.push({
+    x: 4800,
+    y: 100,
+    words: "Don't fall!",
+    level: 1
+});
 platforms.push({
     leftX: 5100,
     topY: 780,
@@ -412,15 +376,6 @@ platforms.push({
     level: 1,
     color: "white"
 });
-
-
-
-
-
-
-
-
-//SMALL platform
 platforms.push({
     leftX: 6640,
     topY: 780,
@@ -429,14 +384,12 @@ platforms.push({
     level: 1,
     color: "white"
 });
-
-
-
-
-
-
-
-
+texts.push({
+    x: 6720,
+    y:100,
+    words: "Use 🢃 or S to drop",
+    level: 1
+});
 platforms.push({
     leftX: 7280,
     topY: 780,
@@ -445,7 +398,12 @@ platforms.push({
     level: 1,
     color: "white"
 });
-// teeny platforms
+checkpoints.push({
+    x: 7530,
+    y: 580,
+    reached: false,
+    level: 1
+});
 platforms.push({
     leftX: 8160,
     topY: 580,
@@ -453,6 +411,12 @@ platforms.push({
     bottomY: 600,
     level: 1,
     color: "white"
+});
+texts.push({
+    x: 8640,
+    y: 100,
+    words: "Checkpoints save your progress",
+    level: 1
 });
 platforms.push({
     leftX: 8710,
@@ -487,99 +451,19 @@ platforms.push({
     color: "white"
 });
 texts.push({
-    x: 960,
-    y:100,
-    words: "Use 🢀 and 🢂  or A and D to move",
-    level: 1
-});
-texts.push({
-    x: 2880,
-    y:100,
-    words: "Use 🢁  or W to jump",
-    level: 1
-});
-texts.push({
-    x: 4800,
-    y:100,
-    words: "Don't fall!",
-    level: 1
-});
-texts.push({
-    x: 6720,
-    y:100,
-    words: "Use 🢃 or S to drop",
-    level: 1
-});
-texts.push({
-    x: 8640,
-    y:100,
-    words: "Checkpoints save your progress",
-    level: 1
-});
-texts.push({
     x: 11630,
     y:100,
     words: "Reach the portal to move on to the next level",
     level: 1
 });
-checkpoints.push({
-    x:7530,
-    y:580,
-    reached: false,
-    level: 1
-});
 
+//LEVEL 2
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-fakePlatforms.push({
-    leftX: 1920*2,
-    topY: 780,
-    rightX: 1920*2+800,
-    bottomY: 930,
-    level: 2
-});
-fakePlatforms.push({
-    leftX: 1920*2+500,
-    topY: 450,
-    rightX: 1920*2+700,
-    bottomY: 500,
-    level: 2
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 3 lines
 platforms.push({
     leftX: 0,
-    topY: 880,
+    topY: 320,
     rightX: 500,
-    bottomY: 930,
+    bottomY: 370,
     level: 2,
     color: "white"
 });
@@ -593,9 +477,9 @@ platforms.push({
 });
 platforms.push({
     leftX: 0,
-    topY: 320,
+    topY: 880,
     rightX: 500,
-    bottomY: 370,
+    bottomY: 930,
     level: 2,
     color: "white"
 });
@@ -624,14 +508,20 @@ platforms.push({
     level: 2,
     color: "white"
 });
-
-
-
-
-
-
-
-
+fakePlatforms.push({
+    leftX: 1920*2,
+    topY: 780,
+    rightX: 1920*2+800,
+    bottomY: 930,
+    level: 2
+});
+fakePlatforms.push({
+    leftX: 1920*2+500,
+    topY: 450,
+    rightX: 1920*2+700,
+    bottomY: 500,
+    level: 2
+});
 //base
 platforms.push({
     leftX: 1920*2,
