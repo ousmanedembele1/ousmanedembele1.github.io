@@ -203,10 +203,10 @@ let score;
 let tilesList;
 let arrows = ["ArrowRight", "ArrowDown","ArrowLeft", "ArrowUp"];
 let timeouts = [
-    -1, -1, -1, -1, 
-    -1, -1, -1, -1,
-    -1, -1, -1, -1, 
-    -1, -1, -1, -1
+    [], [], [], [], 
+    [], [], [], [], 
+    [], [], [], [],  
+    [], [], [], []
 ]
 function removeTiles(){
     for (let i = 0; i < 16; i++) {
@@ -297,7 +297,9 @@ function cssReset(id, location){
         lineHeight: squarewidth + "px",
         opacity: "1"
     })
-    clearTimeout(timeouts[location])
+    for (let i = 0; i < timeouts[location].length; i++) { 
+        clearTimeout(timeouts[location][i])
+    }
 }
 function moveTile(oldLoc, newLoc){
     let newX = newLoc%4;
@@ -319,13 +321,21 @@ function combineTiles(oldLocs, newLoc, size){
     $("#tile" + firstTile).attr("id", "tile" + newLoc + "-0").animate({ 
         left: ((2*margin + squarewidth)/2 + newX*(margin + squarewidth)) + "px", 
         top: ((2*margin + squarewidth)/2 + newY*(margin + squarewidth)) + "px"
-    }, 125)
+    }, 125, function(){
+        timeouts[newLoc].push(setTimeout(() => {
+            $("#tile" + newLoc + "-0").remove()
+        }, 150))
+    })
     $("#tile" + secondTile).attr("id", "tile" + newLoc + "-1").animate({ 
         left: ((2*margin + squarewidth)/2 + newX*(margin + squarewidth)) + "px", 
         top: ((2*margin + squarewidth)/2 + newY*(margin + squarewidth)) + "px"
-    }, 125)
+    }, 125, function(){
+        timeouts[newLoc].push(setTimeout(() => {
+            $("#tile" + newLoc + "-1").remove()
+        }, 150))
+    })
     makeNewTile(size, newLoc)
-    timeouts[newLoc] = setTimeout(function (){animateNewTileCombined(size, newLoc)}, 125)
+    timeouts[newLoc].push(setTimeout(() => {animateNewTileCombined(size, newLoc)}, 125))
 }
 function newTileRandom(time){
     let tileLocation = Math.floor(Math.random()*16)
@@ -341,9 +351,9 @@ function newTileRandom(time){
         newTile = 1;
     };
     makeNewTile(newTile, tileLocation)    
-    timeouts[tileLocation] = setTimeout(() => {
+    timeouts[tileLocation].push(setTimeout(() => {
         animateNewTileRandom(newTile, tileLocation)
-    }, time);
+    }, time))
 }
 function init(){
     removeTiles()
@@ -407,6 +417,10 @@ function applyArrow(key){
     if (!checkLost()){
         for (let i = 0; i<16; i++) {
             cssReset("#tile" + i, i)
+        }
+        for (let i = 0; i<16; i++) {
+            $("#tile" + i + "-0").remove()
+            $("#tile" + i + "-1").remove()
         }
         let oldScore = score;
         let gameChanged = false;
@@ -517,7 +531,6 @@ function applyArrow(key){
         }
         for (let i = 0; i<Ding.length; i++){
             if (Ding[i]){
-                console.log(i)
                 ding(i)
             }
         }
