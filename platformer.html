@@ -88,8 +88,17 @@ function drawPlatforms(){
     for (let i=0; i<platforms.length; i++){
         let platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         platform.setAttribute("class", "platform");
-        platform.setAttribute("fill",platforms[i].color);
+        platform.setAttribute("fill", "white");
         $("svg").append(platform);
+    };
+};
+function drawHiddenPlatforms(){
+    for (let i=0; i<hiddenPlatforms.length; i++){
+        let hiddenPlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        hiddenPlatform.setAttribute("class", "hiddenPlatform");
+        hiddenPlatform.setAttribute("fill", "white");
+        hiddenPlatform.setAttribute("style", "display: none;");
+        $("svg").append(hiddenPlatform);
     };
 };
 function drawLavas(){
@@ -103,7 +112,7 @@ function drawLavas(){
 function drawFakePlatforms(){
     for (let i=0; i<fakePlatforms.length; i++){
         let fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        fakePlatform.setAttribute("class", "fakeplatform");
+        fakePlatform.setAttribute("class", "fakePlatform");
         fakePlatform.setAttribute("fill","white");
         $("svg").append(fakePlatform);
     };
@@ -129,16 +138,33 @@ function revealFake(){
         };
     };
     if (touching){
-        console.log('hi')
         for (let i=0; i<fakePlatforms.length; i++){
             if (fakePlatforms[i].level===level){
                 fakePlatformsVariable[i].style.display = "none"
             };
         };
     }
-    return false;
 }
-function colliding (){
+function revealReal(){
+    for (let i=0; i<hiddenPlatformsVariable.length; i++){
+        if (hiddenPlatforms[i].level === level){
+            hiddenPlatformsVariable[i].style.display = "inline";
+        	hiddenPlatformsVariable[i].setAttribute("x", (hiddenPlatforms[i].leftX-xScroll)*widthScaleFactor);
+        	hiddenPlatformsVariable[i].setAttribute("y",(hiddenPlatforms[i].topY)*heightScaleFactor);
+        	hiddenPlatformsVariable[i].setAttribute("width", (hiddenPlatforms[i].rightX-hiddenPlatforms[i].leftX)*widthScaleFactor);
+        	hiddenPlatformsVariable[i].setAttribute("height", (hiddenPlatforms[i].bottomY-hiddenPlatforms[i].topY)*heightScaleFactor);
+        }
+    };
+}
+function colliding(){
+    for (let i=0; i<hiddenPlatforms.length; i++){
+        if (hiddenPlatforms[i].level===level){
+            if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, hiddenPlatforms[i].leftX, hiddenPlatforms[i].topY, hiddenPlatforms[i].rightX, hiddenPlatforms[i].bottomY)){
+                revealReal()
+                return [true, hiddenPlatforms[i]];
+            }
+        };
+    };
     for (let i=0; i<platforms.length; i++){
         if (platforms[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, platforms[i].leftX, platforms[i].topY, platforms[i].rightX, platforms[i].bottomY)){
@@ -178,6 +204,12 @@ function checkCheckpoint (){
     };
     return [false, null];
 };
+function pop(){
+    gameState = "spawning"
+    player.xVelocity = 0;
+    player.yVelocity = 0;
+    $("#mySprite").animate({opacity: 0}, 300, function(){respawn()});
+}
 function respawn (){
     currentPowerup = "";
     sprite.setAttribute("fill","red");
@@ -216,6 +248,7 @@ let texts = [];
 let checkpoints = [];
 let doorLocations = [];
 let fakePlatforms = [];
+let hiddenPlatforms = []
 let currentPowerup = "";
 let keysPressed = {
     left: false,
@@ -237,7 +270,8 @@ let doorsVariable = document.getElementsByClassName("door");
 let platformsVariable = document.getElementsByClassName("platform");
 let textsVariable = document.getElementsByClassName("text");
 let flagsVariable = document.getElementsByClassName("flag");
-let fakePlatformsVariable = document.getElementsByClassName("fakeplatform");
+let fakePlatformsVariable = document.getElementsByClassName("fakePlatform");
+let hiddenPlatformsVariable = document.getElementsByClassName("hiddenPlatform")
 let powerupsVariable = document.getElementsByClassName("powerup");
 let lavasVariable = document.getElementsByClassName("lava");
 let svgElement = document.getElementById("svg");
@@ -512,13 +546,12 @@ fakePlatforms.push({
     bottomY: 500,
     level: 2
 });
-platforms.push({
+hiddenPlatforms.push({
     leftX: 1920*2+650,
     topY: 880,
     rightX: 1920*2+850,
     bottomY: 930,
-    level: 2,
-    color: "black"
+    level: 2
 });
 platforms.push({
     leftX: 1920*3.5+600,
@@ -528,13 +561,12 @@ platforms.push({
     level: 2,
     color: "white"
 });
-platforms.push({
+hiddenPlatforms.push({
     leftX: 1920*2+900,
     topY: 270,
     rightX: 1920*2+1100,
     bottomY: 320,
-    level: 2,
-    color: "black"
+    level: 2
 });
 platforms.push({
     leftX: 1920*2+1300,
@@ -1360,13 +1392,12 @@ platforms.push({
     level: 4,
     color: "white"
 });
-platforms.push({
-    leftX: 1920*4.5,
+hiddenPlatforms.push({
+    leftX: 1920*4.5-1,
     topY: 920,
     rightX: 1920*4.5 + 250,
     bottomY: 930,
-    level: 4,
-    color: "black"
+    level: 4
 });
 lavas.push({
     leftX: 1920*2.5+325,
@@ -1791,6 +1822,7 @@ drawPowerups();
 drawCheckpoints();
 drawLavas();
 drawFakePlatforms();
+drawHiddenPlatforms();
 drawText();
 drawDoor();
 let sprite = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -1886,6 +1918,7 @@ function mainLoop(){
     svgElement.setAttribute("height" , window.innerHeight);
 
 
+    if (gameState !== "spawning"){
     if (currentPowerup === "doubleJump"){
         player.xVelocity *= 29/32;
         player.yVelocity += 1;
@@ -1915,9 +1948,9 @@ function mainLoop(){
         if ((keysPressed["ArrowDown"] || keysPressed["s"])){
             player.yVelocity += 20;
         };
-        if (player.yPos + player.height >= 930){
+        if (player.yPos >= 930){
             deaths += 1;
-            respawn();
+            pop();
         };
     } else if (currentPowerup === "upsideDown"){
         player.xVelocity*= 29/32;
@@ -1935,9 +1968,9 @@ function mainLoop(){
         if ((keysPressed["ArrowLeft"] || keysPressed["a"])){
             player.xVelocity -=2;
         };
-        if (player.yPos <= 0){
+        if (player.yPos+player.height <= 0){
             deaths+=1;
-            respawn();
+            pop();
         };
     } else if (currentPowerup === "inverse"){
         player.xVelocity*= 29/32;
@@ -1955,9 +1988,9 @@ function mainLoop(){
         if ((keysPressed["ArrowRight"] || keysPressed["d"])){
             player.xVelocity -=2;
         };
-        if (player.yPos + player.height>=930){
+        if (player.yPos>=930){
             deaths+=1;
-            respawn();
+            pop();
         };
     } else {
         player.xVelocity *= 0.9;
@@ -1976,15 +2009,11 @@ function mainLoop(){
             player.xVelocity -=2;
         };
 
-        if (player.yPos + player.height>=930){
+        if (player.yPos>=930){
             deaths+=1;
-            respawn();
+            pop();
         };
     };
-    if (gameState === "spawning"){
-        player.xVelocity = 0;
-        player.yVelocity = 0;
-    }
     if (keysPressed["r"] && level != finalLevel){
         level = 1;
         currentCheckpoint = -1;
@@ -1998,8 +2027,9 @@ function mainLoop(){
     }
     if (checkLavas()){
         deaths+=1;
-        respawn();
+        pop();
     };
+    }
     timer.setAttribute("x",125*widthScaleFactor);
     timer.setAttribute("y",40*heightScaleFactor);
     timer.setAttribute("font-size",30*Math.min(heightScaleFactor,widthScaleFactor)+"px");
@@ -2036,7 +2066,7 @@ function mainLoop(){
         	platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
         	platformsVariable[i].setAttribute("width", (platforms[i].rightX-platforms[i].leftX)*widthScaleFactor);
         	platformsVariable[i].setAttribute("height", (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
-        	platformsVariable[i].setAttribute("fill", platforms[i].color);
+        	platformsVariable[i].setAttribute("fill", "white");
         } else {
             platformsVariable[i].style.display = "none";
         }
@@ -2076,6 +2106,9 @@ function mainLoop(){
             fakePlatformsVariable[i].style.display = "none";
         }
     };
+    for (let i=0; i<hiddenPlatformsVariable.length; i++){
+        hiddenPlatformsVariable[i].style.display = "none";
+    }
     revealFake()
     sprite.setAttribute("width", player.width*widthScaleFactor);
     sprite.setAttribute("height", player.height*heightScaleFactor);
