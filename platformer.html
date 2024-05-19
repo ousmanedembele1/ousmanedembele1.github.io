@@ -17,7 +17,11 @@ html, body, svg{
 <body>
     <svg width = "5000" height = "3000" id = "svg" style = "background-color: black;"></svg>
     <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
-    <script src="./platformsData.js"></script>
+    <script src="level1.js"></script>
+    <script src="level2.js"></script>
+    <script src="level3.js"></script>
+    <script src="level4.js"></script>
+    <script src="finallevel.js"></script>
 <script>
 
 //music
@@ -267,7 +271,27 @@ let powerupsVariable = document.getElementsByClassName("powerup");
 let lavasVariable = document.getElementsByClassName("lava");
 let svgElement = document.getElementById("svg");
 
-
+let doorLocations = [];
+doorLocations.push({
+    x:12270,
+    y:580
+});
+doorLocations.push({
+    x:1920*9-200,
+    y:580
+});
+doorLocations.push({
+    x:1920*11-300,
+    y:580
+});
+doorLocations.push({
+    x:1920*7-200,
+    y:580
+});
+doorLocations.push({
+    x:1920-100,
+    y:580
+});
 drawPlatforms();
 drawPowerups();
 drawCheckpoints();
