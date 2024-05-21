@@ -12,6 +12,15 @@ html, body, svg{
 .text{
     user-select: none;
 }
+button{
+    background-color: #B9CEE9;
+    border: none;
+    border-radius: 3px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -22,6 +31,9 @@ html, body, svg{
     <script src="level3.js"></script>
     <script src="level4.js"></script>
     <script src="finallevel.js"></script>
+    <a href="./index">
+        <button><svg width="64px" height="64px" viewBox="0 0 547.60 547.60" > <path fill="#B23F15" d="M540.76,254.788L294.506,38.216c-11.475-10.098-30.064-10.098-41.386,0L6.943,254.788 c-11.475,10.098-8.415,18.284,6.885,18.284h75.964v221.773c0,12.087,9.945,22.108,22.108,22.108h92.947V371.067 c0-12.087,9.945-22.108,22.109-22.108h93.865c12.239,0,22.108,9.792,22.108,22.108v145.886h92.947 c12.24,0,22.108-9.945,22.108-22.108v-221.85h75.965C549.021,272.995,552.081,264.886,540.76,254.788z"></path></svg></button>
+    </a>
 <script>
 
 //music
@@ -61,14 +73,14 @@ function drawDoor(){
         let door = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         door.setAttribute("class","door");
         door.setAttribute("fill", "lightblue");
-        $("svg").append(door);
+        $("#svg").append(door);
     };
 };
 function drawCheckpoints(){
     for (let i=0; i<checkpoints.length; i++){
         let  flag = document.createElementNS("http://www.w3.org/2000/svg", "path");
         flag.setAttribute("class","flag");
-        $("svg").append(flag);
+        $("#svg").append(flag);
     };
 };
 function drawText(){
@@ -79,7 +91,7 @@ function drawText(){
         text.setAttribute("font-weight", "bold");
         text.setAttribute("text-anchor", "middle");
         text.textContent = texts[i].words;
-        $("svg").append(text);
+        $("#svg").append(text);
     };
 };
 function drawPowerups(){
@@ -87,7 +99,7 @@ function drawPowerups(){
         let powerup = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         powerup.setAttribute("class", "powerup");
         powerup.setAttribute("fill",powerups[i].color);
-        $("svg").append(powerup);
+        $("#svg").append(powerup);
     };
 };
 function drawPlatforms(){
@@ -95,7 +107,7 @@ function drawPlatforms(){
         let platform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         platform.setAttribute("class", "platform");
         platform.setAttribute("fill", "white");
-        $("svg").append(platform);
+        $("#svg").append(platform);
     };
 };
 function drawHiddenPlatforms(){
@@ -104,7 +116,7 @@ function drawHiddenPlatforms(){
         hiddenPlatform.setAttribute("class", "hiddenPlatform");
         hiddenPlatform.setAttribute("fill", "white");
         hiddenPlatform.setAttribute("style", "display: none;");
-        $("svg").append(hiddenPlatform);
+        $("#svg").append(hiddenPlatform);
     };
 };
 function drawLavas(){
@@ -112,7 +124,7 @@ function drawLavas(){
         let lava = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         lava.setAttribute("class", "lava");
         lava.setAttribute("fill","red");
-        $("svg").append(lava);
+        $("#svg").append(lava);
     };
 };
 function drawFakePlatforms(){
@@ -120,7 +132,7 @@ function drawFakePlatforms(){
         let fakePlatform = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         fakePlatform.setAttribute("class", "fakePlatform");
         fakePlatform.setAttribute("fill","white");
-        $("svg").append(fakePlatform);
+        $("#svg").append(fakePlatform);
     };
 };
 function checkPortal(){
@@ -307,21 +319,21 @@ sprite.setAttribute("height", player.height);
 sprite.setAttribute("fill","red");
 sprite.setAttribute("x", 0);
 sprite.setAttribute("y", 0);
-$("svg").append(sprite);
+$("#svg").append(sprite);
 let border = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 border.setAttribute("x", 0);
 border.setAttribute("y", 0);
 border.setAttribute("width", 251);
 border.setAttribute("height", 121);
 border.setAttribute("fill", "white");
-$("svg").append(border);
+$("#svg").append(border);
 let box = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 box.setAttribute("x", 0);
 box.setAttribute("y", 0);
 box.setAttribute("width", 250);
 box.setAttribute("height", 120);
 box.setAttribute("fill", "black");
-$("svg").append(box);
+$("#svg").append(box);
 let deathCount = document.createElementNS("http://www.w3.org/2000/svg", "text");
 deathCount.setAttribute("x", 125);
 deathCount.setAttribute("y", 90);
@@ -330,7 +342,7 @@ deathCount.setAttribute("font-size", "40px");
 deathCount.setAttribute("font-weight", "bold");
 deathCount.setAttribute("text-anchor", "middle");
 deathCount.textContent = "Deaths:";
-$("svg").append(deathCount);
+$("#svg").append(deathCount);
 let timer = document.createElementNS("http://www.w3.org/2000/svg", "text");
 timer.setAttribute("x", 125);
 timer.setAttribute("y", 40);
@@ -339,7 +351,7 @@ timer.setAttribute("font-size", "30px");
 timer.setAttribute("font-weight", "bold");
 timer.setAttribute("text-anchor", "middle");
 timer.textContent = "Deaths:";
-$("svg").append(timer);
+$("#svg").append(timer);
 
 
 //physics
