@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>2048</title>
+    <link rel="icon" type="image/x-icon" href="TorusLogo.png">
+<style>
+body{
+    background-color: hsl(49, 52%, 96%);
+    margin: 0vh;
+}
+#button{
+    border: none;
+    border-radius: 0.375vh;
+    color: white;
+    background-color: #8f7a66;
+    padding: 2.5vh 3.75vh;
+    font: 700 2.5vh Arial;
+    cursor: pointer;
+    display: block;
+    margin: 1vh auto 0vh;
+    outline: none;
+}
+#gameArea{
+    position: relative;
+    display: block;
+    margin: 0vh auto;
+    padding: 0vh;
+}
+#scoreContainer{
+    background-color: #bbada0;
+    display: block;
+    margin-left: auto;
+    margin-right: 0vh;
+    text-align: center;
+    width: 12.5vh;
+    border-radius: 0.625vh;
+    padding: 0.25vh;
+    margin-bottom: 1.25vh;
+}
+#scoreContainer h2{
+    font: 700 2.5vh Arial;
+    text-transform: uppercase;
+    color: #eee4da;
+    margin: 0vh;
+}
+#scoreContainer #score{
+    color: #f9f6f2;
+}
+#scoreContainer p{
+    font: 700 4.375vh Arial;
+    padding: 0vh;
+    margin: 0vh;
+}
+#scoreContainer #scoreDiff{
+    position: absolute;
+    color: rgb(51, 51, 51);
+}
+#gameContainer{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.tile{
+    opacity: 0;
+    position: absolute;
+    width: 0.625vh;
+    height: 0.625vh;
+    border-radius:  0.05vh;
+    font: 700 0.375vh Arial;
+    display: flex;
+    justify-content: center;
+    line-height: 0.625vh;
+    transform: translate(-50%, -50%);
+    padding: 0;
+    margin: 0
+}
+.tile1{
+    background-color: #eee4da;
+    color: #776e65
+}
+.tile2{
+    background-color: #eee1c9;
+    color: #776e65
+}
+.tile3{
+    background-color: #f3b179;
+    color: #f9f6f2
+}
+.tile4{
+    background-color: #f69664;
+    color: #f9f6f2
+}
+.tile5{
+    background-color: #f77c5f;
+    color: #f9f6f2
+}
+.tile6{
+    background-color: #f75f3b;
+    color: #f9f6f2
+}
+.tile7{
+    background-color: #edd073;
+    color: #f9f6f2
+}
+.tile8{
+    background-color: #edcc61;
+    color: #f9f6f2
+}
+.tile9{
+    background-color: #edc850;
+    color: #f9f6f2
+}
+.tile10{
+    background-color: #edc63f;
+    color: #f9f6f2
+}
+.tile11{
+    background-color: #edc32f;
+    color: #f9f6f2
+}
+.tile12{
+    background-color: #ef666d;
+    color: #f9f6f2
+}
+.tile13{
+    background-color: #ed4d59;
+    color: #f9f6f2
+}
+.tile14{
+    background-color: #e14338;
+    color: #f9f6f2
+}
+.tile15{
+    background-color: #72b4d7;
+    color: #f9f6f2
+}
+.tile16{
+    background-color: #5ca0df;
+    color: #f9f6f2
+}
+.tile17{
+    background-color: #007bbe;
+    color: #f9f6f2
+}
+</style>
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<body>
+    <div id = "gameContainer">
+        <div id = "scoreContainer">
+            <h2>Score</h2>
+            <p id = "score">0</p>
+            <p id = "scoreDiff">+4</p>
+        </div>
+
+        <div id = "gameArea" width = "500px" height = "500px">
+            <svg id = "gameBoard" width = "500px" height = "500px">
+                <rect id = "gameBackgound" width="500px" height="500px" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
+            </svg>
+        </div>
+        <button id="button">New Game</button>
+    </div>
+<script>
+function ding(x){
+    let audio = new Audio("ping" + x + ".wav");
+    audio.play();
+};
+let height = window.innerHeight;
+let squarewidth;
+let margin;
+if (height > 375){
+    let diffrence = Math.floor((height-375)/25)
+    margin = 6+2*Math.floor(diffrence/5)
+    squarewidth = 64+2*Math.floor((3.7*diffrence)/2)
+}
+let totalWidth = 4*squarewidth + 5*margin;
+$("#gameArea, #gameBoard, #gameBackgound, #gameContainer").css({
+    width: totalWidth + "px"
+})
+$("#gameArea, #gameBoard, #gameBackgound").css({
+    height: totalWidth + "px"
+})
+//Make gameboard
+for (let i = 0; i < 16; i++) {
+    let xPos = i%4;
+    let yPos = Math.floor(i/4);
+    let square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    square.setAttribute('width', squarewidth + "px");
+    square.setAttribute('height', squarewidth + "px");
+    square.setAttribute('fill','#cdc1b4');
+    square.setAttribute('x', (margin+xPos*(margin + squarewidth))+"px");
+    square.setAttribute('y', (margin+yPos*(margin + squarewidth))+"px");
+    square.setAttribute('rx', "4px");
+    square.setAttribute('ry', "4px");
+    $("#gameBoard").append(square);
+}
+$("#scoreDiff").hide();
+let scoreText = $("#score");
+let scoreBoxWidth = 1;
+let scoreChange = 0;
+let score;
+let tilesList;
+let arrows = ["ArrowRight", "ArrowDown","ArrowLeft", "ArrowUp"];
+let timeouts = [
+    [], [], [], [], 
+    [], [], [], [], 
+    [], [], [], [],  
+    [], [], [], []
+]
+function removeTiles(){
+    for (let i = 0; i < 16; i++) {
+        $("#tile" + i).remove()
+    }
+    removeCombinedTiles()
+}
+function removeCombinedTiles(){
+    for (let i = 0; i < 16; i++) {
+        for (let j = 0; j < 2; j++) {
+            $("#tile" + i + "-" + j).remove()
+        }
+    }
+}
+function makeNewTile(tile, tileLocation){
+    $('#gameArea').append('<div id = "tile' + tileLocation + '" class = "tile tile' + tile + '">' + 2**tile + '</div>');
+    let xPos = tileLocation%4;
+    let yPos = Math.floor(tileLocation/4)
+    $("#tile" + tileLocation).css({ 
+        left: ((2*margin + squarewidth)/2 + xPos*(margin + squarewidth)) + "px", 
+        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px"
+    })
+}
+function getFont(len){
+    if (len < 3){
+        return 7.5;
+    } else if (len < 4){
+        return 6;
+    } else if (len < 5){
+        return 5.25;
+    } else if (len < 6){
+        return 4.5;
+    } else{
+        return 3.75;
+    }
+}
+function animateNewTileRandom(tile, tileLocation){
+    let len = (2**tile).toString().length
+    let font = getFont(len)
+    font += "vh"
+    $("#tile" + tileLocation).animate({
+        width: squarewidth + "px",
+        height: squarewidth + "px",
+        borderRadius: "4px",
+        fontSize: font,
+        lineHeight: squarewidth + "px",
+        opacity: "1"
+    }, 150);
+}
+function animateNewTileCombined(tile, tileLocation){
+    let len = (2**tile).toString().length
+    font = getFont(len)
+    let bigfont = font*1.13
+    font += "vh"
+    bigfont += "vh"
+    $("#tile" + tileLocation).animate({
+        width: squarewidth*1.1 + "px",
+        height: squarewidth*1.1 + "px",
+        borderRadius: "5px",
+        fontSize: bigfont,
+        lineHeight: squarewidth*1.1 + "px",
+        opacity: "1"
+    }, 100);
+    $("#tile" + tileLocation).animate({
+        width: squarewidth + "px",
+        height: squarewidth + "px",
+        borderRadius: "4px",
+        fontSize: font,
+        lineHeight: squarewidth + "px",
+        opacity: "1"
+    }, 50);
+}
+function cssReset(id, location){
+    let tileSize = $(id).text()
+    let xPos = location%4;
+    let yPos = Math.floor(location/4)
+    let len = tileSize.length
+    let font = getFont(len)
+    font += "vh"
+    $(id).stop()
+    $(id).css({ 
+        left: ((2*margin + squarewidth)/2 + xPos*(margin + squarewidth)) + "px", 
+        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px",
+        width: squarewidth + "px",
+        height: squarewidth + "px",
+        borderRadius: "4px",
+        fontSize: font,
+        lineHeight: squarewidth + "px",
+        opacity: "1"
+    })
+    for (let i = 0; i < timeouts[location].length; i++) { 
+        clearTimeout(timeouts[location][i])
+    }
+}
+function moveTile(oldLoc, newLoc){
+    let newX = newLoc%4;
+    let newY = Math.floor(newLoc/4);
+    cssReset("#tile" + oldLoc, oldLoc)
+    $("#tile" + oldLoc).attr("id", "tile" + newLoc)
+    $("#tile" + newLoc).animate({ 
+        left: ((2*margin + squarewidth)/2 + newX*(margin + squarewidth)) + "px", 
+        top: ((2*margin + squarewidth)/2 + newY*(margin + squarewidth)) + "px"
+    }, 125)
+}
+function combineTiles(oldLocs, newLoc, size){
+    let firstTile = oldLocs[0];
+    let secondTile = oldLocs[1];
+    let newX = newLoc%4;
+    let newY = Math.floor(newLoc/4);
+    cssReset("#tile" + firstTile, firstTile)
+    cssReset("#tile" + secondTile, secondTile)
+    $("#tile" + firstTile).attr("id", "tile" + newLoc + "-0").animate({ 
+        left: ((2*margin + squarewidth)/2 + newX*(margin + squarewidth)) + "px", 
+        top: ((2*margin + squarewidth)/2 + newY*(margin + squarewidth)) + "px"
+    }, 125, function(){
+        timeouts[newLoc].push(setTimeout(() => {
+            $("#tile" + newLoc + "-0").remove()
+        }, 150))
+    })
+    $("#tile" + secondTile).attr("id", "tile" + newLoc + "-1").animate({ 
+        left: ((2*margin + squarewidth)/2 + newX*(margin + squarewidth)) + "px", 
+        top: ((2*margin + squarewidth)/2 + newY*(margin + squarewidth)) + "px"
+    }, 125, function(){
+        timeouts[newLoc].push(setTimeout(() => {
+            $("#tile" + newLoc + "-1").remove()
+        }, 150))
+    })
+    makeNewTile(size, newLoc)
+    timeouts[newLoc].push(setTimeout(() => {animateNewTileCombined(size, newLoc)}, 125))
+}
+function newTileRandom(time){
+    let tileLocation = Math.floor(Math.random()*16)
+    while (tilesList[tileLocation] !== 0){
+        tileLocation = Math.floor(Math.random()*16)
+    }
+    let newTile;
+    if (Math.random() > 0.9){
+        tilesList[tileLocation] = 2;
+        newTile = 2;
+    } else {
+        tilesList[tileLocation] = 1;
+        newTile = 1;
+    };
+    makeNewTile(newTile, tileLocation)    
+    timeouts[tileLocation].push(setTimeout(() => {
+        animateNewTileRandom(newTile, tileLocation)
+    }, time))
+}
+function init(){
+    removeTiles()
+    score = 0;
+    tilesList = [
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+    ]
+    newTileRandom(0)
+    newTileRandom(0)
+}
+
+function checkFilled(){
+    for (let i = 0; i < tilesList.length; i++) {
+        if (tilesList[i] === 0){
+            return false;
+        }
+    }
+    return true
+}
+function checkLost(){
+    if (!checkFilled()){
+        return false
+    }
+    let oldScore = score; //score might change from combining, so we store the score
+    for (let i = 0; i < 4; i++) {
+        let currentRow = [];
+        for (let j = 0; j < 4; j++) {
+            currentRow.push([tilesList[4*i+j], -1])
+        }
+        let newRow = combine(currentRow);
+        for (let i = 0; i < newRow.length; i++) {
+            if (!arrayEquality(currentRow[i], newRow[i])){
+                score = oldScore
+                return false
+            }
+        }
+    }
+    for (let i = 0; i < 4; i++) {
+        let currentCol = [];
+        for (let j = 0; j < 4; j++) {
+            currentCol.push([tilesList[i+j*4], -1])
+        }
+        let newCol = combine(currentCol);
+        for (let i = 0; i < newCol.length; i++) {
+            if (!arrayEquality(currentCol[i], newCol[i])){
+                score = oldScore
+                return false
+            }
+        }
+    }
+    return true
+}
+function arrayEquality(a,b){
+    return JSON.stringify(a)==JSON.stringify(b);
+}
+function applyArrow(key){
+    removeCombinedTiles()
+    if (!checkLost()){
+        for (let i = 0; i<16; i++) {
+            cssReset("#tile" + i, i)
+        }
+        for (let i = 0; i<16; i++) {
+            $("#tile" + i + "-0").remove()
+            $("#tile" + i + "-1").remove()
+        }
+        let oldScore = score;
+        let gameChanged = false;
+        let Ding = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        if (key === "ArrowRight"){
+            for (let i = 0; i < 4; i++) {
+                let currentRow = [];
+                for (let j = 0; j < 4; j++) {
+                    currentRow.push([tilesList[4*i+3-j], 4*i+3-j])
+                }
+                let newRow = resolveRowCol(currentRow);
+                for (let j = 0; j < newRow.length; j++) {
+                    if (newRow[j][0] !== 0){
+                        if (typeof newRow[j][1] === "number"){
+                            moveTile(newRow[j][1],4*i+3-j)
+                        } else{
+                            combineTiles(newRow[j][1],4*i+3-j, newRow[j][0])
+                            Ding[newRow[j][0]-2] = true;
+                        }
+                    }
+                }
+                for (let j = 0; j < 4; j++) {
+                    if (tilesList[4*i+j] !== newRow[3-j][0]){
+                        gameChanged = true;
+                    }
+                    tilesList[4*i+j] = newRow[3-j][0]
+                }
+            }
+        }
+        if (key === "ArrowLeft"){
+            for (let i = 0; i < 4; i++) {
+                let currentRow = [];
+                for (let j = 0; j < 4; j++) {
+                    currentRow.push([tilesList[4*i+j], 4*i+j])
+                }
+                let newRow = resolveRowCol(currentRow);
+                for (let j = 0; j < newRow.length; j++) {
+                    if (newRow[j][0] !== 0){
+                        if (typeof newRow[j][1] === "number"){
+                            moveTile(newRow[j][1],4*i+j)
+                        } else{
+                            combineTiles(newRow[j][1],4*i+j, newRow[j][0])
+                            Ding[newRow[j][0]-2] = true;
+                        }
+                    }
+                }
+                for (let j = 0; j < 4; j++) {
+                    if (tilesList[4*i+j] !== newRow[j][0]){
+                        gameChanged = true;
+                    }
+                    tilesList[4*i+j] = newRow[j][0]
+                }
+            }
+        }
+        if (key === "ArrowDown"){
+            for (let i = 0; i < 4; i++) {
+                let currentCol = [];
+                for (let j = 0; j < 4; j++) {
+                    currentCol.push([tilesList[i+(3-j)*4], i+(3-j)*4])
+                }
+                let newCol = resolveRowCol(currentCol);
+                for (let j = 0; j < newCol.length; j++) {
+                    if (newCol[j][0] !== 0){
+                        if (typeof newCol[j][1] === "number"){
+                            moveTile(newCol[j][1], i+(3-j)*4)
+                        } else{
+                            combineTiles(newCol[j][1], i+(3-j)*4, newCol[j][0])
+                            Ding[newCol[j][0]-2] = true;
+                        }
+                    }
+                }
+                for (let j = 0; j < 4; j++) {
+                    if (tilesList[i+(3-j)*4] !== newCol[j][0]){
+                        gameChanged = true;
+                    }
+                    tilesList[i+(3-j)*4] = newCol[j][0]
+                }
+            }
+        }
+        if (key === "ArrowUp"){
+            for (let i = 0; i < 4; i++) {
+                let currentCol = [];
+                for (let j = 0; j < 4; j++) {
+                    currentCol.push([tilesList[i+j*4], i+j*4])
+                }
+                let newCol = resolveRowCol(currentCol);
+                for (let j = 0; j < newCol.length; j++) {
+                    if (newCol[j][0] !== 0){
+                        if (typeof newCol[j][1] === "number"){
+                            moveTile(newCol[j][1], i+j*4)
+                        } else{
+                            combineTiles(newCol[j][1], i+j*4, newCol[j][0])
+                            Ding[newCol[j][0]-2] = true;
+                        }
+                    }
+                }
+                for (let j = 0; j < 4; j++) {
+                    if (tilesList[i+j*4] !== newCol[j][0]){
+                        gameChanged = true;
+                    }
+                    tilesList[i+j*4] = newCol[j][0]
+                }
+            }
+        }
+        scoreChange = score - oldScore;
+        if (gameChanged){
+            let newTileData = newTileRandom(150)
+        }
+        for (let i = 0; i<Ding.length; i++){
+            if (Ding[i]){
+                ding(i)
+            }
+        }
+        scoreText.text(score)
+        if (scoreChange > 0){
+            scoreWidth = score.toString().length;
+            $("#scoreContainer").animate({
+                width: (scoreWidth*7 + 93)/8 + "vh"
+            }, 100);
+            $("#scoreDiff").stop(true,true)
+            $("#scoreDiff").text("+" + scoreChange);
+            $("#scoreDiff").show()
+            $("#scoreDiff").css({ top: '3.125vh', opacity: 1 })
+            $("#scoreDiff").animate({
+                top: '-=2.5vh', // Move upward
+                opacity: 0 // Fade out
+            }, 500);
+        }
+    }
+}
+function collapse(tilesInput){
+    //collapses tiles toward index 0
+    let tiles = tilesInput.slice(0)
+    let newList = [];
+    while (tiles.length > 0){
+        if (tiles[0][0] !== 0){
+            newList.push(tiles[0])
+        }
+        tiles.shift()
+    }
+    while (newList.length < 4){
+        newList.push([0, -1])
+    }
+    return newList
+}
+function combine(tilesInput){
+    //combines toward index 0
+    let tiles = tilesInput.slice(0)
+    for (let i = 0; i < 3; i++) {
+        if (tiles[i][0] !== 0 && (tiles[i][0] === tiles[i+1][0])){
+            tiles[i] = [tiles[i][0]+1, [tiles[i][1], tiles[i+1][1]]];
+            score += 2**tiles[i][0]
+            tiles[i+1] = [0, -1]
+        }
+    }
+    return tiles
+}
+function resolveRowCol(tiles){
+    return collapse(combine(collapse(tiles)))
+}
+window.onload = function(){
+	init()
+};
+window.onkeydown = function(e){
+    if (arrows.includes(e.key)){
+        applyArrow(e.key)
+    }
+};
+$("button").click(init)
+</script>
+</body>
+</html>
