@@ -286,8 +286,27 @@ let hiddenPlatformsVariable = document.getElementsByClassName("hiddenPlatform")
 let powerupsVariable = document.getElementsByClassName("powerup");
 let lavasVariable = document.getElementsByClassName("lava");
 let svgElement = document.getElementById("svg");
-
 let doorLocations = [];
+function getColor(powerup){
+		if (powerup === ""){
+        return "hsl(0, 100%, 50%)"
+    }
+    if (powerup === "shorten"){
+        return "hsl(120, 100%, 40%)"
+    }
+    if (powerup === "upsideDown"){
+        return "hsl(20, 100%, 50%)"
+    }
+    if (powerup === "inverse"){
+    		return "hsl(240, 100%, 50%)"
+    }
+    if (powerup === "lengthen"){
+        return "hsl(70, 100%, 50%)"
+    }
+    if (powerup === "hidden"){
+    		return "hsl(120, 0%, 5%)"
+    }
+}
 doorLocations.push({
     x:12270,
     y:580
