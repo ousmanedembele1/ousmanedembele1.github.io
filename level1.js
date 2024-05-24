@@ -20,16 +20,14 @@ platforms.push({
     topY: 905,
     rightX: 4500,
     bottomY: 930,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 100,
     topY: 780,
     rightX: 2990,
     bottomY: 805,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 960,
@@ -42,24 +40,21 @@ platforms.push({
     topY: 680,
     rightX: 2590,
     bottomY: 800,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 2580,
     topY: 580,
     rightX: 2790,
     bottomY: 800,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 2780,
     topY: 480,
     rightX: 3040,
     bottomY: 805,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 2880,
@@ -72,8 +67,7 @@ platforms.push({
     topY: 380,
     rightX: 3190,
     bottomY: 520,
-    level: 1,
-    color: "white"
+    level: 1
 });
 fakePlatforms.push({
     leftX: 2980,
@@ -87,24 +81,21 @@ platforms.push({
     topY: 280,
     rightX: 3380,
     bottomY: 520,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 3180,
     topY: 650,
     rightX: 3380,
     bottomY: 800,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 3180,
     topY: 780,
     rightX: 4500,
     bottomY: 930,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 4800,
@@ -117,16 +108,14 @@ platforms.push({
     topY: 780,
     rightX: 6160,
     bottomY: 930,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 6640,
     topY: 780,
     rightX: 6800,
     bottomY: 800,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 6720,
@@ -139,8 +128,7 @@ platforms.push({
     topY: 780,
     rightX: 7630,
     bottomY: 930,
-    level: 1,
-    color: "white"
+    level: 1
 });
 checkpoints.push({
     x: 7530,
@@ -153,8 +141,7 @@ platforms.push({
     topY: 580,
     rightX: 8250,
     bottomY: 600,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 8640,
@@ -167,32 +154,28 @@ platforms.push({
     topY: 480,
     rightX: 8800,
     bottomY: 500,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 9360,
     topY: 680,
     rightX: 9450,
     bottomY: 700,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 9660,
     topY: 360,
     rightX: 9760,
     bottomY: 380,
-    level: 1,
-    color: "white"
+    level: 1
 });
 platforms.push({
     leftX: 10550,
     topY: 780,
     rightX: 12470,
     bottomY: 930,
-    level: 1,
-    color: "white"
+    level: 1
 });
 texts.push({
     x: 11630,
