@@ -3,8 +3,7 @@ platforms.push({
     topY: 780,
     rightX: 1920,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 powerups.push({
     x: 1920-75,
@@ -19,56 +18,42 @@ platforms.push({
     topY: 0,
     rightX: 1920*1.5 - 300,
     bottomY: 150,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*1.5-75,
     topY: 400,
     rightX: 1920*1.5+75,
     bottomY: 450,
-    level: 3,
-    color: "white"
+    level: 3
 });
-
-
-
-
-
-
-
-
 platforms.push({
     leftX: 1920*2-75,
     topY: 550,
     rightX: 1920*2+75,
     bottomY: 600,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*2.5-75,
     topY: 250,
     rightX: 1920*2.5+75,
     bottomY: 300,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*3,
     topY: 0,
     rightX: 1920*3.5,
     bottomY: 150,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*3.5+200,
     topY: 550,
     rightX: 1920*3.5+350,
     bottomY: 600,
-    level: 3,
-    color: "white"
+    level: 3
 });
 powerups.push({
     x: 1920*3.5+250,
@@ -91,8 +76,7 @@ platforms.push({
     topY: 220,
     rightX: 1920*4.5+200,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*4.5-100,
@@ -107,8 +91,7 @@ platforms.push({
     topY: 220,
     rightX: 1920*4.5+200,
     bottomY: 270,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*4.5+350,
@@ -131,8 +114,7 @@ platforms.push({
     topY: 520,
     rightX: 1920*4.5+700,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 lavas.push({
     leftX: 1920*6-200,
@@ -188,16 +170,14 @@ platforms.push({
     topY: 310,
     rightX: 1920*6,
     bottomY: 410,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*6-2300,
     topY: 100,
     rightX: 1920*6+450,
     bottomY: 110,
-    level: 3,
-    color: "white"
+    level: 3
 });
 // small platforms
 platforms.push({
@@ -205,8 +185,7 @@ platforms.push({
     topY: 900,
     rightX: 1920*5+300,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*5+860,
@@ -221,16 +200,14 @@ platforms.push({
     topY: 900,
     rightX: 1920*5+1620,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*6+150,
     topY: 650,
     rightX: 1920*6+250,
     bottomY: 680,
-    level: 3,
-    color: "white"
+    level: 3
 });
 powerups.push({
     x: 1920*6+175,
@@ -242,19 +219,12 @@ powerups.push({
 });
 
 
-
-
-
-
-
-
 platforms.push({
     leftX: 1920*6.5+750,
     topY: 830,
     rightX: 1920*7.5,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 lavas.push({
     leftX: 13615,
@@ -277,16 +247,14 @@ platforms.push({
     topY: 630,
     rightX: 1920*7.5+210,
     bottomY: 640,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*8,
     topY: 430,
     rightX: 1920*8+10,
     bottomY: 440,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*8+500,
@@ -301,79 +269,64 @@ platforms.push({
     topY: 920,
     rightX: 1920*8.5+810,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*9,
     topY: 580,
     rightX: 1920*9+10,
     bottomY: 590,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*9+500,
     topY: 280,
     rightX: 1920*9+510,
     bottomY: 290,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*10-100,
     topY: 780,
     rightX: 1920*10.5-400,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*10.5+200,
     topY: 780,
     rightX: 1920*11,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*10.5+400,
     topY: 430,
     rightX: 1920*11,
     bottomY: 480,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*11-50,
     topY: 440,
     rightX: 1920*11,
     bottomY: 880,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*10.5+400,
     topY: 440,
     rightX: 1920*10.5+450,
     bottomY: 680,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*11-400,
     topY: 600,
     rightX: 1920*11-350,
     bottomY: 880,
-    level: 3,
-    color: "white"
+    level: 3
 });
-
-
-
-
-
-
 
 
 platforms.push({
@@ -381,48 +334,42 @@ platforms.push({
     topY: 280,
     rightX: 1920*11+580,
     bottomY: 290,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*11.5+260,
     topY: 580,
     rightX: 1920*11.5+380,
     bottomY: 590,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*12+260,
     topY: 480,
     rightX: 1920*12+380,
     bottomY: 490,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*12.5-20,
     topY: 560,
     rightX: 1920*12.5+100,
     bottomY: 570,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*12.5+360,
     topY: 920,
     rightX: 1920*12.5+480,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*13,
     topY: 780,
     rightX: 1920*14,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 lavas.push({
     leftX: 1920*13.5-275,
@@ -431,12 +378,6 @@ lavas.push({
     bottomY: 780,
     level: 3
 });
-
-
-
-
-
-
 
 
 lavas.push({
