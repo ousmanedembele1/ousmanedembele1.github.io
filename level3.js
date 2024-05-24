@@ -10,7 +10,6 @@ powerups.push({
     y: 705,
     effect: "upsideDown",
     level: 3,
-    color: "hsl(20, 100%, 50%)",
     collected: false
 });
 platforms.push({
@@ -60,7 +59,6 @@ powerups.push({
     y: 470,
     effect: "",
     level: 3,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 platforms.push({
@@ -68,8 +66,7 @@ platforms.push({
     topY: 780,
     rightX: 1920*4.5+700,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*4.5+100,
@@ -83,8 +80,7 @@ platforms.push({
     topY: 500,
     rightX: 1920*4.5+200,
     bottomY: 550,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*4.5-100,
@@ -98,15 +94,13 @@ platforms.push({
     topY: -700,
     rightX: 1920*4.5+450,
     bottomY: 680,
-    level: 3,
-    color: "white"
+    level: 3
 });
 powerups.push({
     x: 1920*4.5+375,
     y: 705,
     effect: "inverse",
     level: 3,
-    color: "hsl(240, 100%, 50%)",
     collected: false
 });
 platforms.push({
@@ -192,8 +186,7 @@ platforms.push({
     topY: 900,
     rightX: 1920*5+960,
     bottomY: 930,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*5+1520,
@@ -214,7 +207,6 @@ powerups.push({
     y: 575,
     effect: "",
     level: 3,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 
@@ -238,7 +230,6 @@ powerups.push({
     y:570,
     effect: "lengthen",
     level: 3,
-    color: "hsl(70, 100%, 50%)",
     collected: false
 });
 
@@ -261,8 +252,7 @@ platforms.push({
     topY: 230,
     rightX: 1920*8+510,
     bottomY: 240,
-    level: 3,
-    color: "white"
+    level: 3
 });
 platforms.push({
     leftX: 1920*8.5+800,
