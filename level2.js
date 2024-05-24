@@ -3,24 +3,21 @@ platforms.push({
     topY: 320,
     rightX: 500,
     bottomY: 370,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 0,
     topY: 600,
     rightX: 500,
     bottomY: 650,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 0,
     topY: 880,
     rightX: 500,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 // hovering
 platforms.push({
@@ -28,24 +25,21 @@ platforms.push({
     topY: 220,
     rightX: 1400,
     bottomY: 270,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 2100,
     topY: 420,
     rightX: 2300,
     bottomY: 470,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 3000,
     topY: 620,
     rightX: 3200,
     bottomY: 670,
-    level: 2,
-    color: "white"
+    level: 2
 });
 fakePlatforms.push({
     leftX: 1920*2,
@@ -60,8 +54,7 @@ platforms.push({
     topY: 780,
     rightX: 1920*2.5-600,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 fakePlatforms.push({
     leftX: 1920*2+500,
@@ -82,8 +75,7 @@ platforms.push({
     topY: 780,
     rightX: 1920*5,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 hiddenPlatforms.push({
     leftX: 1920*2+900,
@@ -97,24 +89,21 @@ platforms.push({
     topY: 580,
     rightX: 1920*2+1500,
     bottomY: 630,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 1920*2+1450,
     topY: 150,
     rightX: 1920*2+1650,
     bottomY: 200,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 1920*3+700,
     topY: 550,
     rightX: 1920*3+900,
     bottomY: 600,
-    level: 2,
-    color: "white"
+    level: 2
 });
 // base
 platforms.push({
@@ -122,8 +111,7 @@ platforms.push({
     topY: 780,
     rightX: 1920*5,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 powerups.push({
     x: 1920*5-250,
@@ -138,24 +126,21 @@ platforms.push({
     topY: 780,
     rightX: 1920*6.5-300,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 1920*6.5+100,
     topY: 180,
     rightX: 1920*7-300,
     bottomY: 230,
-    level: 2,
-    color: "white"
+    level: 2
 });
 platforms.push({
     leftX: 1920*8,
     topY: 780,
     rightX: 1920*9,
     bottomY: 930,
-    level: 2,
-    color: "white"
+    level: 2
 });
 texts.push({
     x: 1920/2,
