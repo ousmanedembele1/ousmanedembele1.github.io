@@ -7,7 +7,6 @@
 <style>
 body{
     background-color: hsl(49, 52%, 96%);
-    margin: 0vh;
 }
 #button{
     border: none;
@@ -184,13 +183,9 @@ function ding(x){
     audio.play();
 };
 let height = window.innerHeight;
-let squarewidth;
-let margin;
-if (height > 375){
-    let diffrence = Math.floor((height-375)/25)
-    margin = 6+2*Math.floor(diffrence/5)
-    squarewidth = 64+2*Math.floor((3.7*diffrence)/2)
-}
+let diffrence = Math.floor((height)/25)
+let margin = 2+2*Math.floor(diffrence/6)
+let squarewidth = 6+2*Math.floor((3.8*diffrence)/2)
 let totalWidth = 4*squarewidth + 5*margin;
 $("#gameArea, #gameBoard, #gameBackgound, #gameContainer").css({
     width: totalWidth + "px"
