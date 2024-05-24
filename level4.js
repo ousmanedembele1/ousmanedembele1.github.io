@@ -131,7 +131,6 @@ powerups.push({
     y: 825,
     effect: "",
     level: 4,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 
@@ -141,7 +140,6 @@ powerups.push({
     y: 675,
     level: 4,
     effect: "",
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 platforms.push({
@@ -180,7 +178,6 @@ powerups.push({
     y: 825,
     effect: "",
     level: 4,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 
@@ -204,7 +201,6 @@ powerups.push({
     y: 825,
     effect: "",
     level: 4,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 
@@ -214,7 +210,6 @@ powerups.push({
     y: 675,
     effect: "",
     level: 4,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 platforms.push({
@@ -279,7 +274,6 @@ if (day % 2 === 1){
         y: 825,
         effect: "",
         level: 4,
-        color: "hsl(0, 100%, 50%)",
         collected: false
     });
 } else {
@@ -295,7 +289,6 @@ if (day % 2 === 1){
         y: 675,
         effect: "",
         level: 4,
-        color: "hsl(0, 100%, 50%)",
         collected: false
     });
 }
@@ -321,7 +314,6 @@ powerups.push({
     y: 825,
     effect: "",
     level: 4,
-    color: "hsl(0, 100%, 50%)",
     collected: false
 });
 
@@ -347,8 +339,7 @@ powerups.push({
     x: 1920*5+120,
     y: 560,
     effect: "inverse",
-    level: 4, 
-    color: "hsl(240, 100%, 50%)",
+    level: 4,
     collected: false
 });
 
@@ -387,8 +378,7 @@ platforms.push({
 powerups.push({
     x: 1920*6-115,
     y: 360,
-    effect: "",
-    color: "hsl(120, 0%, 5%)",
+    effect: "hidden",
     level: 4,
     collected: false
 })
@@ -490,7 +480,6 @@ powerups.push({
     x: 935,
     y: 310,
     effect: "shorten",
-    color: "hsl(120, 100%, 40%)",
     level: 4,
     collected: false
 })
