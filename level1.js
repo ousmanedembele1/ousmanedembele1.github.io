@@ -6,8 +6,6 @@ let checkpoints = [];
 let fakePlatforms = [];
 let hiddenPlatforms = []
 
-//LEVEL 1
-
 fakePlatforms.push({
     leftX: 0,
     topY: 780,
