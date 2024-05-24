@@ -257,29 +257,48 @@ lavas.push({
 });
 
 //Safe-Unsafe #7
-lavas.push({
-    leftX: 1920*2.5+3325,
-    rightX: 1920*2.5+3375,
-    topY: 675,
-    bottomY: 725,
-    level: 4
-});
 platforms.push({
     leftX: 1920*2.5+3200,
     topY: 770,
     rightX: 1920*2.5 + 3500,
     bottomY: 780,
     level: 4
-    
 });
-powerups.push({
-    x: 1920*2.5+3325,
-    y: 825,
-    effect: "",
-    level: 4,
-    color: "hsl(0, 100%, 50%)",
-    collected: false
-});
+let day = new Date().getDate()
+if (day % 2 === 1){
+		lavas.push({
+        leftX: 1920*2.5+3325,
+        rightX: 1920*2.5+3375,
+        topY: 675,
+        bottomY: 725,
+        level: 4
+    });
+    powerups.push({
+        x: 1920*2.5+3325,
+        y: 825,
+        effect: "",
+        level: 4,
+        color: "hsl(0, 100%, 50%)",
+        collected: false
+    });
+} else {
+		lavas.push({
+        leftX: 1920*2.5+3325,
+        rightX: 1920*2.5+3375,
+        topY: 825,
+        bottomY: 875,
+        level: 4
+    });
+    powerups.push({
+        x: 1920*2.5+3325,
+        y: 675,
+        effect: "",
+        level: 4,
+        color: "hsl(0, 100%, 50%)",
+        collected: false
+    });
+}
+
 
 //Safe-Unsafe #8
 lavas.push({
