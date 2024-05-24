@@ -118,7 +118,6 @@ powerups.push({
     y: 705,
     effect: "doubleJump",
     level: 2,
-    color: "hsl(270, 100%, 50%)",
     collected: false
 });
 platforms.push({
