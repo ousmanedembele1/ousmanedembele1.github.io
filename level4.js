@@ -256,7 +256,7 @@ lavas.push({
     level: 4
 });
 
-//Safe-Unsafe #7
+//Safe-Unsafe #7, switches daily
 platforms.push({
     leftX: 1920*2.5+3200,
     topY: 770,
@@ -264,9 +264,10 @@ platforms.push({
     bottomY: 780,
     level: 4
 });
+
 let day = new Date().getDate()
 if (day % 2 === 1){
-		lavas.push({
+	lavas.push({
         leftX: 1920*2.5+3325,
         rightX: 1920*2.5+3375,
         topY: 675,
@@ -282,7 +283,7 @@ if (day % 2 === 1){
         collected: false
     });
 } else {
-		lavas.push({
+	lavas.push({
         leftX: 1920*2.5+3325,
         rightX: 1920*2.5+3375,
         topY: 825,
