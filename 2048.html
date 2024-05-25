@@ -26,10 +26,13 @@ body{
     margin: 0vh auto;
     padding: 0vh;
 }
-#scoreContainer{
+#scores{
+    display:flex
+}
+.scoreContainer{
+    position: relative;
     background-color: #bbada0;
     display: block;
-    margin-left: auto;
     margin-right: 0vh;
     text-align: center;
     width: 12.5vh;
@@ -37,22 +40,31 @@ body{
     padding: 0.25vh;
     margin-bottom: 1.25vh;
 }
-#scoreContainer h2{
+#scoreContainer{
+    margin-left: auto;
+}
+#bestContainer{
+    margin-left: 1.25vh;
+}
+.scoreContainer h2{
     font: 700 2.5vh Arial;
     text-transform: uppercase;
     color: #eee4da;
     margin: 0vh;
 }
-#scoreContainer #score{
+.scoreContainer .score{
     color: #f9f6f2;
 }
-#scoreContainer p{
+.scoreContainer p{
     font: 700 4.375vh Arial;
     padding: 0vh;
     margin: 0vh;
 }
-#scoreContainer #scoreDiff{
+.scoreContainer #scoreDiff{
     position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: rgb(51, 51, 51);
 }
 #gameContainer{
@@ -161,12 +173,17 @@ body{
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <body>
     <div id = "gameContainer">
-        <div id = "scoreContainer">
-            <h2>Score</h2>
-            <p id = "score">0</p>
-            <p id = "scoreDiff">+4</p>
+        <div id = "scores">
+        <div class = "scoreContainer" id = "scoreContainer">
+                <h2>Score</h2>
+                <p class = "score" id = "score">0</p>
+                <p id = "scoreDiff">+4</p>
+            </div>
+            <div class = "scoreContainer" id = "bestContainer">
+                <h2>Best</h2>
+                <p class = "score" id = "bestScore">0</p>
+            </div>
         </div>
-
         <div id = "gameArea" width = "500px" height = "500px">
             <svg id = "gameBoard" width = "500px" height = "500px">
                 <rect id = "gameBackgound" width="500px" height="500px" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
@@ -219,9 +236,16 @@ for (let i = 0; i < 16; i++) {
 }
 $("#scoreDiff").hide();
 let scoreText = $("#score");
+let bestText = $("#bestScore")
 let scoreBoxWidth = 1;
 let scoreChange = 0;
 let score;
+let bestScore = Number(localStorage.getItem("2048bestscore"));
+bestText.text(bestScore);
+let bestWidth = bestScore.toString().length;
+$("#bestContainer").css({
+    width: (bestWidth*7 + 93)/8 + "vh"
+});
 let tilesList;
 let arrows = ["ArrowRight", "ArrowDown","ArrowLeft", "ArrowUp"];
 let timeouts = [
@@ -558,18 +582,27 @@ function applyArrow(key){
         }
         scoreText.text(score)
         if (scoreChange > 0){
-            scoreWidth = score.toString().length;
+            let scoreWidth = score.toString().length;
             $("#scoreContainer").animate({
                 width: (scoreWidth*7 + 93)/8 + "vh"
             }, 100);
             $("#scoreDiff").stop(true,true)
             $("#scoreDiff").text("+" + scoreChange);
             $("#scoreDiff").show()
-            $("#scoreDiff").css({ top: '3.125vh', opacity: 1 })
+            $("#scoreDiff").css({ top: '6.125vh', opacity: 1 })
             $("#scoreDiff").animate({
                 top: '-=2.5vh', // Move upward
                 opacity: 0 // Fade out
             }, 500);
+            if (score > bestScore){
+                localStorage.setItem("2048bestscore", score.toString())
+                bestScore = score
+                bestText.text(bestScore)
+                let bestWidth = bestScore.toString().length;
+                $("#bestContainer").animate({
+                    width: (bestWidth*7 + 93)/8 + "vh"
+                }, 100);
+            }
         }
     }
 }
