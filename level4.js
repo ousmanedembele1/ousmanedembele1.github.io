@@ -372,8 +372,91 @@ platforms.push({
     topY: 420,
     rightX: 1920*6,
     bottomY: 450,
+    level: 4 
+});
+powerups.push({
+    x: 1920*6+595,
+    y: 705,
+    effect: "upsideDown",
+    level: 4,
+    collected: false
+})
+powerups.push({
+    x: 1920*6+595,
+    y: 630,
+    effect: "upsideDown",
+    level: 4,
+    collected: false
+})
+powerups.push({
+    x: 1920*6+595,
+    y: 555,
+    effect: "upsideDown",
+    level: 4,
+    collected: false
+})
+powerups.push({
+    x: 1920*6+595,
+    y: 480,
+    effect: "upsideDown",
+    level: 4,
+    collected: false
+})
+lavas.push({
+    leftX: 1920*6+1275,
+    topY: 630,
+    rightX: 1920*6+1325,
+    bottomY: 680,
     level: 4
-    
+})
+lavas.push({
+    leftX: 1920*6+1275,
+    topY: 555,
+    rightX: 1920*6+1325,
+    bottomY: 605,
+    level: 4
+})
+lavas.push({
+    leftX: 1920*6+1275,
+    topY: 480,
+    rightX: 1920*6+1325,
+    bottomY: 530,
+    level: 4
+})
+lavas.push({
+    leftX: 1920*6+1275,
+    topY: 705,
+    rightX: 1920*6+1325,
+    bottomY: 755,
+    level: 4
+})
+powerups.push({
+    x: 1920*6+1275,
+    y: 405,
+    effect: "upsideDown",
+    level: 4,
+    collected: false
+})
+platforms.push({
+    leftX: 1920*6+1500,
+    topY: 0,
+    rightX: 1920*7,
+    bottomY: 50,
+    level: 4 
+});
+powerups.push({
+    x: 1920*7-175,
+    y: 490,
+    effect: "",
+    level: 4,
+    collected: false
+})
+platforms.push({
+    leftX: 1920*6+1500,
+    topY: 220,
+    rightX: 1920*6+1550,
+    bottomY: 930,
+    level: 4 
 });
 powerups.push({
     x: 1920*6-115,
