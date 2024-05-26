@@ -410,7 +410,7 @@ function doubleJumpPhys(){
     if ((keysPressed["ArrowDown"] || keysPressed["s"])){
         player.yVelocity += 20;
     };
-    if (player.yPos >= 930){
+    if (player.yPos + player.height >= 930){
         deaths += 1;
         pop();
     };
@@ -753,7 +753,7 @@ function mainLoop(){
         xScroll = levelStats[level-1].maxX-1920;
     };
    
-    if (checkCheckpoint()[0] && checkpoints[checkCheckpoint()[1]].level === level){
+    if (checkCheckpoint()[0]){
         checkpoints[checkCheckpoint()[1]].reached = true;
         if (checkCheckpoint()[1]>currentCheckpoint){
             currentCheckpoint = checkCheckpoint()[1];
