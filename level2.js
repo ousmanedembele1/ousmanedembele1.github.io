@@ -159,6 +159,12 @@ texts.push({
     words: "A powerup! Maybe it will help!",
     level: 2
 });
+texts.push({
+    x: 1920*7-300,
+    y: 830,
+    words: "Press p to pause the game",
+    level: 2
+});
 checkpoints.push({
     x:1920*2,
     y:580,
