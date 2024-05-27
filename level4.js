@@ -321,7 +321,7 @@ powerups.push({
 hiddenPlatforms.push({
     leftX: 1920*4.5-1,
     topY: 920,
-    rightX: 1920*4.5 + 250,
+    rightX: 1920*4.5 + 270,
     bottomY: 930,
     level: 4
 });
