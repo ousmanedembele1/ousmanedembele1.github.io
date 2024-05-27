@@ -141,9 +141,6 @@ function drawFakePlatforms(){
 };
 function checkPortal(){
     let i = level-1;
-    if (level > doorLocations.length){
-        return false;
-    };
     if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, doorLocations[i].x, doorLocations[i].y, doorLocations[i].x+100, doorLocations[i].y+200)){
         return true;
     };
@@ -270,8 +267,8 @@ let levelStats = [
 ];
 let currentPowerup = "";
 let keysPressed = {};
-let widthScaleFactor= window.innerWidth/1920;
-let heightScaleFactor= window.innerHeight/930;
+let widthScaleFactor;
+let heightScaleFactor;
 let currentCheckpoint=-1;
 let gameState = "starting";
 player.xPos = levelStats[level-1].startX;
@@ -479,6 +476,7 @@ function normalPhys(){
     };
 }
 function mainLoop(){
+    let now = Date.now()
     if (level === finalLevel){
         gameState = "won";
     };
@@ -504,13 +502,8 @@ function mainLoop(){
             player.height = 100;
         }
     };
-
-    widthScaleFactor = window.innerWidth/1920;
-    heightScaleFactor = window.innerHeight/930;
-    svgElement.setAttribute("width" , window.innerWidth);
-    svgElement.setAttribute("height" , window.innerHeight);
-
-
+    sprite.setAttribute("width", player.width*widthScaleFactor);
+    sprite.setAttribute("height", player.height*heightScaleFactor);
     if (gameState !== "spawning"){
         if (currentPowerup === "doubleJump"){
             doubleJumpPhys()
@@ -537,9 +530,6 @@ function mainLoop(){
             pop();
         };
     }
-    timer.setAttribute("x",125*widthScaleFactor);
-    timer.setAttribute("y",40*heightScaleFactor);
-    timer.setAttribute("font-size",30*Math.min(heightScaleFactor,widthScaleFactor)+"px");
     if (time%100 === 0){
         timer.textContent = "Time: " + time/100+".00";  
     } else if(time%100 <10){
@@ -547,14 +537,9 @@ function mainLoop(){
     } else {
         timer.textContent = "Time: " + (time-time%100)/100+"."+time%100;
     }
-    deathCount.setAttribute("x",125*widthScaleFactor);
-    deathCount.setAttribute("y",90*heightScaleFactor);
-    deathCount.setAttribute("font-size",40*Math.min(heightScaleFactor,widthScaleFactor)+"px");
+    
     deathCount.textContent = "Deaths: " + deaths;
-    border.setAttribute("width",250*widthScaleFactor+1);
-    border.setAttribute("height",120*heightScaleFactor+1);
-    box.setAttribute("width",250*widthScaleFactor);
-    box.setAttribute("height",120*heightScaleFactor);
+
     if (level < finalLevel){
         box.style.display = "inline";
         border.style.display = "inline";
@@ -568,12 +553,18 @@ function mainLoop(){
     };
     for (let i=0; i<platformsVariable.length; i++){
         if (platforms[i].level === level){
-            platformsVariable[i].style.display = "inline";
-            platformsVariable[i].setAttribute("x", (platforms[i].leftX-xScroll)*widthScaleFactor);
-        	platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
-        	platformsVariable[i].setAttribute("width", (platforms[i].rightX-platforms[i].leftX)*widthScaleFactor);
-        	platformsVariable[i].setAttribute("height", (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
-        	platformsVariable[i].setAttribute("fill", "white");
+            let x = platforms[i].leftX-xScroll;
+            let width = platforms[i].rightX-platforms[i].leftX;
+            if (isVisible(x, width)){
+                platformsVariable[i].style.display = "inline";
+                platformsVariable[i].setAttribute("x", x*widthScaleFactor);
+        	    platformsVariable[i].setAttribute("y",(platforms[i].topY)*heightScaleFactor);
+        	    platformsVariable[i].setAttribute("width", width*widthScaleFactor);
+        	    platformsVariable[i].setAttribute("height", (platforms[i].bottomY-platforms[i].topY)*heightScaleFactor);
+        	    platformsVariable[i].setAttribute("fill", "white");
+            } else{  
+                platformsVariable[i].style.display = "none";
+            }
         } else {
             platformsVariable[i].style.display = "none";
         }
@@ -582,33 +573,51 @@ function mainLoop(){
 
     for (let i=0; i<lavasVariable.length; i++){
         if (lavas[i].level ===level){
-            lavasVariable[i].style.display = "inline";
-        	lavasVariable[i].setAttribute("x", (lavas[i].leftX-xScroll)*widthScaleFactor);
-        	lavasVariable[i].setAttribute("y",(lavas[i].topY)*heightScaleFactor);
-        	lavasVariable[i].setAttribute("width", (lavas[i].rightX-lavas[i].leftX)*widthScaleFactor);
-        	lavasVariable[i].setAttribute("height", (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
+            let x = lavas[i].leftX-xScroll;
+            let width = lavas[i].rightX-lavas[i].leftX;
+            if (isVisible(x, width)){
+                lavasVariable[i].style.display = "inline";
+            	lavasVariable[i].setAttribute("x", x*widthScaleFactor);
+            	lavasVariable[i].setAttribute("y",(lavas[i].topY)*heightScaleFactor);
+        	    lavasVariable[i].setAttribute("width", width*widthScaleFactor);
+        	    lavasVariable[i].setAttribute("height", (lavas[i].bottomY-lavas[i].topY)*heightScaleFactor);
+            } else {
+                lavasVariable[i].style.display = "none";
+            }
         } else {
             lavasVariable[i].style.display = "none";
         };
     };
     for (let i=0; i<powerupsVariable.length; i++){
         if (powerups[i].level ===level && !powerups[i].collected){
-            powerupsVariable[i].style.display = "inline";
-        	powerupsVariable[i].setAttribute("x", (powerups[i].x-xScroll)*widthScaleFactor);
-        	powerupsVariable[i].setAttribute("y",(powerups[i].y)*heightScaleFactor);
-        	powerupsVariable[i].setAttribute("width", 50*widthScaleFactor);
-        	powerupsVariable[i].setAttribute("height", 50*heightScaleFactor);
+            let x = powerups[i].x-xScroll;
+            let width = 50;
+            if (isVisible(x, width)){
+                powerupsVariable[i].style.display = "inline";
+            	powerupsVariable[i].setAttribute("x", (powerups[i].x-xScroll)*widthScaleFactor);
+            	powerupsVariable[i].setAttribute("y",(powerups[i].y)*heightScaleFactor);
+        	    powerupsVariable[i].setAttribute("width", 50*widthScaleFactor);
+        	    powerupsVariable[i].setAttribute("height", 50*heightScaleFactor);
+            } else {
+                powerupsVariable[i].style.display = "none";
+            }
         } else {
             powerupsVariable[i].style.display = "none";
         }
     };
     for (let i=0; i<fakePlatformsVariable.length; i++){
         if (fakePlatforms[i].level ===level){
-            fakePlatformsVariable[i].style.display = "inline";
-        	fakePlatformsVariable[i].setAttribute("x", (fakePlatforms[i].leftX-xScroll)*widthScaleFactor);
-        	fakePlatformsVariable[i].setAttribute("y",(fakePlatforms[i].topY)*heightScaleFactor);
-        	fakePlatformsVariable[i].setAttribute("width", (fakePlatforms[i].rightX-fakePlatforms[i].leftX)*widthScaleFactor);
-        	fakePlatformsVariable[i].setAttribute("height", (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
+            let x = fakePlatforms[i].leftX-xScroll;
+            let width = fakePlatforms[i].rightX-fakePlatforms[i].leftX
+            if (isVisible(x, width)){
+                fakePlatformsVariable[i].style.display = "inline";
+            	fakePlatformsVariable[i].setAttribute("x", x*widthScaleFactor);
+            	fakePlatformsVariable[i].setAttribute("y",(fakePlatforms[i].topY)*heightScaleFactor);
+            	fakePlatformsVariable[i].setAttribute("width", width*widthScaleFactor);
+        	    fakePlatformsVariable[i].setAttribute("height", (fakePlatforms[i].bottomY-fakePlatforms[i].topY)*heightScaleFactor);
+            } else {
+                fakePlatformsVariable[i].style.display = "none";
+            }
         } else {
             fakePlatformsVariable[i].style.display = "none";
         }
@@ -617,8 +626,6 @@ function mainLoop(){
         hiddenPlatformsVariable[i].style.display = "none";
     }
     revealFake()
-    sprite.setAttribute("width", player.width*widthScaleFactor);
-    sprite.setAttribute("height", player.height*heightScaleFactor);
     for (let i=0; i<textsVariable.length; i++){
         if (texts[i].level ===level){
             textsVariable[i].style.display = "inline";
@@ -637,7 +644,6 @@ function mainLoop(){
             };
         	textsVariable[i].setAttribute("x", (texts[i].x-xScroll)*widthScaleFactor);
         	textsVariable[i].setAttribute("y",(texts[i].y)*heightScaleFactor);
-        	textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
         } else {
             textsVariable[i].style.display = "none";
         }
@@ -686,7 +692,7 @@ function mainLoop(){
     for (let i =0; i<128; i++){
         player.yPos += player.yVelocity/128;
         if (colliding()[0]){
-            if ((player.yVelocity>=0 && currentPowerup != "upsideDown") || (player.yVelocity<=0 && currentPowerup === "upsideDown")){
+            if ((player.yVelocity>=0 && currentPowerup !== "upsideDown") || (player.yVelocity<=0 && currentPowerup === "upsideDown")){
                 if (currentPowerup === "upsideDown"){
                     player.yPos = colliding()[1].bottomY;
                 } else {
@@ -713,6 +719,7 @@ function mainLoop(){
         };
     };
     if (checkPortal()){
+        console.log(avg)
         if (level === finalLevel){
             level=1;
             time=0;
@@ -762,7 +769,13 @@ function mainLoop(){
     if (Math.abs(player.xVelocity)<0.01){
         player.xVelocity = 0;
     };
+    let passed = Date.now()-now;
+    avg = (avg*times + passed)/(times+1);
+    times++;
 };
+let avg = 0;
+let times = 0;
+setSizes()
 mainLoop()
 setInterval(mainLoop, 10);
 $("body").keydown(function (event) {
@@ -777,6 +790,32 @@ $("body").keydown(function (event) {
 $("body").keyup(function (event) {
     keysPressed[event.key] = false;
 });
+window.onresize = function(){setSizes()}
+function isVisible(leftX, width){
+    if (leftX > 1920 || leftX + width < 0){
+        return false;
+    }
+    return true
+}
+function setSizes(){
+    widthScaleFactor = window.innerWidth/1920;
+    heightScaleFactor = window.innerHeight/930;
+    svgElement.setAttribute("width", window.innerWidth);
+    svgElement.setAttribute("height", window.innerHeight);
+    timer.setAttribute("x",125*widthScaleFactor);
+    timer.setAttribute("y",40*heightScaleFactor);
+    timer.setAttribute("font-size",30*Math.min(heightScaleFactor,widthScaleFactor)+"px")
+    deathCount.setAttribute("x",125*widthScaleFactor);
+    deathCount.setAttribute("y",90*heightScaleFactor);
+    deathCount.setAttribute("font-size",40*Math.min(heightScaleFactor,widthScaleFactor)+"px");
+    border.setAttribute("width",250*widthScaleFactor+1);
+    border.setAttribute("height",120*heightScaleFactor+1);
+    box.setAttribute("width",250*widthScaleFactor);
+    box.setAttribute("height",120*heightScaleFactor);
+    for (let i = 0; i < textsVariable.length; i++) {
+        textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
+    }
+}
 </script>
 </body>
 </html>
