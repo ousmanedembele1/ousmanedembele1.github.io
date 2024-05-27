@@ -257,6 +257,8 @@ function respawn (){
 let player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
 let deaths = 0;
 let time = 0;
+let index = 0;
+let personalBestIndex = localStorage.getItem("index");
 let jumps = 2;
 let ready = false;
 let level = 1;
@@ -647,15 +649,29 @@ function mainLoop(){
         if (texts[i].level ===level){
             textsVariable[i].style.display = "inline";
             if (level === finalLevel){
-                if (texts[i].words === "Deaths: "){
-                    textsVariable[i].textContent = "Deaths: " + deaths;
-                } else if (texts[i].words === "Time: "){
+                if (texts[i].words === "Time: , Deaths: "){
                     if (time%100 === 0){
-                        textsVariable[i].textContent = "Time: " + time/100+".00";  
+                        textsVariable[i].textContent = "Time: " + time/100+".00" + ", Deaths: " + deaths;  
                     } else if(time%100 <10){
-                        textsVariable[i].textContent = "Time: " + (time-time%100)/100+".0"+time%100;
+                        textsVariable[i].textContent = "Time: " + (time-time%100)/100+".0"+time%100 + ", Deaths: " + deaths;
                     } else {
-                        textsVariable[i].textContent = "Time: " + (time-time%100)/100+"."+time%100;
+                        textsVariable[i].textContent = "Time: " + (time-time%100)/100+"."+time%100 + ", Deaths: " + deaths;
+                    }
+                } else if (texts[i].words === "Index: "){
+                    if (index%100 === 0){
+                        textsVariable[i].textContent = "Index: " + index/100+".00";  
+                    } else if(index%100 <10){
+                        textsVariable[i].textContent = "Index: " + (index-index%100)/100+".0"+index%100;
+                    } else {
+                        textsVariable[i].textContent = "Index: " + (index-index%100)/100+"."+index%100;
+                    }
+                } else if (texts[i].words === "Personal best index: "){
+                    if (personalBestIndex%100 === 0){
+                        textsVariable[i].textContent = "Personal best index: " + personalBestIndex/100+".00";  
+                    } else if(personalBestIndex%100 <10){
+                        textsVariable[i].textContent = "Personal best index: " + (personalBestIndex-personalBestIndex%100)/100+".0"+personalBestIndex%100;
+                    } else {
+                        textsVariable[i].textContent = "Personal best index: " + (personalBestIndex-personalBestIndex%100)/100+"."+personalBestIndex%100;
                     }
                 };
             };
@@ -708,8 +724,12 @@ function mainLoop(){
             };
         } else {
             level+=1;
-            if (level === 4){
-                deaths -= 1
+            if (level === finalLevel){
+                index = Math.round(Math.sqrt(deaths*time)*10);
+                if (index < personalBestIndex || personalBestIndex === null){
+                    personalBestIndex = index
+                    localStorage.setItem("index", index)
+                }    
             }
         }
         currentCheckpoint = -1;
