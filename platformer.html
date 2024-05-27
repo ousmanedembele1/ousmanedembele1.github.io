@@ -184,6 +184,9 @@ function colliding(){
             }
         };
     };
+    for (let i=0; i<hiddenPlatformsVariable.length; i++){
+        hiddenPlatformsVariable[i].style.display = "none";
+    }
     for (let i=0; i<platforms.length; i++){
         if (platforms[i].level===level){
             if (rectangularCollision(player.xPos, player.yPos, player.xPos+player.width, player.yPos+player.height, platforms[i].leftX, platforms[i].topY, platforms[i].rightX, platforms[i].bottomY)){
@@ -249,7 +252,7 @@ function respawn (){
     gameState = "spawning"
     $("#mySprite").stop()
     $("#mySprite").css({opacity:0})
-    $("#mySprite").animate({opacity: 1}, 200, function(){gameState = "playing"});
+    $("#mySprite").animate({opacity: 1}, 200, function(){gameState = "starting"});
 };
 let player = {width: 100, height: 100, xPos: 0, yPos: 0, yVelocity: 0, xVelocity:0};
 let deaths = 0;
@@ -364,7 +367,6 @@ deathCount.setAttribute("fill", "white");
 deathCount.setAttribute("font-size", "40px");
 deathCount.setAttribute("font-weight", "bold");
 deathCount.setAttribute("text-anchor", "middle");
-deathCount.textContent = "Deaths:";
 $("#svg").append(deathCount);
 let timer = document.createElementNS("http://www.w3.org/2000/svg", "text");
 timer.setAttribute("x", 125);
@@ -373,9 +375,32 @@ timer.setAttribute("fill", "white");
 timer.setAttribute("font-size", "30px");
 timer.setAttribute("font-weight", "bold");
 timer.setAttribute("text-anchor", "middle");
-timer.textContent = "Deaths:";
 $("#svg").append(timer);
-
+let pausedBlocker = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+pausedBlocker.setAttribute("x", 0);
+pausedBlocker.setAttribute("y", 0);
+pausedBlocker.setAttribute("width", window.innerWidth);
+pausedBlocker.setAttribute("height", window.innerHeight);
+pausedBlocker.setAttribute("fill", "white");
+pausedBlocker.setAttribute("opacity", "0.7");
+$("#svg").append(pausedBlocker);
+let pausedText1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+pausedText1.setAttribute("fill", "black");
+pausedText1.setAttribute("font-size", "90px");
+pausedText1.setAttribute("font-weight", "bold");
+pausedText1.setAttribute("text-anchor", "middle");
+pausedText1.textContent = "PAUSED";
+$("#svg").append(pausedText1);
+let pausedText2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+pausedText2.setAttribute("fill", "black");
+pausedText2.setAttribute("font-size", "40px");
+pausedText2.setAttribute("font-weight", "bold");
+pausedText2.setAttribute("text-anchor", "middle");
+pausedText2.textContent = "Press any key to resume";
+$("#svg").append(pausedText2);
+pausedBlocker.style.display = "none";
+pausedText1.style.display = "none";
+pausedText2.style.display = "none";
 
 //physics
 function doubleJumpPhys(){
@@ -476,7 +501,11 @@ function normalPhys(){
     };
 }
 function mainLoop(){
-    let now = Date.now()
+    if (gameState === "starting"){
+        if (player.xVelocity !== 0){
+            gameState = "playing"
+        }
+    }
     if (level === finalLevel){
         gameState = "won";
     };
@@ -504,7 +533,8 @@ function mainLoop(){
     };
     sprite.setAttribute("width", player.width*widthScaleFactor);
     sprite.setAttribute("height", player.height*heightScaleFactor);
-    if (gameState !== "spawning"){
+    
+    if (gameState !== "spawning" && gameState !== "paused"){
         if (currentPowerup === "doubleJump"){
             doubleJumpPhys()
         } else if (currentPowerup === "upsideDown"){
@@ -514,21 +544,11 @@ function mainLoop(){
         } else {
             normalPhys()
         };
-        if (keysPressed["r"] && level != finalLevel){
-            level = 1;
-            currentCheckpoint = -1;
-            for (let i = 0; i<checkpoints.length; i++) {
-                checkpoints[i].reached = false;
-            };
-            currentPowerup = "";
-            respawn();
-            time = 0;
-            deaths = 0;
-        }
         if (checkLavas()){
             deaths+=1;
             pop();
         };
+        movePlayer()
     }
     if (time%100 === 0){
         timer.textContent = "Time: " + time/100+".00";  
@@ -622,9 +642,6 @@ function mainLoop(){
             fakePlatformsVariable[i].style.display = "none";
         }
     };
-    for (let i=0; i<hiddenPlatformsVariable.length; i++){
-        hiddenPlatformsVariable[i].style.display = "none";
-    }
     revealFake()
     for (let i=0; i<textsVariable.length; i++){
         if (texts[i].level ===level){
@@ -676,50 +693,9 @@ function mainLoop(){
             flagsVariable[i].style.display = "none";
         }
     };
-    for(let i = 0; i<32; i++){
-        player.xPos += player.xVelocity/32
-        if (colliding()[0]){
-            if (player.xVelocity>0){
-                player.xPos = colliding()[1].leftX - player.width;
-                player.xVelocity = 0;
-            } else {
-                player.xPos = colliding()[1].rightX;
-                player.xVelocity = 0;
-            };
-        };
-    };
 
-    for (let i =0; i<128; i++){
-        player.yPos += player.yVelocity/128;
-        if (colliding()[0]){
-            if ((player.yVelocity>=0 && currentPowerup !== "upsideDown") || (player.yVelocity<=0 && currentPowerup === "upsideDown")){
-                if (currentPowerup === "upsideDown"){
-                    player.yPos = colliding()[1].bottomY;
-                } else {
-                    player.yPos = colliding()[1].topY -player.height;
-                }
-                player.yVelocity = 0;
-                grounded = true;
-                break;
-            } else {
-                if (currentPowerup === "upsideDown"){
-                    grounded = false;
-                    player.yPos = colliding()[1].topY-100;
-                    player.yVelocity = 0;
-                    break;
-                } else{
-                    grounded = false;
-                    player.yPos = colliding()[1].bottomY;
-                    player.yVelocity = 0;
-                    break;
-                }
-            }
-        } else {
-            grounded = false;
-        };
-    };
+    
     if (checkPortal()){
-        console.log(avg)
         if (level === finalLevel){
             level=1;
             time=0;
@@ -769,12 +745,7 @@ function mainLoop(){
     if (Math.abs(player.xVelocity)<0.01){
         player.xVelocity = 0;
     };
-    let passed = Date.now()-now;
-    avg = (avg*times + passed)/(times+1);
-    times++;
 };
-let avg = 0;
-let times = 0;
 setSizes()
 mainLoop()
 setInterval(mainLoop, 10);
@@ -785,6 +756,22 @@ $("body").keydown(function (event) {
             startMusic()
         }
     };
+    if (event.key === "r" && level != finalLevel && gameState !== "spawning"){
+        level = 1;
+        currentCheckpoint = -1;
+        for (let i = 0; i<checkpoints.length; i++) {
+            checkpoints[i].reached = false;
+        };
+        currentPowerup = "";
+        respawn();
+        time = 0;
+        deaths = 0;
+    }
+    if (gameState === "paused"){
+        resume()
+    } else if (event.key === "p" && level != finalLevel && gameState !== "spawning"){
+        pause()
+    }
     keysPressed[event.key] = true;
 });
 $("body").keyup(function (event) {
@@ -815,6 +802,70 @@ function setSizes(){
     for (let i = 0; i < textsVariable.length; i++) {
         textsVariable[i].setAttribute("font-size", 70*Math.min(heightScaleFactor, widthScaleFactor)+"px");
     }
+    pausedBlocker.setAttribute("width", window.innerWidth);
+    pausedBlocker.setAttribute("height", window.innerHeight);
+    pausedText1.setAttribute("x", window.innerWidth/2);
+    pausedText1.setAttribute("y", window.innerHeight/2-20);
+    pausedText1.setAttribute("font-size", 150*Math.min(heightScaleFactor, widthScaleFactor)+"px");
+    pausedText2.setAttribute("x", window.innerWidth/2);
+    pausedText2.setAttribute("y", window.innerHeight/2+20);
+    pausedText2.setAttribute("font-size", 50*Math.min(heightScaleFactor, widthScaleFactor)+"px");
+}
+function movePlayer(){
+    for(let i = 0; i<32; i++){
+        player.xPos += player.xVelocity/32
+        if (colliding()[0]){
+            if (player.xVelocity>0){
+                player.xPos = colliding()[1].leftX - player.width;
+                player.xVelocity = 0;
+            } else {
+                player.xPos = colliding()[1].rightX;
+                player.xVelocity = 0;
+            };
+        };
+    };
+
+    for (let i =0; i<128; i++){
+        player.yPos += player.yVelocity/128;
+        if (colliding()[0]){
+            if ((player.yVelocity>=0 && currentPowerup !== "upsideDown") || (player.yVelocity<=0 && currentPowerup === "upsideDown")){
+                if (currentPowerup === "upsideDown"){
+                    player.yPos = colliding()[1].bottomY;
+                } else {
+                    player.yPos = colliding()[1].topY -player.height;
+                }
+                player.yVelocity = 0;
+                grounded = true;
+                break;
+            } else {
+                if (currentPowerup === "upsideDown"){
+                    grounded = false;
+                    player.yPos = colliding()[1].topY-100;
+                    player.yVelocity = 0;
+                    break;
+                } else{
+                    grounded = false;
+                    player.yPos = colliding()[1].bottomY;
+                    player.yVelocity = 0;
+                    break;
+                }
+            }
+        } else {
+            grounded = false;
+        };
+    };
+}
+function pause(){
+    pausedBlocker.style.display = "inline";
+    pausedText1.style.display = "inline";
+    pausedText2.style.display = "inline";
+    gameState = "paused";
+}
+function resume(){
+    pausedBlocker.style.display = "none";
+    pausedText1.style.display = "none";
+    pausedText2.style.display = "none";
+    gameState = "playing";
 }
 </script>
 </body>
