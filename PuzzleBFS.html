@@ -1,39 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <title>15-puzzle</title>
-    <link rel="icon" type="image/x-icon" href="TorusLogo.png">
-<style>
-body{
-    overflow: hidden;
-}
-#myCanvas{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-}
-button{
-    background-color: #B9CEE9;
-    border: none;
-    border-radius: 3px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-    transition-duration: 200ms;
-}
-button:hover{
-    background-color: #273343;
-}
-</style>
-</head>
-<body>
-<canvas id = "myCanvas" width = "800" height = "700"></canvas>
-<a href="./">
-<button><svg width="64px" height="64px" viewBox="0 0 547.60 547.60" > <path fill="#B23F15" d="M540.76,254.788L294.506,38.216c-11.475-10.098-30.064-10.098-41.386,0L6.943,254.788 c-11.475,10.098-8.415,18.284,6.885,18.284h75.964v221.773c0,12.087,9.945,22.108,22.108,22.108h92.947V371.067 c0-12.087,9.945-22.108,22.109-22.108h93.865c12.239,0,22.108,9.792,22.108,22.108v145.886h92.947 c12.24,0,22.108-9.945,22.108-22.108v-221.85h75.965C549.021,272.995,552.081,264.886,540.76,254.788z"></path></svg></button>
-</a>
-<script>
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
 
@@ -46,9 +10,8 @@ let sizes = [
     {size: 6, holes: [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35], label: "circle"}
 ];
 let sizeIndex = Math.floor(Math.random()*5);
+
 let currentSize;
-
-
 let squarePositions;
 let emptySquare;
 let currentShape;
@@ -68,13 +31,13 @@ function init(){
     for (let i = 0; i<currentSize**2; i++){
         if (currentShape.holes.includes(i)){
             squarePositions.push(-2);
-        } else if (i !== currentSize**2-1){
-            squarePositions.push(i);
-        } else{
+        } else if (i === currentSize**2-1){
             squarePositions.push(-1);
+        } else{
+            squarePositions.push(i);
         }
     }
-
+		console.log(squarePositions)
     emptySquare = currentSize**2-1;
     while (currentShape.holes.includes(emptySquare)){
         emptySquare--;
@@ -690,7 +653,4 @@ window.onresize = function(){
     }
     draw()
 }
-</script>
-</body>
-</html>
 
