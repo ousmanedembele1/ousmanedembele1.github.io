@@ -1,3 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>15-puzzle</title>
+<style>
+body{
+    overflow: hidden;
+}
+#myCanvas{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+</style>
+</head>
+<body>
+<canvas id = "myCanvas" width = "800" height = "700"></canvas>
+<script>
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
 
@@ -653,4 +672,6 @@ window.onresize = function(){
     }
     draw()
 }
-
+</script>
+</body>
+</html>
