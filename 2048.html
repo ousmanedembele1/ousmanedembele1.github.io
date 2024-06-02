@@ -22,12 +22,27 @@ body{
 }
 #gameArea{
     position: relative;
-    display: block;
     margin: 0vh auto;
     padding: 0vh;
+    display: flex;
+}
+#lose{
+    display: flex;
+    line-height: 56.25vh;
+    justify-content: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(255, 255, 255, 0.4);
+    color: rgb(94, 94, 94);
+    z-index: 3;
+    font: 700 10vh Arial;
+}
+#gameBoard{
+    z-index: 1;
 }
 #scores{
-    display:flex
+    display: flex
 }
 .scoreContainer{
     position: relative;
@@ -79,7 +94,7 @@ body{
     width: 0.625vh;
     height: 0.625vh;
     border-radius:  0.05vh;
-    font: 700 0.375vh Arial;
+    font: 700 7.5vh Arial;
     display: flex;
     justify-content: center;
     line-height: 0.625vh;
@@ -87,74 +102,23 @@ body{
     padding: 0;
     margin: 0
 }
-.tile1{
-    background-color: #eee4da;
-    color: #776e65
-}
-.tile2{
-    background-color: #eee1c9;
-    color: #776e65
-}
-.tile3{
-    background-color: #f3b179;
-    color: #f9f6f2
-}
-.tile4{
-    background-color: #f69664;
-    color: #f9f6f2
-}
-.tile5{
-    background-color: #f77c5f;
-    color: #f9f6f2
-}
-.tile6{
-    background-color: #f75f3b;
-    color: #f9f6f2
-}
-.tile7{
-    background-color: #edd073;
-    color: #f9f6f2
-}
-.tile8{
-    background-color: #edcc61;
-    color: #f9f6f2
-}
-.tile9{
-    background-color: #edc850;
-    color: #f9f6f2
-}
-.tile10{
-    background-color: #edc63f;
-    color: #f9f6f2
-}
-.tile11{
-    background-color: #edc32f;
-    color: #f9f6f2
-}
-.tile12{
-    background-color: #ef666d;
-    color: #f9f6f2
-}
-.tile13{
-    background-color: #ed4d59;
-    color: #f9f6f2
-}
-.tile14{
-    background-color: #e14338;
-    color: #f9f6f2
-}
-.tile15{
-    background-color: #72b4d7;
-    color: #f9f6f2
-}
-.tile16{
-    background-color: #5ca0df;
-    color: #f9f6f2
-}
-.tile17{
-    background-color: #007bbe;
-    color: #f9f6f2
-}
+.tile1{ background-color: #eee4da; color: #776e65 }
+.tile2{ background-color: #eee1c9; color: #776e65 }
+.tile3{ background-color: #f3b179; color: #f9f6f2 }
+.tile4{ background-color: #f69664; color: #f9f6f2 }
+.tile5{ background-color: #f77c5f; color: #f9f6f2 }
+.tile6{ background-color: #f75f3b; color: #f9f6f2 }
+.tile7{ background-color: #edd073; color: #f9f6f2 }
+.tile8{ background-color: #edcc61; color: #f9f6f2 }
+.tile9{ background-color: #edc850; color: #f9f6f2 }
+.tile10{ background-color: #edc63f; color: #f9f6f2 }
+.tile11{ background-color: #edc32f; color: #f9f6f2 }
+.tile12{ background-color: #ef666d; color: #f9f6f2 }
+.tile13{ background-color: #ed4d59; color: #f9f6f2 }
+.tile14{ background-color: #e14338; color: #f9f6f2 }
+.tile15{ background-color: #72b4d7; color: #f9f6f2 }
+.tile16{ background-color: #5ca0df; color: #f9f6f2 }
+.tile17{ background-color: #007bbe; color: #f9f6f2 }
 #home{
     background-color: #B9CEE9;
     border: none;
@@ -184,9 +148,11 @@ body{
                 <p class = "score" id = "bestScore">0</p>
             </div>
         </div>
-        <div id = "gameArea" width = "500px" height = "500px">
-            <svg id = "gameBoard" width = "500px" height = "500px">
-                <rect id = "gameBackgound" width="500px" height="500px" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
+        <div id = "gameArea">
+            
+            <div id = "lose">Game Over</div>
+            <svg id = "gameBoard">
+                <rect id = "gameBackground" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
             </svg>
         </div>
         <button id="button">New Game</button>
@@ -214,11 +180,15 @@ let diffrence = Math.floor((height)/25)
 let margin = 2+2*Math.floor(diffrence/6)
 let squarewidth = 6+2*Math.floor((3.8*diffrence)/2)
 let totalWidth = 4*squarewidth + 5*margin;
-$("#gameArea, #gameBoard, #gameBackgound, #gameContainer").css({
+$("#gameArea, #gameBoard, #gameBackground, #gameContainer, #lose").css({
     width: totalWidth + "px"
 })
-$("#gameArea, #gameBoard, #gameBackgound").css({
+$("#gameArea, #gameBoard, #gameBackground, #lose").css({
     height: totalWidth + "px"
+})
+$("#lose").css({
+    "line-height": totalWidth + "px",
+    opacity: 0
 })
 //Make gameboard
 for (let i = 0; i < 16; i++) {
@@ -238,7 +208,6 @@ $("#scoreDiff").hide();
 let scoreText = $("#score");
 let bestText = $("#bestScore")
 let scoreBoxWidth = 1;
-let scoreChange = 0;
 let score;
 let bestScore = Number(localStorage.getItem("2048bestscore"));
 bestText.text(bestScore);
@@ -247,7 +216,6 @@ $("#bestContainer").css({
     width: (bestWidth*7 + 93)/8 + "vh"
 });
 let tilesList;
-let arrows = ["ArrowRight", "ArrowDown","ArrowLeft", "ArrowUp"];
 let timeouts = [
     [], [], [], [], 
     [], [], [], [], 
@@ -273,7 +241,8 @@ function makeNewTile(tile, tileLocation){
     let yPos = Math.floor(tileLocation/4)
     $("#tile" + tileLocation).css({ 
         left: ((2*margin + squarewidth)/2 + xPos*(margin + squarewidth)) + "px", 
-        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px"
+        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px",
+        "z-index": 2
     })
 }
 function getFont(len){
@@ -412,6 +381,9 @@ function init(){
     ]
     newTileRandom(0)
     newTileRandom(0)
+    $("#lose").css({
+        opacity: 0
+    })
 }
 
 function checkFilled(){
@@ -460,121 +432,117 @@ function arrayEquality(a,b){
 }
 function applyArrow(key){
     removeCombinedTiles()
-    if (!checkLost()){
-        for (let i = 0; i<16; i++) {
-            cssReset("#tile" + i, i)
-        }
-        for (let i = 0; i<16; i++) {
-            $("#tile" + i + "-0").remove()
-            $("#tile" + i + "-1").remove()
-        }
-        let oldScore = score;
-        let gameChanged = false;
-        let Ding = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        if (key === "ArrowRight"){
-            for (let i = 0; i < 4; i++) {
-                let currentRow = [];
-                for (let j = 0; j < 4; j++) {
-                    currentRow.push([tilesList[4*i+3-j], 4*i+3-j])
-                }
-                let newRow = resolveRowCol(currentRow);
-                for (let j = 0; j < newRow.length; j++) {
-                    if (newRow[j][0] !== 0){
-                        if (typeof newRow[j][1] === "number"){
-                            moveTile(newRow[j][1],4*i+3-j)
-                        } else{
-                            combineTiles(newRow[j][1],4*i+3-j, newRow[j][0])
-                            Ding[newRow[j][0]-2] = true;
-                        }
+    for (let i = 0; i<16; i++) {
+        cssReset("#tile" + i, i)
+    }
+    let oldScore = score;
+    let gameChanged = false;
+    let Ding = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    if (key === "ArrowRight"){
+        for (let i = 0; i < 4; i++) {
+            let currentRow = [];
+            for (let j = 0; j < 4; j++) {
+                currentRow.push([tilesList[4*i+3-j], 4*i+3-j])
+            }
+            let newRow = resolveRowCol(currentRow);
+            for (let j = 0; j < newRow.length; j++) {
+                if (newRow[j][0] !== 0){
+                    if (typeof newRow[j][1] === "number"){
+                        moveTile(newRow[j][1],4*i+3-j)
+                    } else{
+                        combineTiles(newRow[j][1],4*i+3-j, newRow[j][0])
+                        Ding[newRow[j][0]-2] = true;
                     }
-                }
-                for (let j = 0; j < 4; j++) {
-                    if (tilesList[4*i+j] !== newRow[3-j][0]){
-                        gameChanged = true;
-                    }
-                    tilesList[4*i+j] = newRow[3-j][0]
                 }
             }
-        }
-        if (key === "ArrowLeft"){
-            for (let i = 0; i < 4; i++) {
-                let currentRow = [];
-                for (let j = 0; j < 4; j++) {
-                    currentRow.push([tilesList[4*i+j], 4*i+j])
+            for (let j = 0; j < 4; j++) {
+                if (tilesList[4*i+j] !== newRow[3-j][0]){
+                    gameChanged = true;
                 }
-                let newRow = resolveRowCol(currentRow);
-                for (let j = 0; j < newRow.length; j++) {
-                    if (newRow[j][0] !== 0){
-                        if (typeof newRow[j][1] === "number"){
-                            moveTile(newRow[j][1],4*i+j)
-                        } else{
-                            combineTiles(newRow[j][1],4*i+j, newRow[j][0])
-                            Ding[newRow[j][0]-2] = true;
-                        }
-                    }
-                }
-                for (let j = 0; j < 4; j++) {
-                    if (tilesList[4*i+j] !== newRow[j][0]){
-                        gameChanged = true;
-                    }
-                    tilesList[4*i+j] = newRow[j][0]
-                }
+                tilesList[4*i+j] = newRow[3-j][0]
             }
         }
-        if (key === "ArrowDown"){
-            for (let i = 0; i < 4; i++) {
-                let currentCol = [];
-                for (let j = 0; j < 4; j++) {
-                    currentCol.push([tilesList[i+(3-j)*4], i+(3-j)*4])
-                }
-                let newCol = resolveRowCol(currentCol);
-                for (let j = 0; j < newCol.length; j++) {
-                    if (newCol[j][0] !== 0){
-                        if (typeof newCol[j][1] === "number"){
-                            moveTile(newCol[j][1], i+(3-j)*4)
-                        } else{
-                            combineTiles(newCol[j][1], i+(3-j)*4, newCol[j][0])
-                            Ding[newCol[j][0]-2] = true;
-                        }
+    }
+    if (key === "ArrowLeft"){
+        for (let i = 0; i < 4; i++) {
+            let currentRow = [];
+            for (let j = 0; j < 4; j++) {
+                currentRow.push([tilesList[4*i+j], 4*i+j])
+            }
+            let newRow = resolveRowCol(currentRow);
+            for (let j = 0; j < newRow.length; j++) {
+                if (newRow[j][0] !== 0){
+                    if (typeof newRow[j][1] === "number"){
+                        moveTile(newRow[j][1],4*i+j)
+                    } else{
+                        combineTiles(newRow[j][1],4*i+j, newRow[j][0])
+                        Ding[newRow[j][0]-2] = true;
                     }
-                }
-                for (let j = 0; j < 4; j++) {
-                    if (tilesList[i+(3-j)*4] !== newCol[j][0]){
-                        gameChanged = true;
-                    }
-                    tilesList[i+(3-j)*4] = newCol[j][0]
                 }
             }
-        }
-        if (key === "ArrowUp"){
-            for (let i = 0; i < 4; i++) {
-                let currentCol = [];
-                for (let j = 0; j < 4; j++) {
-                    currentCol.push([tilesList[i+j*4], i+j*4])
+            for (let j = 0; j < 4; j++) {
+                if (tilesList[4*i+j] !== newRow[j][0]){
+                    gameChanged = true;
                 }
-                let newCol = resolveRowCol(currentCol);
-                for (let j = 0; j < newCol.length; j++) {
-                    if (newCol[j][0] !== 0){
-                        if (typeof newCol[j][1] === "number"){
-                            moveTile(newCol[j][1], i+j*4)
-                        } else{
-                            combineTiles(newCol[j][1], i+j*4, newCol[j][0])
-                            Ding[newCol[j][0]-2] = true;
-                        }
-                    }
-                }
-                for (let j = 0; j < 4; j++) {
-                    if (tilesList[i+j*4] !== newCol[j][0]){
-                        gameChanged = true;
-                    }
-                    tilesList[i+j*4] = newCol[j][0]
-                }
+                tilesList[4*i+j] = newRow[j][0]
             }
         }
-        scoreChange = score - oldScore;
-        if (gameChanged){
-            let newTileData = newTileRandom(150)
+    }
+    if (key === "ArrowDown"){
+        for (let i = 0; i < 4; i++) {
+            let currentCol = [];
+            for (let j = 0; j < 4; j++) {
+                currentCol.push([tilesList[i+(3-j)*4], i+(3-j)*4])
+            }
+            let newCol = resolveRowCol(currentCol);
+            for (let j = 0; j < newCol.length; j++) {
+                if (newCol[j][0] !== 0){
+                    if (typeof newCol[j][1] === "number"){
+                        moveTile(newCol[j][1], i+(3-j)*4)
+                    } else{
+                        combineTiles(newCol[j][1], i+(3-j)*4, newCol[j][0])
+                        Ding[newCol[j][0]-2] = true;
+                    }
+                }
+            }
+            for (let j = 0; j < 4; j++) {
+                if (tilesList[i+(3-j)*4] !== newCol[j][0]){
+                    gameChanged = true;
+                }
+                tilesList[i+(3-j)*4] = newCol[j][0]
+            }
         }
+    }
+    if (key === "ArrowUp"){
+        for (let i = 0; i < 4; i++) {
+            let currentCol = [];
+            for (let j = 0; j < 4; j++) {
+                currentCol.push([tilesList[i+j*4], i+j*4])
+            }
+            let newCol = resolveRowCol(currentCol);
+            for (let j = 0; j < newCol.length; j++) {
+                if (newCol[j][0] !== 0){
+                    if (typeof newCol[j][1] === "number"){
+                        moveTile(newCol[j][1], i+j*4)
+                    } else{
+                        combineTiles(newCol[j][1], i+j*4, newCol[j][0])
+                        Ding[newCol[j][0]-2] = true;
+                    }
+                }
+            }
+            for (let j = 0; j < 4; j++) {
+                if (tilesList[i+j*4] !== newCol[j][0]){
+                    gameChanged = true;
+                }
+                tilesList[i+j*4] = newCol[j][0]
+            }
+        }
+    }
+
+    
+    if (gameChanged){
+        let scoreChange = score - oldScore;
+        newTileRandom(150)
         for (let i = 0; i<Ding.length; i++){
             if (Ding[i]){
                 ding(i)
@@ -603,6 +571,12 @@ function applyArrow(key){
                     width: (bestWidth*7 + 93)/8 + "vh"
                 }, 100);
             }
+        }
+        if (checkLost()){
+            $("#lose").animate({
+                opacity: 1
+            }, 2500)
+            console.log('lose')
         }
     }
 }
@@ -640,7 +614,7 @@ window.onload = function(){
 	init()
 };
 window.onkeydown = function(e){
-    if (arrows.includes(e.key)){
+    if (!checkLost()){    
         applyArrow(e.key)
     }
 };
