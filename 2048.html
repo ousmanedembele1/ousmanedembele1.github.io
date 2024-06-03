@@ -222,6 +222,7 @@ let timeouts = [
     [], [], [], [],  
     [], [], [], []
 ]
+let loseTimeout;
 function removeTiles(){
     for (let i = 0; i < 16; i++) {
         $("#tile" + i).remove()
@@ -371,6 +372,7 @@ function newTileRandom(time){
     }, time))
 }
 function init(){
+    lost = false
     removeTiles()
     score = 0;
     tilesList = [
@@ -381,9 +383,15 @@ function init(){
     ]
     newTileRandom(0)
     newTileRandom(0)
+    $("#lose").stop()
     $("#lose").css({
         opacity: 0
     })
+    clearTimeout(loseTimeout)
+    scoreText.text(score)
+    $("#scoreContainer").css({
+        width: "12.5vh"
+    });
 }
 
 function checkFilled(){
@@ -394,7 +402,11 @@ function checkFilled(){
     }
     return true
 }
+let lost = false;
 function checkLost(){
+    if (lost){
+        return true
+    }
     if (!checkFilled()){
         return false
     }
@@ -573,9 +585,9 @@ function applyArrow(key){
             }
         }
         if (checkLost()){
-            $("#lose").animate({
+            loseTimeout = setTimeout(() => {$("#lose").animate({
                 opacity: 1
-            }, 2500)
+            }, 1000)}, 750)
             console.log('lose')
         }
     }
@@ -613,10 +625,8 @@ function resolveRowCol(tiles){
 window.onload = function(){
 	init()
 };
-window.onkeydown = function(e){
-    if (!checkLost()){    
-        applyArrow(e.key)
-    }
+window.onkeydown = function(e){ 
+    applyArrow(e.key)
 };
 $("button").click(init)
 </script>
