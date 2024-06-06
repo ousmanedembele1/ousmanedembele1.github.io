@@ -782,6 +782,11 @@ $("body").keydown(function (event) {
             startMusic()
         }
     };
+    if (gameState === "paused"){
+        resume()
+    } else if (event.key === "p" && level != finalLevel && gameState !== "spawning"){
+        pause()
+    }
     if (event.key === "r" && level != finalLevel && gameState !== "spawning"){
         level = 1;
         currentCheckpoint = -1;
@@ -792,11 +797,6 @@ $("body").keydown(function (event) {
         respawn();
         time = 0;
         deaths = 0;
-    }
-    if (gameState === "paused"){
-        resume()
-    } else if (event.key === "p" && level != finalLevel && gameState !== "spawning"){
-        pause()
     }
     keysPressed[event.key] = true;
 });
