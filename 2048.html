@@ -8,11 +8,10 @@
 body{
     background-color: hsl(49, 52%, 96%);
 }
-#button{
+.button{
     border: none;
     border-radius: 0.375vh;
     color: white;
-    background-color: #8f7a66;
     padding: 2.5vh 3.75vh;
     font: 700 2.5vh Arial;
     cursor: pointer;
@@ -20,26 +19,32 @@ body{
     margin: 1vh auto 0vh;
     outline: none;
 }
+#newGame{
+    background-color: #8f7a66;
+}
+#playAgain{
+    background-color: #b55ada;
+}
 #gameArea{
     position: relative;
     margin: 0vh auto;
     padding: 0vh;
-    display: flex;
 }
 #lose{
     display: flex;
-    line-height: 56.25vh;
     justify-content: center;
+    align-items: center;
     position: absolute;
+    flex-direction: column;
     top: 0px;
     left: 0px;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.6);
     color: rgb(94, 94, 94);
-    z-index: 3;
     font: 700 10vh Arial;
+    user-select: none;
 }
-#gameBoard{
-    z-index: 1;
+#lose p{
+    margin: 0;
 }
 #scores{
     display: flex
@@ -149,17 +154,19 @@ body{
             </div>
         </div>
         <div id = "gameArea">
-            
-            <div id = "lose">Game Over</div>
             <svg id = "gameBoard">
                 <rect id = "gameBackground" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
             </svg>
         </div>
-        <button id="button">New Game</button>
+        <button id="newGame" class = "button">New Game</button>
     </div>
     <a href="./">
         <button id = "home"><svg width="64px" height="64px" viewBox="0 0 547.60 547.60" > <path fill="#B23F15" d="M540.76,254.788L294.506,38.216c-11.475-10.098-30.064-10.098-41.386,0L6.943,254.788 c-11.475,10.098-8.415,18.284,6.885,18.284h75.964v221.773c0,12.087,9.945,22.108,22.108,22.108h92.947V371.067 c0-12.087,9.945-22.108,22.109-22.108h93.865c12.239,0,22.108,9.792,22.108,22.108v145.886h92.947 c12.24,0,22.108-9.945,22.108-22.108v-221.85h75.965C549.021,272.995,552.081,264.886,540.76,254.788z"></path></svg></button>
     </a>
+    <div id = "lose">
+        <p>Game Over</p>
+        <button id = "playAgain" class = "button">Play Again</button>
+    </div>
     <audio src = "ping0.wav" async></audio>
     <audio src = "ping1.wav" async></audio>
     <audio src = "ping2.wav" async></audio>
@@ -180,14 +187,16 @@ let diffrence = Math.floor((height)/25)
 let margin = 2+2*Math.floor(diffrence/6)
 let squarewidth = 6+2*Math.floor((3.8*diffrence)/2)
 let totalWidth = 4*squarewidth + 5*margin;
-$("#gameArea, #gameBoard, #gameBackground, #gameContainer, #lose").css({
+$("#gameArea, #gameBoard, #gameBackground, #gameContainer").css({
     width: totalWidth + "px"
 })
-$("#gameArea, #gameBoard, #gameBackground, #lose").css({
+$("#gameArea, #gameBoard, #gameBackground").css({
     height: totalWidth + "px"
 })
 $("#lose").css({
-    "line-height": totalWidth + "px",
+    width: window.innerWidth,
+    height: window.innerHeight,
+    //"line-height": window.innerHeight+ "px",
     opacity: 0
 })
 //Make gameboard
@@ -242,8 +251,7 @@ function makeNewTile(tile, tileLocation){
     let yPos = Math.floor(tileLocation/4)
     $("#tile" + tileLocation).css({ 
         left: ((2*margin + squarewidth)/2 + xPos*(margin + squarewidth)) + "px", 
-        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px",
-        "z-index": 2
+        top: ((2*margin + squarewidth)/2 + yPos*(margin + squarewidth)) + "px"
     })
 }
 function getFont(len){
@@ -402,7 +410,7 @@ function checkFilled(){
     }
     return true
 }
-let lost = false;
+let lost = false; //variable for testing the loss condition
 function checkLost(){
     if (lost){
         return true
@@ -587,7 +595,7 @@ function applyArrow(key){
         if (checkLost()){
             loseTimeout = setTimeout(() => {$("#lose").animate({
                 opacity: 1
-            }, 1000)}, 750)
+            }, 4000)}, 750)
             console.log('lose')
         }
     }
@@ -628,7 +636,7 @@ window.onload = function(){
 window.onkeydown = function(e){ 
     applyArrow(e.key)
 };
-$("button").click(init)
+$("#newGame, #playAgain").click(init)
 </script>
 </body>
 </html>
