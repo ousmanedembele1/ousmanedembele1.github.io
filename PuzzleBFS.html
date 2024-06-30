@@ -162,7 +162,7 @@ function draw(){
     }
     //gameBorder
     ctx.strokeStyle = gameEdgeColor;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 5;
     if (currentShape.label !== "circle"){
         ctx.beginPath();
         ctx.roundRect(canvas.width/2-currentSize*50*scaleFactor, canvas.height/2-currentSize*50*scaleFactor-yOffset, currentSize*100*scaleFactor, currentSize*100*scaleFactor, 10*scaleFactor);
