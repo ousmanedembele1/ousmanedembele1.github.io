@@ -40,7 +40,6 @@ let squaresList;
 let scaleFactor;
 let yOffset;
 let gameEdgeColor;
-let drawCount = 0;
 function init(){
     currentShape = sizes[sizeIndex];
 	canvas.width = window.innerWidth;
@@ -86,6 +85,7 @@ function makeSquare(num){
     square.x = (num%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
     square.y = Math.floor(num/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
     square.movementTimeout = 0;
+    square.moving = false;
     return square;
 };
 
@@ -105,7 +105,6 @@ function countHoles(num, holesList){
 }
 	
 function draw(){
-    drawCount++
 	ctx.clearRect(0,0,canvas.width,canvas.height);
     //Time and Moves
     ctx.font = "700 "+50*scaleFactor+"px Arial";
@@ -226,23 +225,28 @@ function draw(){
 //function for moving tiles
 function move(object, dir, time, multiplier, speed){
     //snap all other tiles into place
-    for (let i = 0; i < squaresList.length; i++) {
-        let currentSquare = squaresList[i]
-        if (currentSquare === 0 || currentSquare.color === object.color){
-            continue;
+    if (time === 0){
+        for (let i = 0; i < squaresList.length; i++) {
+            let currentSquare = squaresList[i]
+            if (currentSquare === 0 || !currentSquare.moving){
+                continue;
+            }
+            clearTimeout(currentSquare.movementTimeout)
+            let location = squarePositions.indexOf(i);
+            currentSquare.x = (location%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
+            currentSquare.y = Math.floor(location/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
+            currentSquare.moving = false    
         }
-        clearTimeout(currentSquare.moveTimeout)
-        let location = squarePositions.indexOf(i);
-        currentSquare.x = (location%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
-        currentSquare.y = Math.floor(location/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
     }
     object[dir] += speed*multiplier*scaleFactor;
     if (time<(Math.floor(100/speed)-1)){
-        object.moveTimeout = setTimeout(function(){
-            move(object, dir, time+1, multiplier,speed);
+        object.moving = true;
+        object.movementTimeout = setTimeout(function(){
+            move(object, dir, time+1, multiplier, speed);
         }, 4)
     } else {
         object[dir] += (100-speed*Math.floor(100/speed))*multiplier*scaleFactor;
+        object.moving = false;
     }
     draw()
 };
@@ -317,7 +321,6 @@ function applyArrows(key, speed, fromScrambler){
     };
     if (!fromScrambler){
         moveCount++;
-        draw()
     }
     if (checkWin()){
         gameEdgeColor = "lime";
@@ -440,12 +443,12 @@ let scrambler = {
         while ((this.newArrow-this.oldArrow+4)%4 === 2 || checkWall(arrows[this.newArrow])){
             this.newArrow = Math.floor(Math.random()*4);
         };
-        applyArrows(arrows[this.newArrow], 8, true);
+        applyArrows(arrows[this.newArrow], 20, true);
         this.oldArrow = this.newArrow;
         if (movesDone<currentSize**2*15){
             this.timeoutID = setTimeout(function(){
                 scrambler.mix(movesDone+1)
-            }, 30);
+            }, 25);
         } else{
             this.scrambling = false;
             this.oldArrow = null;
@@ -599,18 +602,18 @@ let bot = {
                 this.previousBoards.push(squarePositions.slice(0))
                 this.timeOutIDBot = setTimeout(function(){
                     bot.run(-1)
-                }, 50)
+                }, 60)
             }
         } else{
             let newArrow = Math.floor(Math.random()*4)
             while ((this.prevArrow-newArrow+4)%4 === 2 || checkWall(arrows[newArrow])){
                 newArrow = Math.floor(Math.random()*4);
             };
-            applyArrows(arrows[newArrow], 8, false)
+            applyArrows(arrows[newArrow], 12, false)
             this.prevArrow = newArrow
             this.timeOutIDBot = setTimeout(function(){
                 bot.run(randomMoveNumber+1)
-            }, 50)
+            }, 60)
         }
         
     },
@@ -633,10 +636,9 @@ function scramble(){
     timer.reset()
     moveCount = 0;
     draw()
-    if (scrambler.scrambling){
-    	scrambler.stop();
+    if (!scrambler.scrambling){
+        scrambler.mix(0)
     }
-    scrambler.mix(0)
 };
 
 window.onload = function(){
