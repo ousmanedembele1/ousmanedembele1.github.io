@@ -28,9 +28,11 @@ let sizes = [
     {size: 5, holes: [12], label: "donut"},
     {size: 6, holes: [0, 1, 4, 5, 6, 11, 24, 29, 30, 31, 34, 35], label: "circle"}
 ];
-let sizeIndex = Math.floor(Math.random()*5);
 
+let sizeIndex = Math.floor(Math.random()*5);
 let currentSize;
+
+
 let squarePositions;
 let emptySquare;
 let currentShape;
@@ -38,6 +40,7 @@ let squaresList;
 let scaleFactor;
 let yOffset;
 let gameEdgeColor;
+let drawCount = 0;
 function init(){
     currentShape = sizes[sizeIndex];
 	canvas.width = window.innerWidth;
@@ -46,17 +49,16 @@ function init(){
 	scaleFactor = window.innerHeight/793*((20-currentSize*1.5)/16);
     yOffset = 30*scaleFactor;
 	squarePositions = [];
-
     for (let i = 0; i<currentSize**2; i++){
         if (currentShape.holes.includes(i)){
             squarePositions.push(-2);
-        } else if (i === currentSize**2-1){
-            squarePositions.push(-1);
-        } else{
+        } else if (i !== currentSize**2-1){
             squarePositions.push(i);
+        } else{
+            squarePositions.push(-1);
         }
     }
-		console.log(squarePositions)
+
     emptySquare = currentSize**2-1;
     while (currentShape.holes.includes(emptySquare)){
         emptySquare--;
@@ -83,6 +85,7 @@ function makeSquare(num){
 
     square.x = (num%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
     square.y = Math.floor(num/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
+    square.movementTimeout = 0;
     return square;
 };
 
@@ -102,6 +105,7 @@ function countHoles(num, holesList){
 }
 	
 function draw(){
+    drawCount++
 	ctx.clearRect(0,0,canvas.width,canvas.height);
     //Time and Moves
     ctx.font = "700 "+50*scaleFactor+"px Arial";
@@ -221,9 +225,20 @@ function draw(){
 
 //function for moving tiles
 function move(object, dir, time, multiplier, speed){
+    //snap all other tiles into place
+    for (let i = 0; i < squaresList.length; i++) {
+        let currentSquare = squaresList[i]
+        if (currentSquare === 0 || currentSquare.color === object.color){
+            continue;
+        }
+        clearTimeout(currentSquare.moveTimeout)
+        let location = squarePositions.indexOf(i);
+        currentSquare.x = (location%currentSize)*100*scaleFactor+canvas.width/2-currentSize*50*scaleFactor;
+        currentSquare.y = Math.floor(location/currentSize)*100*scaleFactor+canvas.height/2-currentSize*50*scaleFactor-yOffset;
+    }
     object[dir] += speed*multiplier*scaleFactor;
     if (time<(Math.floor(100/speed)-1)){
-        setTimeout(function(){
+        object.moveTimeout = setTimeout(function(){
             move(object, dir, time+1, multiplier,speed);
         }, 4)
     } else {
@@ -425,12 +440,12 @@ let scrambler = {
         while ((this.newArrow-this.oldArrow+4)%4 === 2 || checkWall(arrows[this.newArrow])){
             this.newArrow = Math.floor(Math.random()*4);
         };
-        applyArrows(arrows[this.newArrow],8, true);
+        applyArrows(arrows[this.newArrow], 8, true);
         this.oldArrow = this.newArrow;
-        if (movesDone<currentSize**2*10){
+        if (movesDone<currentSize**2*15){
             this.timeoutID = setTimeout(function(){
                 scrambler.mix(movesDone+1)
-            },60);
+            }, 30);
         } else{
             this.scrambling = false;
             this.oldArrow = null;
@@ -577,7 +592,7 @@ let bot = {
             } else {
                 let arrow = this.bestValue.move;
                 this.prevArrow = arrow
-                applyArrows(arrows[arrow], 8, false);
+                applyArrows(arrows[arrow], 12, false);
                 if (checkWin()){
                     return;
                 } 
@@ -629,9 +644,11 @@ window.onload = function(){
     scramble()
 };
 window.onkeydown = function(e){
-    applyArrows(e.key, 9, false);
-    if (!scrambler.scrambling && !timer.going && !checkWin() && arrows.includes(e.key)){
-        timer.start()
+    if (!scrambler.scrambling && !checkWin() && arrows.includes(e.key)){
+        if (!timer.going){
+            timer.start()
+        }
+        applyArrows(e.key, 8, false);
     };
 };
 window.onclick = function (e) {
