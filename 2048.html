@@ -8,6 +8,21 @@
 body{
     background-color: hsl(49, 52%, 96%);
 }
+
+#gameContainer{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.itemRow{
+    display: flex;
+}
+#newGame{
+    background-color: #8f7a66;
+    margin: 0vh auto 1vh 0vh;
+}
+
 .button{
     border: none;
     border-radius: 0.375vh;
@@ -16,14 +31,29 @@ body{
     font: 700 2.5vh Arial;
     cursor: pointer;
     display: block;
-    margin: 1vh auto 0vh;
     outline: none;
 }
-#newGame{
-    background-color: #8f7a66;
+.scoreContainer{
+    position: relative;
+    background-color: #bbada0;
+    display: block;
+    margin-right: 0vh;
+    text-align: center;
+    width: 12.5vh;
+    border-radius: 0.625vh;
+    padding: 0.25vh;
+    margin-bottom: 1.25vh;
 }
+
 #playAgain{
     background-color: #b55ada;
+    margin-left: auto;
+    margin-right: 0.5vw;
+}
+#mainMenu{
+    background-color: #b55ada;
+    margin-left: 0.5vw;
+    margin-right: auto
 }
 #gameArea{
     position: relative;
@@ -38,7 +68,7 @@ body{
     flex-direction: column;
     top: 0px;
     left: 0px;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.7);
     color: rgb(94, 94, 94);
     font: 700 10vh Arial;
     user-select: none;
@@ -46,20 +76,7 @@ body{
 #lose p{
     margin: 0;
 }
-#scores{
-    display: flex
-}
-.scoreContainer{
-    position: relative;
-    background-color: #bbada0;
-    display: block;
-    margin-right: 0vh;
-    text-align: center;
-    width: 12.5vh;
-    border-radius: 0.625vh;
-    padding: 0.25vh;
-    margin-bottom: 1.25vh;
-}
+
 #scoreContainer{
     margin-left: auto;
 }
@@ -87,12 +104,7 @@ body{
     transform: translate(-50%, -50%);
     color: rgb(51, 51, 51);
 }
-#gameContainer{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
+
 .tile{
     opacity: 0;
     position: absolute;
@@ -142,8 +154,9 @@ body{
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <body>
     <div id = "gameContainer">
-        <div id = "scores">
-        <div class = "scoreContainer" id = "scoreContainer">
+        <div class = "itemRow">
+            <button id = "newGame" class = "button">New Game</button>
+            <div class = "scoreContainer" id = "scoreContainer">
                 <h2>Score</h2>
                 <p class = "score" id = "score">0</p>
                 <p id = "scoreDiff">+4</p>
@@ -158,14 +171,16 @@ body{
                 <rect id = "gameBackground" x="0" y="0" rx="4px" ry="4px" fill="#bbada0" />
             </svg>
         </div>
-        <button id="newGame" class = "button">New Game</button>
     </div>
     <a href="./">
         <button id = "home"><svg width="64px" height="64px" viewBox="0 0 547.60 547.60" > <path fill="#B23F15" d="M540.76,254.788L294.506,38.216c-11.475-10.098-30.064-10.098-41.386,0L6.943,254.788 c-11.475,10.098-8.415,18.284,6.885,18.284h75.964v221.773c0,12.087,9.945,22.108,22.108,22.108h92.947V371.067 c0-12.087,9.945-22.108,22.109-22.108h93.865c12.239,0,22.108,9.792,22.108,22.108v145.886h92.947 c12.24,0,22.108-9.945,22.108-22.108v-221.85h75.965C549.021,272.995,552.081,264.886,540.76,254.788z"></path></svg></button>
     </a>
     <div id = "lose">
         <p>Game Over</p>
-        <button id = "playAgain" class = "button">Play Again</button>
+        <div class = "itemRow">
+            <button id = "playAgain" class = "button">Play Again</button>
+            <button id = "mainMenu" class = "button">Main Menu</button>
+        </div>
     </div>
     <audio src = "ping0.wav" async></audio>
     <audio src = "ping1.wav" async></audio>
@@ -196,9 +211,8 @@ $("#gameArea, #gameBoard, #gameBackground").css({
 $("#lose").css({
     width: window.innerWidth,
     height: window.innerHeight,
-    //"line-height": window.innerHeight+ "px",
-    opacity: 0
 })
+$("#lose").hide()
 //Make gameboard
 for (let i = 0; i < 16; i++) {
     let xPos = i%4;
@@ -392,9 +406,7 @@ function init(){
     newTileRandom(0)
     newTileRandom(0)
     $("#lose").stop()
-    $("#lose").css({
-        opacity: 0
-    })
+    $("#lose").hide()
     clearTimeout(loseTimeout)
     scoreText.text(score)
     $("#scoreContainer").css({
@@ -593,6 +605,10 @@ function applyArrow(key){
             }
         }
         if (checkLost()){
+            $("#lose").show();
+            $("#lose").css({
+                opacity: 0
+            })
             loseTimeout = setTimeout(() => {$("#lose").animate({
                 opacity: 1
             }, 4000)}, 750)
