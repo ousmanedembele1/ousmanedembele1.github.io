@@ -106,14 +106,37 @@ function countHoles(num, holesList){
 	
 function draw(){
 	ctx.clearRect(0,0,canvas.width,canvas.height);
-    //Time and Moves
+    //Time, Moves, and MPS
     ctx.font = "700 "+50*scaleFactor+"px Arial";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("Time: " + timer.time, canvas.width/2,canvas.height/2-50*currentSize*scaleFactor-90*scaleFactor-yOffset)
-    ctx.fillText("Moves: " + moveCount, canvas.width/2, canvas.height/2-50*currentSize*scaleFactor-30*scaleFactor-yOffset)
+
+    //make time to nearest 100th, with trailing zeros
+    let time = timer.time;
+    let timeText;
+    if (time%100 === 0){
+        timeText = "Time: " + time/100+".00";  
+    } else if(time%100 <10){
+        timeText = "Time: " + (time-time%100)/100+".0"+time%100;
+    } else {
+        timeText = "Time: " + (time-time%100)/100+"."+time%100;
+    }
+    ctx.fillText(timeText, canvas.width/2,canvas.height/2-50*currentSize*scaleFactor-140*scaleFactor-yOffset)
+    ctx.fillText("Moves: " + moveCount, canvas.width/2, canvas.height/2-50*currentSize*scaleFactor-90*scaleFactor-yOffset)
+    
+    let movesPerSecond = 0;
+    let MPSText;
+    if (time > 10){
+        movesPerSecond = 1000*moveCount/time //10 times so we can round to nearest tenth, but time is in 100ths of a second
+        movesPerSecond = Math.round(movesPerSecond);
+    }
+    ctx.font = "600 "+60*scaleFactor+"px Arial";
+    MPSText = "MPS: " + (movesPerSecond-movesPerSecond%10)/10+"."+movesPerSecond%10;
+    ctx.fillText(MPSText, canvas.width/2, canvas.height/2-50*currentSize*scaleFactor-30*scaleFactor-yOffset);
+
     //Scramble button
+    ctx.font = "700 "+50*scaleFactor+"px Arial";
     ctx.lineWidth = 2;
     ctx.strokeStyle = "black";
     ctx.beginPath();
@@ -417,7 +440,7 @@ let timer = {
         if (this.going){
             this.timeOutID  = setTimeout(function(){
                 timer.run()
-            },1000)
+            }, 10)
         }
     },
     pause: function(){
@@ -635,10 +658,10 @@ let bot = {
 function scramble(){
     timer.reset()
     moveCount = 0;
-    draw()
-    if (!scrambler.scrambling){
-        scrambler.mix(0)
+    if (scrambler.scrambling){
+        scrambler.stop()
     }
+    scrambler.mix(0)
 };
 
 window.onload = function(){
@@ -657,7 +680,7 @@ window.onclick = function (e) {
     let xPos = e.clientX;
     let yPos = e.clientY;
     //scramble
-    if (xPos>canvas.width/2-130*scaleFactor && xPos<canvas.width/2+130*scaleFactor && yPos>canvas.height/2+currentSize*50*scaleFactor+10*scaleFactor && yPos<canvas.height/2+currentSize*50*scaleFactor+90*scaleFactor){
+    if (xPos>canvas.width/2-130*scaleFactor && xPos<canvas.width/2+130*scaleFactor && yPos>canvas.height/2+currentSize*50*scaleFactor+15*scaleFactor-yOffset && yPos<canvas.height/2+currentSize*50*scaleFactor+95*scaleFactor-yOffset){
         bot.stop()
         scramble()
     };
