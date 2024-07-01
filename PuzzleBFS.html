@@ -414,16 +414,29 @@ function botCheckWall(key, state){
     return false;
 }
 function checkWin(){
-    let won = true;
-    for (let i = 0; i < currentSize**2; i++){
-        if (!currentShape.holes.includes(i)){
-            if (squarePositions[i] !== i && i!==emptySquare) {
-                won = false;
-                break;
-            }
-        }
+    let stringBoard = JSON.stringify(squarePositions);
+    if (sizeIndex === 0){
+        if (stringBoard === "[0,1,2,3,4,5,6,7,-1]"){
+            return true
+        };
+    } else if (sizeIndex === 1){
+        if (stringBoard === "[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,-1]"){
+            return true
+        };
+    } else if (sizeIndex === 2){
+        if (stringBoard === "[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,-1]"){
+            return true
+        };
+    } else if (sizeIndex === 3){
+        if (stringBoard === "[0,1,2,3,4,5,6,7,8,9,10,11,-2,13,14,15,16,17,18,19,20,21,22,23,-1]"){
+            return true
+        };
+    } else {
+        if (stringBoard === "[-2,-2,2,3,-2,-2,-2,7,8,9,10,-2,12,13,14,15,16,17,18,19,20,21,22,23,-2,25,26,27,28,-2,-2,-2,32,-1,-2,-2]"){
+            return true
+        };
     }
-    return won;
+    return false
 }
 
 let timer = {
