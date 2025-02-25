@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title> Cubegame </title>
+</head>
+
+<style>
+
+canvas{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+body{
+    overflow: hidden;
+}
+
+</style>
+
+<body>
+
+<canvas id="c"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+
+// ----- constants -----
+
+const FACECOLOR = "rgba(255, 0, 0, 0.5)";
+const RECTCOLOR = "rgba(15, 15, 92, 1)"
+const FACESIZE = 512;
+const PLAYERSIZE = 25;
+const fps = 40;
+const rotationSteps = Math.floor(fps/3)
+const playerSpeed = 60/fps
+const rotationCoefficient = Math.PI/2*(1/rotationSteps)
+
+// ----- canvas -----
+
+let canvas = document.getElementById( "c" );
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+
+// ----- Face Data ----- 
+let faces = [
+    // level 0
+    [
+        [{x: 0, y: 0, width: 512, height:12}, {x: 0, y: 440, width: 512, height:72}, {x: 75, y: 240, width: 100, height: 25}, {x: 287, y: 280, width: 100, height: 25}],
+        [{x: 0, y: 0, width: 128, height:12}, {x: 0, y: 440, width: 512, height:72}, {x: 75, y: 140, width: 100, height: 25}, {x: 287, y: 80, width: 100, height: 25}],
+        [{x: 0, y: 0, width: 12, height:128}, {x: 0, y: 0, width: 512, height:12}, {x: 500, y: 0, width: 12, height:512}, {x: 0, y: 500, width: 512, height:12}],
+        [{x: 0, y: 0, width: 512, height:512}],
+        [{x: 0, y: 0, width: 512, height:12}, {x: 0, y: 440, width: 512, height:72}, {x: 125, y: 340, width: 100, height: 25},  {x: 287, y: 240, width: 100, height: 25}],
+        [{x: 0, y: 0, width: 512, height:12}, {x: 0, y: 440, width: 512, height:72}, {x: 75, y: 240, width: 100, height: 25}, {x: 287, y: 180, width: 100, height: 25}]
+    ]
+]
+let door = [
+    {face: 2, x: 12, y: 33, width: 100, height: 50}
+]
+
+let level = 0;
+
+// ----- renderer, camera, scene, lights -----
+
+let renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+
+let camera = new THREE.PerspectiveCamera(75, canvas.width/canvas.height, 0.1, 5);
+camera.position.set(0, 0, 1.25);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xEEEEEE);
+
+const light1 = new THREE.DirectionalLight( 0xFFFFFF, 0.6 );
+light1.position.set( - 1, 2, 4 );
+scene.add(light1);
+
+const light2 = new THREE.AmbientLight(0xFFFFFF, 0.3);
+scene.add(light2);
+
+// ----- cube -----
+
+let planes = []
+const width = 1;  
+const height = 1;  
+const PlaneGeometry = new THREE.PlaneGeometry( width, height );
+let cubeGroup = new THREE.Group()
+for (let i = 0; i <= 5; i++) {
+    let material = new THREE.MeshPhongMaterial({
+        map: new THREE.CanvasTexture(drawFace(i).canvas), 
+        side: THREE.DoubleSide, 
+        transparent: true
+    })
+    let plane = new THREE.Mesh(PlaneGeometry, material)
+    planes.push(plane)
+    cubeGroup.add(plane)
+    if (i === 0){
+        plane.position.set(0.5, 0, 0);
+        plane.rotation.y = Math.PI / 2;
+    } else if (i === 1){
+        plane.position.set(-0.5, 0, 0);
+        plane.rotation.y = -Math.PI / 2;
+    } else if (i === 2){
+        plane.position.set(0, 0.5, 0);
+        plane.rotation.x = -Math.PI / 2;
+    } else if (i === 3){
+        plane.position.set(0, -0.5, 0);
+        plane.rotation.x = Math.PI / 2;
+    } else if (i === 4){
+        plane.position.set(0, 0, 0.5);
+    } else if (i === 5){
+        plane.position.set(0, 0, -0.5);
+        plane.rotation.y = Math.PI;
+    }
+}
+scene.add(cubeGroup)
+
+// ----- draw faces ----- 
+
+function drawFace(num){
+    let ctx = document.createElement("canvas").getContext("2d");
+    ctx.canvas.width = FACESIZE;
+    ctx.canvas.height = FACESIZE;
+    ctx.fillStyle = FACECOLOR;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.fillStyle = "lightgreen";
+    ctx.font = "700 300px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle"
+    ctx.fillText(num, (FACESIZE/2), (FACESIZE/2))
+
+    ctx.fillStyle = RECTCOLOR
+    let currentFaceData = faces[level][num];
+    for (let i = 0; i < currentFaceData.length; i++) {
+        let rect = currentFaceData[i]
+        ctx.fillRect(rect.x, rect.y, rect.width, rect.height)
+    }
+    ctx.fillStyle = "rgb(64, 235, 52)"
+    if (door[level].face === num){
+        ctx.fillRect(door[level].x, door[level].y, door[level].width, door[level].height)
+        console.log(num)
+    }
+    return ctx
+}
+function drawPlayer(ctx, x, y){
+    ctx.fillRect(x+(FACESIZE/2)-PLAYERSIZE, (FACESIZE/2)-y-PLAYERSIZE, 2*PLAYERSIZE, 2*PLAYERSIZE)
+}
+
+function updateFaces(){
+    let x = player.loc.x
+    let y = player.loc.y
+    for (let i = 0; i <= 5; i++) {
+        let ctx = drawFace(i)
+        ctx.fillStyle = "blue"
+        if (i === player.face){
+            drawPlayer(ctx, x, y)
+        }
+        let texture = new THREE.CanvasTexture(ctx.canvas)
+        planes[i].material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide, transparent: true})
+
+    }
+
+    let otherFaces = [];
+    let offsets = [];
+    let vectors = [];
+    if (x + PLAYERSIZE > 256){
+        otherFaces.push(cubeLayout[player.face].right.face)
+        offsets.push(cubeLayout[player.face].right.offset)
+        vectors.push(makeVector(-1*FACESIZE, 0))
+            
+    }
+    if (x - PLAYERSIZE < -256){
+        otherFaces.push(cubeLayout[player.face].left.face)
+        offsets.push(cubeLayout[player.face].left.offset)
+        vectors.push(makeVector(FACESIZE, 0))
+    }
+
+    if (y - PLAYERSIZE < -256){
+        otherFaces.push(cubeLayout[player.face].below.face)
+        offsets.push(cubeLayout[player.face].below.offset)
+        vectors.push(makeVector(0, FACESIZE))
+    }
+    if (y + PLAYERSIZE > 256){
+        otherFaces.push(cubeLayout[player.face].above.face)
+        offsets.push(cubeLayout[player.face].above.offset)
+        vectors.push(makeVector(0, -1*FACESIZE))
+    }
+
+    for (let i = 0; i < otherFaces.length; i++) {
+        let playerLocation = duplicate(player.loc)
+        let relativePosition = rotate(
+            playerLocation.add(
+                vectors[i]
+            ), 
+            offsets[i]
+        )
+        let relativeX = relativePosition.x
+        let relativeY = relativePosition.y
+        let ctx = drawFace(otherFaces[i])
+        ctx.fillStyle = "blue"
+        drawPlayer(ctx, relativeX, relativeY)
+        let texture = new THREE.CanvasTexture(ctx.canvas)
+        planes[otherFaces[i]].material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide, transparent: true})
+    }
+}
+
+// ----- Main -----
+
+let player = {
+    face: 4,
+    rotation: 0,
+    loc: makeVector(-210, -140),
+    xVel: 0,
+    yVel: 0,
+    vel: makeVector(),
+    grounded: true
+};
+
+let cubeVel = {
+    x: 0,
+    y: 0
+}
+
+let rotationQueue = []
+
+setInterval(render, 1000/fps)
+function render() {
+    if (keys.w){
+        if (player.grounded){
+            player.yVel += playerSpeed*10
+        }
+        player.grounded = false;
+    }
+    if (keys.a){
+        player.xVel -= playerSpeed
+    }
+    if (keys.s){
+        player.yVel -= playerSpeed
+    }
+    if (keys.d){
+        player.xVel += playerSpeed
+
+        player.vel.add(rotate(makeVector(playerSpeed, 0), player.rotation))
+    }
+    if (keys.f){
+        player.vel.add(rotate(makeVector(playerSpeed, playerSpeed), player.rotation))
+    }
+
+    let velx = rotate(makeVector(player.xVel, player.yVel), player.rotation).x
+    let vely = rotate(makeVector(player.xVel, player.yVel), player.rotation).y
+
+    player.vel = rotate(makeVector(player.xVel/32, 0), player.rotation)
+    player.grounded = false
+    for(let i = 0; i<32; i++){
+        let vel = makeVector(velx/32,0)
+        player.loc.add(vel)
+        if (colliding()[0]){
+            if (velx>0){
+                console.log('left')
+                player.loc.x = colliding()[1].x - PLAYERSIZE - (FACESIZE/2);
+                if ([0, 180].includes(player.rotation)){
+                    player.xVel = 0;
+                } else {
+                    player.yVel = 0;
+                    if (player.rotation === 90){
+                        player.grounded = true
+                    }
+                }
+                break;
+            } else {
+                console.log('right')
+                player.loc.x = colliding()[1].x + colliding()[1].width + PLAYERSIZE - (FACESIZE/2);
+                if ([0, 180].includes(player.rotation)){
+                    player.xVel = 0;
+                } else {
+                    player.yVel = 0;
+                    if (player.rotation === 270){
+                        player.grounded = true
+                    }
+                }
+                break;
+            };
+        };
+    };
+    
+    player.vel = rotate(makeVector(0, player.yVel/128), player.rotation)
+
+    for (let i =0; i<128; i++){
+        let vel = makeVector(0,vely/128)
+        player.loc.add(vel)
+        if (colliding()[0]){
+            if (vely<=0){
+                console.log("top")
+                player.loc.y = ((FACESIZE/2) - (colliding()[1].y -PLAYERSIZE)) ;
+                if ([0, 180].includes(player.rotation)){
+                    player.yVel = 0;
+                    if (player.rotation === 0){  
+                        player.grounded = true;
+                    }
+                } else {
+                    player.xVel = 0;
+                }
+                
+                break;
+            } else {
+                console.log("bottom")
+                player.loc.y = (FACESIZE/2) - ((colliding()[1].y+colliding()[1].height) + PLAYERSIZE);
+                if ([0, 180].includes(player.rotation)){
+                    player.yVel = 0;
+                    if (player.rotation === 180){  
+                        player.grounded = true;
+                    }
+                } else {
+                    player.xVel = 0;
+                }
+                break;
+            }
+        };
+    };
+    
+    player.xVel *= 0.9
+    player.yVel -= 1
+
+
+    updatePlayerLoc()
+    updateFaces()
+    
+    if (rotationQueue.length !== 0) {
+        let rotation = rotationQueue[0]
+        cubeVel.x = rotation.x
+        cubeVel.y = rotation.y
+        let rotationMatrixY = new THREE.Matrix4();
+    
+        rotationMatrixY.makeRotationY(cubeVel.x)
+        let rotationMatrixX = new THREE.Matrix4();
+        rotationMatrixX.makeRotationX(cubeVel.y)
+
+        cubeGroup.applyMatrix4(rotationMatrixY.multiply(rotationMatrixX))
+
+        rotation.counter--
+        if (rotation.counter === 0){
+            rotationQueue.shift()
+            if (rotationQueue.length === 0){
+                resetAllRotations()
+            }
+        }
+    }
+    
+	renderer.render(scene, camera);
+}
+// ----- Collisions -----
+function rectangularCollision(left1, top1, right1, bottom1, left2, top2, right2, bottom2){
+    if (bottom1>top2 && top1<bottom2 && left1<right2 && right1>left2){
+        return true;
+    };
+    return false;
+};
+function circleRect(cx, cy, cr, rx, ry, rw, rh){
+    let testX = cx;
+    let testY = cy;
+
+    if (cx < rx){
+        testX = rx
+    } else if (cx > rx + rw){
+        testX = rx + rw
+    }
+
+    if (cy < ry){
+        testY = ry
+    } else if (cy > ry + rh){
+        testY = ry + rh
+    }
+
+    let distX = cx - testX;
+    let distY = cy - testY;
+
+    let dist = Math.sqrt(distX**2 + distY**2)
+
+    if (dist<cr){
+        return true;
+    }
+    return false;
+}
+function colliding(){
+    let platforms = faces[level][player.face]
+    for (let i=0; i<platforms.length; i++){
+        if (playerRectangle(platforms[i].x, platforms[i].y, platforms[i].width, platforms[i].height)){
+            return [true, platforms[i]];
+        }
+    };
+    return [false, null];
+};
+
+function playerRectangle(x, y, w, h){
+    return rectangularCollision(player.loc.x-PLAYERSIZE+(FACESIZE/2), 
+            (FACESIZE/2)-(player.loc.y+PLAYERSIZE),
+            player.loc.x+PLAYERSIZE+(FACESIZE/2), 
+            ((FACESIZE/2)-(player.loc.y-PLAYERSIZE)), 
+            x, 
+            y, 
+            x + w, 
+            y + h)
+}
+// ----- Reset Rotations -----    
+    
+
+function resetAllRotations(){
+    cubeGroup.scale.set(1, 1, 1);
+    if (player.face === 0){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(Math.PI/2, -Math.PI/2, Math.PI/2);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI, Math.PI/2);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI/2, Math.PI/2);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(Math.PI/2, 0, Math.PI/2);
+        }
+    } else if (player.face === 1){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI/2, -Math.PI/2);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(Math.PI/2, 0, -Math.PI/2);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(Math.PI/2, -Math.PI/2, -Math.PI/2);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI, -Math.PI/2);
+        }
+    } else if (player.face === 2){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(Math.PI/2, 0, 0);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(Math.PI/2, 3*Math.PI/2, 0);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI, 0);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(Math.PI/2, Math.PI/2, 0);
+        }
+    } else if (player.face === 3){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(-Math.PI/2, 0, 0);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(-Math.PI/2, Math.PI/2, 0);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(-Math.PI/2, Math.PI, 0);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(-Math.PI/2, 3*Math.PI/2, 0);
+        }
+    } else if (player.face === 4){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(0, 0, 0);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(0, 0, 3*Math.PI/2);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(0, 0, Math.PI);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(0, 0, Math.PI/2);
+        }
+    } else if (player.face === 5){
+        if (player.rotation === 0){
+            cubeGroup.rotation.set(Math.PI, 0, Math.PI);
+        } else if (player.rotation === 90){
+            cubeGroup.rotation.set(Math.PI, 0, 3*Math.PI/2);
+        } else if (player.rotation === 180){
+            cubeGroup.rotation.set(Math.PI, 0, 0);
+        } else if (player.rotation === 270){
+            cubeGroup.rotation.set(Math.PI, 0, Math.PI/2);
+        }
+    }
+}
+
+// ----- possibly change face of player -----
+
+function updatePlayerLoc(){
+    
+    if (playerOutOfBounds()){
+            let x = player.loc.x
+            let y = player.loc.y
+            let nextFace;
+            let vector;
+            let vecx = x;
+            let vecy = y;
+            let xbad = false;
+            let ybad = false;
+            let modifiedPlayerLoc = rotate(duplicate(player.loc), (360-player.rotation))
+            if (x > 256){
+                nextFace = cubeLayout[player.face].right
+                vecx -= 512
+                if ([0, 180].includes(player.rotation)){
+                    xbad = true
+                } else {
+                    ybad = true
+                }
+            } else if (x < -256){
+                nextFace = cubeLayout[player.face].left
+                vecx += 512
+                if ([0, 180].includes(player.rotation)){
+                    xbad = true
+                } else {
+                    ybad = true
+                }
+            } else if (y > 256){
+                nextFace = cubeLayout[player.face].above
+                vecy -= 512
+                if ([0, 180].includes(player.rotation)){
+
+                    ybad = true
+                } else {
+                    xbad = true
+                }
+            } else if (y < -256){
+                nextFace = cubeLayout[player.face].below
+                vecy += 512
+                if ([0, 180].includes(player.rotation)){
+
+                    ybad = true
+                } else {
+                    xbad = true
+                }
+            }
+            vector = makeVector(vecx, vecy)
+            
+            let modifiedX = 0;
+            let modifiedY = 0;
+            if (xbad){
+                modifiedX = modifiedPlayerLoc.x
+            }
+            if (ybad){
+                modifiedY = modifiedPlayerLoc.y
+            }
+            if (modifiedX > 256){
+                rotationQueue.push({x: -rotationCoefficient, y: 0, counter: rotationSteps})
+            } else if (modifiedX < -256) {
+                rotationQueue.push({x: rotationCoefficient, y: 0, counter: rotationSteps})
+            } else if (modifiedY > 256){
+                rotationQueue.push({x: 0, y: rotationCoefficient, counter: rotationSteps})
+            } else if (modifiedY < -256) {
+                rotationQueue.push({x: 0, y: -rotationCoefficient, counter: rotationSteps})
+            }
+            player.loc = rotate(vector, nextFace.offset)
+            player.rotation = (player.rotation + nextFace.offset)%360
+            //player.vel = rotate(player.vel, nextFace.offset)
+            player.face = nextFace.face
+    }
+}
+
+// ----- cube layout -----
+
+let cubeLayout = [
+    // 0
+    {
+        right: {face: 5, offset: 0},
+        above: {face: 2, offset: 90},
+        left: {face: 4, offset: 0},
+        below: {face: 3, offset: 270}
+    },
+    // 1
+    {
+        right: {face: 4, offset: 0},
+        above: {face: 2, offset: 270},
+        left: {face: 5, offset: 0},
+        below: {face: 3, offset: 90}
+    },
+    // 2
+    {
+        right: {face: 0, offset: 270},
+        above: {face: 5, offset: 180},
+        left: {face: 1, offset: 90},
+        below: {face: 4, offset: 0}
+    },
+    // 3
+    {
+        right: {face: 0, offset: 90},
+        above: {face: 4, offset: 0},
+        left: {face: 1, offset: 270},
+        below: {face: 5, offset: 180}
+    },
+    // 4
+    {
+        right: {face: 0, offset: 0},
+        above: {face: 2, offset: 0},
+        left: {face: 1, offset: 0},
+        below: {face: 3, offset: 0}
+    },
+    // 5
+    {
+        right: {face: 1, offset: 0},
+        above: {face: 2, offset: 180},
+        left: {face: 0, offset: 0},
+        below: {face: 3, offset: 180}
+    }
+]
+
+// ----- utility -----
+
+function makeVector(x, y){
+    return new THREE.Vector2(x, y)
+}
+
+function rotate(vector, angle){
+    return vector.rotateAround(makeVector(), angle*Math.PI/180)
+}
+
+function playerStickingOut(){
+    let x = player.loc.x
+    let y = player.loc.y
+    return (x + PLAYERSIZE > 256) || (x - PLAYERSIZE < -256) || (y - PLAYERSIZE < -256) || (y + PLAYERSIZE > 256)
+}
+
+function playerOutOfBounds(){
+    let x = player.loc.x
+    let y = player.loc.y
+    return (x > 256) || (x < -256) ||(y > 256) || (y < -256)
+}
+function duplicate(vector){
+    return makeVector(vector.x, vector.y)
+}
+// ----- window resize -----
+
+window.onresize = function(){
+	canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    renderer.setSize(canvas.width, canvas.height, false)
+  	camera.aspect = canvas.width/canvas.height
+    camera.updateProjectionMatrix()
+	render()
+}
+
+// ----- key inputs -----
+
+window.onkeydown = function(e){
+	keys[e.key] = true
+}
+window.onkeyup = function(e){
+	keys[e.key] = false
+}
+let keys = {}
+
+</script>
+</body>
+</html>
