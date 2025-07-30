@@ -259,17 +259,30 @@ form.addEventListener('submit', function(event) {
 
 //music
 let playlist = [
-  "Ahrix%20-%20Nova%20[NCS%20Release].mp3",
-  "Elektronomia%20-%20Sky%20High%20[NCS%20Release].mp3",
-  "Lost%20Sky%20-%20Dreams%20[NCS%20Release].mp3",
-  "Tobu%20-%20Colors.mp3",
-  "Unity%20Instrumental.mp3"
+    "Ahrix%20-%20Nova%20[NCS%20Release].mp3",
+    "Elektronomia%20-%20Sky%20High%20[NCS%20Release].mp3",
+    "Lost%20Sky%20-%20Dreams%20[NCS%20Release].mp3",
+    "Tobu%20-%20Colors.mp3",
+    "Unity%20Instrumental.mp3",
+    "Fade.mp3",
+    "Different%20Heaven%20-%20Nekozilla%20[NCS%20Release].mp3",
+    "HeroesTonight.mp3",
+    "circles.mp3",
+    "coffin.mp3"
 ];
-let currentSong = Math.floor(Math.random()*playlist.length);
-let audio = new Audio(playlist[currentSong]);
+let randomisedPlaylist = [];
+let n = playlist.length
+for (let i = 0; i < n; i++) {
+    let r = playlist.length;
+    let random = Math.floor(Math.random()*r)
+    randomisedPlaylist.push(playlist[random]);
+    playlist = playlist.slice(0, random).concat(playlist.slice(random+1))
+}
+let currentSong = Math.floor(Math.random()*randomisedPlaylist.length);
+let audio = new Audio(randomisedPlaylist[currentSong]);
 audio.addEventListener("ended", function() {
-    currentSong = (currentSong + 1) % playlist.length;
-    audio.src = playlist[currentSong];
+    currentSong = (currentSong + 1) % randomisedPlaylist.length;
+    audio.src = randomisedPlaylist[currentSong];
     audio.play();
 });
 </script>
