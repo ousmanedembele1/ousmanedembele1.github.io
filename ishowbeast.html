@@ -249,12 +249,12 @@ function calcOdds(){
 let form = document.getElementById('form');
 
 form.addEventListener('submit', function(event) {
+    audio.play();
     event.preventDefault(); // Prevent page reload
     time = Number(document.getElementById("time").value)
     numViews = Number(document.getElementById("views").value)
     releaseDate = new Date(document.getElementById("date").value)
     calcOdds()
-    audio.play();
 });
 
 //music
