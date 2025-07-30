@@ -115,7 +115,7 @@ function initialDistrib(min, max){
 }
 
 function integrate(func, min, max){
-    let n = 1_00_000;
+    let n = 50_000;
     let sum = 0
     let width = (max-min)/n
     for (let i = 0; i <= n; i++) {
@@ -149,7 +149,7 @@ let brackets = [
 let bracketedResults = []
 function calcOdds(){
     let possibilities = [];
-    let bucketSize = 0.05
+    let bucketSize = 0.1
     for (let i = minViews; i < maxViews; i+=bucketSize) {
         
         let prior = initialDistrib(i, i+bucketSize)
