@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
     <title>Mr Beast Views</title>
-    <link rel="icon" type="image/x-icon" href="TorusLogo.png">
 <style>
 
 /* Body & general */
@@ -106,6 +105,19 @@ label {
 input[type="number"],
 input[type="date"] {
   border: 2px solid grey;
+  border-radius: 3px;
+  font-size: 15px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+input[type="number"]:focus, input[type="date"]:focus {
+  border: 2px solid rgb(44, 156, 219);
+  outline: none;
   border-radius: 3px;
   font-size: 15px;
   padding: 6px 8px;
@@ -411,7 +423,8 @@ function calcOdds(){
     let layout = {
         font: { family: 'Arial, sans-serif', size: 16, color: 'white' },
         paper_bgcolor: 'rgb(29, 43, 58);',
-        plot_bgcolor: 'rgb(29, 43, 58);'
+        plot_bgcolor: 'rgb(29, 43, 58);',
+        showlegend: false
     }
     let baseline = -0.05;
 
@@ -504,5 +517,3 @@ function nextSong(){
 </script>
 </body>
 </html>
-
-
