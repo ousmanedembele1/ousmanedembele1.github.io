@@ -494,10 +494,15 @@ for (let i = 0; i < n; i++) {
 let currentSong = Math.floor(Math.random()*randomisedPlaylist.length);
 let audio = new Audio(randomisedPlaylist[currentSong]);
 audio.addEventListener("ended", function() {
+    nextSong()
+});
+function nextSong(){
     currentSong = (currentSong + 1) % randomisedPlaylist.length;
     audio.src = randomisedPlaylist[currentSong];
     audio.play();
-});
+}
+</scr
 </script>
 </body>
 </html>
+
