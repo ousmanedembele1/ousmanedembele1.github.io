@@ -5,33 +5,205 @@
     <title>Mr Beast Views</title>
     <link rel="icon" type="image/x-icon" href="TorusLogo.png">
 <style>
-#plot{
-    width: 100%;
-    height: 100%
+
+/* Body & general */
+body {
+  background-color: rgb(29, 43, 58);
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 15px;
+  margin-top: 0px;
+  box-sizing: border-box;
 }
+
+/* Page main title */
+#title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+/* Container holding form and plot side-by-side */
+#formplot {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start; /* align top edges */
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 15px;
+}
+
+/* Form styles */
+#form {
+  flex: 0 0 220px; /* fixed width */
+  border: 2px solid white;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 0; /* remove default margins */
+  box-sizing: border-box;
+}
+
+#plotcontainer {
+  position: relative;  /* needed for absolute positioning inside */
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* center children horizontally */
+}
+
+#plotcontainer > h1 {
+  position: absolute;
+  top: 20px; /* lift it above the plot box's top border */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgb(29, 43, 58); /* same as background to “cut out” behind text */
+  padding: 0 10px;
+  margin: 0;
+  color: white;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  z-index: 10;
+}
+p{  
+    padding: 15px;
+    font-size: 18px;
+}
+strong{
+    font-weight: 900;
+}
+#plot {
+  width: 100%;
+  min-height: 550px;
+  border: 2px solid white;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+
+
+/* Form groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: bold;
+  width: 100%;
+}
+
+input[type="number"],
+input[type="date"] {
+  border: 2px solid grey;
+  border-radius: 3px;
+  font-size: 15px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+input[type="submit"] {
+  width: 100%;
+  padding: 10px 0;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+#loading {
+  position: fixed;        /* fixed to viewport */
+  top: 0; 
+  left: 0;
+  width: 100vw;           /* full viewport width */
+  height: 100vh;          /* full viewport height */
+  background-color: rgba(99, 99, 99, 0.459); /* #4caf4f2a in rgba */
+  
+  justify-content: center;
+  align-items: center;
+
+  font-size: 55px;
+  font-weight: 800;
+  color: white;
+  z-index: 9999;
+  user-select: none;
+  pointer-events: none;   /* optional: disable interaction while loading */
+  display: none;          /* start hidden */
+}
+
 </style>
 </head>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.0.3/plotly.min.js"></script>
-<div id="plot"></div>
-<div id = "finalOdds">
-
+<div id = "title">
+    <h1>Mr. Beast views</h1>
 </div>
 
-<form id="form">
-    <label for="time">Time (hours)</label><br>
-    <input type="number" id="time" step = "any" value = "0"><br><br>
 
-    <label for="views">Views:</label><br>
-    <input type="number" id="views" value = "0"><br><br>
+<div id = "formplot">
+    
+    <div id = "plotcontainer">
+        <h1> Chart</h1>
+        <div id="plot"></div>
+    </div>
+    <form id="form">
+    <div class="form-group">
+        <label for="hours">Time (hours)</label>
+        <input type="number" id="hours" step="any" value="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="minutes">Time (minutes)</label>
+        <input type="number" id="minutes" step="any" value="0">
+    </div>
 
-    <label for="date">Release Date:</label><br>
-    <input type="date" id="date" value = "2025-08-02"><br><br>
+    <div class="form-group">
+        <label for="views">Views:</label>
+        <input type="number" id="views" value="0">
+    </div>
+
+    <div class="form-group">
+        <label for="date">Release Date:</label>
+        <input type="date" id="date" value="2025-08-16">
+    </div>
+
+    <div class="form-group">
+        <label for="charity">Charity odds</label>
+        <input type="number" id="charity" value="0.14" step="0.01">
+    </div>
+
     <input type="submit" value="Submit">
-</form>
+    </form>
+</div>
+
+<div id = "finalOdds"></div>
+
+<div id = "loading">
+    Loading...
+</div>
 <script>
 
-let releaseDate = new Date(2025, 7, 2)
 function timeToPercent(x){
     let L = 65.98606209690959
     let d = 32.372082402569404
@@ -100,19 +272,27 @@ function dayToExpectedViews(date){
     if (x>36.5){
         x -= Math.floor(x/36.5)*36.5
     }
-    let r = 5.533539198666395
-    let j = 1.4329421112986238
-    let n = 42.31389387556744
+    let r = 5.6032443170431865
+    let j = 1.4467844651715271
+    let n = 43.74549780750972
     return r*Math.cos(x*2*Math.PI/36.5 - Math.PI*j) + n
 }
 function initialDistrib(min, max){
+    // normal
     let m = Math.log(dayToExpectedViews(releaseDate));
-    let s = 0.19817992849970043;
+    //let m = Math.log(40);
+    let s = 0.1675179877937261;
 
+    // charity
+    let d = 3.3404571586757212;
+    let r = 0.2742537825689307;
     function inputLogNormal(x){
         return 1/(s*Math.sqrt(2*Math.PI))*1/x*Math.E**(-1*(Math.log(x)-m)**2/(2*s**2))
     }
-    return integrate(inputLogNormal, min, max)
+    function inputCharityNormal(x){
+        return 1/(r*Math.sqrt(2*Math.PI))*1/x*Math.E**(-1*(Math.log(x)-d)**2/(2*r**2))
+    }
+    return ((1-charityOdds)*integrate(inputLogNormal, min, max)+ charityOdds*integrate(inputCharityNormal, min, max))
 }
 
 function integrate(func, min, max){
@@ -133,13 +313,17 @@ function integrate(func, min, max){
     }
     return sum
 }
-let time = 0;
-let numViews = 0;
-let minViews = 10;
+let time;
+let numViews;
+let releaseDate;
+let charityOdds;
+
+let minViews = 5;
 let maxViews = 110;
 
 let brackets = [
-    [minViews, 30],
+    [minViews, 25],
+    [25, 30],
     [30, 35],
     [35, 40],
     [40, 45],
@@ -201,14 +385,15 @@ function calcOdds(){
 
     let container = document.getElementById("finalOdds");
     container.innerHTML = ""
+    let text = ""
     for (let i = 0; i < brackets.length; i++) {
         let bracketMin = brackets[i][0]
         let bracketMax = brackets[i][1];
-        let text = ("Min: " + bracketMin + " Max: " + bracketMax + " <strong>" + Math.round(bracketedResults[i]*1000)/10 + "%</strong>")
-        let newElement = document.createElement("p");
-        newElement.innerHTML = text
-        container.appendChild(newElement)
+        text += "[" + bracketMin + ",  " + bracketMax + "): <strong>" + Math.round(bracketedResults[i]*10000)/100 + "%</strong>, "
     }
+    let newElement = document.createElement("p");
+    newElement.innerHTML = text.slice(0,-2)
+    container.appendChild(newElement)
 
     let x1 = [];
     let y1 = [];
@@ -216,31 +401,49 @@ function calcOdds(){
     let y2 = [];
     for (let i = 0; i < possibilities.length; i += 1) {
         x1.push(i*bucketSize+minViews+bucketSize/2);
-        y1.push(possibilities[i]*100);
+        y1.push(possibilities[i]*100*1/bucketSize);
     }
     
     for (let i = 0; i < Math.round(possibilities.length/5*bucketSize); i += 1) {
         x2.push(i*5+minViews+2.5);
         y2.push(lumpedPossibilities[i][2]*100);
     }
+    let layout = {
+        font: { family: 'Arial, sans-serif', size: 16, color: 'white' },
+        paper_bgcolor: 'rgb(29, 43, 58);',
+        plot_bgcolor: 'rgb(29, 43, 58);'
+    }
+    let baseline = -0.05;
 
+let baselineTrace = {
+  x: x1,
+  y: x1.map(_ => baseline),  // horizontal line at y = baseline
+  mode: 'lines',
+  line: {color: 'rgba(0,0,0,0)'},
+  showlegend: false,
+  hoverinfo: 'skip'
+};
     Plotly.newPlot('plot', 
-        [
+        [baselineTrace,
             {
                 x: x1,
                 y: y1,
                 type: 'scatter',
-                mode: 'lines',
+                mode: "line",
+                fill: "tonexty",
+                fillcolor: 'rgb(31, 119, 180)', // semi-transparent fill color
+                line: {color: 'rgb(31, 119, 180)'},
                 name: 'Odds'
             },
             {
                 x: x2,
                 y: y2,
-                type: 'scatter',
-                mode: 'lines',
+                type: 'bar',
+                marker: {color: 'rgb(255, 127, 14)'}, 
                 name: 'Odds (bucketed)'
             }
-        ]
+        ],
+        layout
     );
 }
 
@@ -249,12 +452,21 @@ function calcOdds(){
 let form = document.getElementById('form');
 
 form.addEventListener('submit', function(event) {
+    
     audio.play();
     event.preventDefault(); // Prevent page reload
-    time = Number(document.getElementById("time").value)
+    document.getElementById("loading").style.display = "flex";
+    setTimeout(function(){
+let hours = Number(document.getElementById("hours").value)
+    let minutes = Number(document.getElementById("minutes").value)
+    time = hours + minutes/60
     numViews = Number(document.getElementById("views").value)
     releaseDate = new Date(document.getElementById("date").value)
+    charityOdds = Number(document.getElementById("charity").value)
     calcOdds()
+    document.getElementById("loading").style.display = "none";
+    }, 10)
+    
 });
 
 //music
@@ -268,7 +480,8 @@ let playlist = [
     "Different%20Heaven%20-%20Nekozilla%20[NCS%20Release].mp3",
     "HeroesTonight.mp3",
     "circles.mp3",
-    "coffin.mp3"
+    "coffin.mp3",
+    "Unknown%20Brain,%20Chris%20Linton%20-%20Superhero%20(feat.%20Chris%20Linton)%20[NCS%20Release]%20(1).mp3"
 ];
 let randomisedPlaylist = [];
 let n = playlist.length
