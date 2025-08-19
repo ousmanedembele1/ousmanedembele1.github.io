@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Mr Beast Views</title>
+    <link rel="icon" type="image/x-icon" href="TorusLogo.png">
 <style>
 
 /* Body & general */
@@ -202,7 +203,7 @@ input[type="submit"]:hover {
 
     <div class="form-group">
         <label for="charity">Charity odds</label>
-        <input type="number" id="charity" value="0.14" step="0.01">
+        <input type="number" id="charity" value="0.14" step="0.01" min="0" max ="1">
     </div>
 
     <input type="submit" value="Submit">
@@ -215,21 +216,84 @@ input[type="submit"]:hover {
     Loading...
 </div>
 <script>
-
+function Point(x, y){
+    if (!(this instanceof Point)){
+        return new Point(x, y)
+    }
+    this.x = x;
+    this.y = y;
+}
 function timeToPercent(x){
-    let L = 65.98606209690959
-    let d = 32.372082402569404
-    let k = 0.06287719939252132
-    let x0 = -5.398947976847045
+    let L = 67.68712709975931
+    let d = 32.90093840636368
+    let k = 0.059355163592466204
+    let x0 = -5.501942040423528;
     let e = Math.E
     return (L*e**(-1*e**(-k*(x-x0))) - d)/24
 }
 
+let groupedSpreads = [
+    {
+        "x": 0,
+        "y": 0
+    },
+    {
+        "x": 1.1829166666666666,
+        "y": 1.1434991534284074
+    },
+    {
+        "x": 3.5831249999999994,
+        "y": 2.5866513810573006
+    },
+    {
+        "x": 5.981875,
+        "y": 3.271659809070309
+    },
+    {
+        "x": 8.380625,
+        "y": 3.0742508125098813
+    },
+    {
+        "x": 10.780416666666667,
+        "y": 2.472794776388047
+    },
+    {
+        "x": 13.179375,
+        "y": 2.3758842518497203
+    },
+    {
+        "x": 15.578541666666666,
+        "y": 2.0563340030097637
+    },
+    {
+        "x": 17.976458333333337,
+        "y": 1.8772893993725475
+    },
+    {
+        "x": 20.376458333333336,
+        "y": 1.447827559463062
+    },
+    {
+        "x": 22.769583333333333,
+        "y": 0.7073085777635332
+    },
+    {
+        "x": 24.00001,
+        "y": 0
+    },
+]
 function timeToSpreads(x){
-    let a = 1.5085534391508881
-    let b = 10.310613572906199
-        
-    return ((x*(24-x))**(1/a)*1/b)/100
+    for (let i = 0; i < groupedSpreads.length; i++) {
+        let spread = groupedSpreads[i]
+        if (x < spread.x){
+            let prevSpread = groupedSpreads[i-1]
+            let x1 = prevSpread.x;
+            let y1 = prevSpread.y;
+            let x2 = spread.x;
+            let y2 = spread.y;
+            return ((x-x1)*(y2-y1)/(x2-x1)+y1)/100
+        }
+    }
 }
 
 function beta(time, min, max){
@@ -284,16 +348,31 @@ function dayToExpectedViews(date){
     if (x>36.5){
         x -= Math.floor(x/36.5)*36.5
     }
-    let r = 5.6032443170431865
-    let j = 1.4467844651715271
-    let n = 43.74549780750972
-    return r*Math.cos(x*2*Math.PI/36.5 - Math.PI*j) + n
+    console.log(x)
+    let points = [
+        Point(0, 40.90373),
+        Point(10.6, 37.89833),
+        Point(19.7, 46.87086),
+        Point(28.85, 45.15891),
+        Point(36.5, 42.66802)
+    ]
+    for (let i = 0; i < points.length; i++) {
+        let point = points[i]
+        if (x < point.x){
+            let prevPoint = points[i-1]
+            let x1 = prevPoint.x;
+            let y1 = prevPoint.y;
+            let x2 = point.x;
+            let y2 = point.y;
+            return ((x-x1)*(y2-y1)/(x2-x1)+y1)
+        }
+    }
 }
 function initialDistrib(min, max){
     // normal
     let m = Math.log(dayToExpectedViews(releaseDate));
     //let m = Math.log(40);
-    let s = 0.1675179877937261;
+    let s = 0.1668681949476631;
 
     // charity
     let d = 3.3404571586757212;
@@ -494,7 +573,8 @@ let playlist = [
     "HeroesTonight.mp3",
     "circles.mp3",
     "coffin.mp3",
-    "Unknown%20Brain,%20Chris%20Linton%20-%20Superhero%20(feat.%20Chris%20Linton)%20[NCS%20Release]%20(1).mp3"
+    "Unknown%20Brain,%20Chris%20Linton%20-%20Superhero%20(feat.%20Chris%20Linton)%20[NCS%20Release]%20(1).mp3",
+    "roadSoFar.mp3"
 ];
 let randomisedPlaylist = [];
 let n = playlist.length
