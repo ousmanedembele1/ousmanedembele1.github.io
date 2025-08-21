@@ -198,7 +198,7 @@ input[type="submit"]:hover {
 
     <div class="form-group">
         <label for="date">Release Date:</label>
-        <input type="date" id="date" value="2025-08-16">
+        <input type="date" id="date" value="2025-08-30">
     </div>
 
     <div class="form-group">
@@ -234,53 +234,57 @@ function timeToPercent(x){
 
 let groupedSpreads = [
     {
-        "x": 0,
-        "y": 0
+        "x": 0.38312500000000005,
+        "y": 0.5711847952764334
     },
     {
         "x": 1.1829166666666666,
-        "y": 1.1434991534284074
+        "y": 1.1446202031786712
     },
     {
         "x": 3.5831249999999994,
-        "y": 2.5866513810573006
+        "y": 2.5906057335503228
     },
     {
         "x": 5.981875,
-        "y": 3.271659809070309
+        "y": 3.2743540043177704
     },
     {
         "x": 8.380625,
-        "y": 3.0742508125098813
+        "y": 3.0864308147249884
     },
     {
         "x": 10.780416666666667,
-        "y": 2.472794776388047
+        "y": 2.4578126463744714
     },
     {
         "x": 13.179375,
-        "y": 2.3758842518497203
+        "y": 2.339677316855852
     },
     {
         "x": 15.578541666666666,
-        "y": 2.0563340030097637
+        "y": 2.0225864077780664
     },
     {
         "x": 17.976458333333337,
-        "y": 1.8772893993725475
+        "y": 1.8483648403631399
     },
     {
         "x": 20.376458333333336,
-        "y": 1.447827559463062
+        "y": 1.4220962449969516
     },
     {
         "x": 22.769583333333333,
-        "y": 0.7073085777635332
+        "y": 0.7011528966251713
+    },
+    {
+        "x": 23.555625,
+        "y": 0.39716963968358265
     },
     {
         "x": 24.00001,
         "y": 0
-    },
+    }
 ]
 function timeToSpreads(x){
     for (let i = 0; i < groupedSpreads.length; i++) {
@@ -337,25 +341,44 @@ function dayToExpectedViews(date){
     let month = date.getMonth()
     let day = date.getDate()
 
-    let daysSinceStartOf2024 = 0;
+    let daysSinceStartOf2022 = 0;
 
-    daysSinceStartOf2024 += (year-2023)*365;
+    daysSinceStartOf2022 += (year-2022)*365;
     for (let i = 0; i < month; i++) {
-        daysSinceStartOf2024 += daysInMonth[i]
+        daysSinceStartOf2022 += daysInMonth[i]
     }
-    daysSinceStartOf2024 += day
-    let x = daysSinceStartOf2024/10
+    daysSinceStartOf2022 += day
+    let x = daysSinceStartOf2022/10
     if (x>36.5){
         x -= Math.floor(x/36.5)*36.5
     }
     console.log(x)
     let points = [
-        Point(0, 40.90373),
-        Point(10.6, 37.89833),
-        Point(19.7, 46.87086),
-        Point(28.85, 45.15891),
-        Point(36.5, 42.66802)
-    ]
+    {
+        "x": -7.649999999999999,
+        "y": 45.81230841666667
+    },
+    {
+        "x": 1.5,
+        "y": 44.593133333333334
+    },
+    {
+        "x": 10.6,
+        "y": 38.267103785714276
+    },
+    {
+        "x": 19.7,
+        "y": 47.057912214285714
+    },
+    {
+        "x": 28.85,
+        "y": 45.81230841666667
+    },
+    {
+        "x": 38,
+        "y": 44.593133333333334
+    }
+]
     for (let i = 0; i < points.length; i++) {
         let point = points[i]
         if (x < point.x){
@@ -368,11 +391,12 @@ function dayToExpectedViews(date){
         }
     }
 }
+
 function initialDistrib(min, max){
     // normal
     let m = Math.log(dayToExpectedViews(releaseDate));
     //let m = Math.log(40);
-    let s = 0.1668681949476631;
+    let s = 0.16177048982739653
 
     // charity
     let d = 3.3404571586757212;
