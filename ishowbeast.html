@@ -55,8 +55,10 @@ body {
   min-width: 0;
   box-sizing: border-box;
   display: flex;
-  flex-direction: column;
-  align-items: center; /* center children horizontally */
+  flex-direction: row;
+  align-items: left; /* center children horizontally */
+  border: 2px solid white;
+  border-radius: 12px;
 }
 
 #plotcontainer > h1 {
@@ -64,13 +66,14 @@ body {
   top: 20px; /* lift it above the plot box's top border */
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgb(29, 43, 58); /* same as background to “cut out” behind text */
+  background-color: rgba(29, 43, 58, 0); /* same as background to “cut out” behind text */
   padding: 0 10px;
   margin: 0;
   color: white;
   font-weight: bold;
   font-family: Arial, sans-serif;
   z-index: 10;
+  
 }
 p{  
     padding: 15px;
@@ -79,11 +82,9 @@ p{
 strong{
     font-weight: 900;
 }
-#plot {
-  width: 100%;
+#plot, #plot2 {
+  width: 50%;
   min-height: 550px;
-  border: 2px solid white;
-  border-radius: 12px;
   box-sizing: border-box;
 }
 
@@ -177,8 +178,9 @@ input[type="submit"]:hover {
 <div id = "formplot">
     
     <div id = "plotcontainer">
-        <h1> Chart</h1>
+        <h1>Charts</h1>
         <div id="plot"></div>
+        <div id="plot2"></div>
     </div>
     <form id="form">
     <div class="form-group">
@@ -198,12 +200,12 @@ input[type="submit"]:hover {
 
     <div class="form-group">
         <label for="date">Release Date:</label>
-        <input type="date" id="date" value="2025-08-30">
+        <input type="date" id="date" value="2025-09-13">
     </div>
 
     <div class="form-group">
         <label for="charity">Charity odds</label>
-        <input type="number" id="charity" value="0.14" step="0.01" min="0" max ="1">
+        <input type="number" id="charity" value="0.138" step="0.001" min="0" max ="1">
     </div>
 
     <input type="submit" value="Submit">
@@ -211,6 +213,7 @@ input[type="submit"]:hover {
 </div>
 
 <div id = "finalOdds"></div>
+<div id = "growthRate"></div>
 
 <div id = "loading">
     Loading...
@@ -224,68 +227,79 @@ function Point(x, y){
     this.y = y;
 }
 function timeToPercent(x){
-    let L = 67.68712709975931
-    let d = 32.90093840636368
-    let k = 0.059355163592466204
-    let x0 = -5.501942040423528;
+    let L = 71.26233440791599
+    let d = 35.96767580413623
+    let k = 0.05736793333166776
+    let x0 = -6.6268189270648685;
     let e = Math.E
     return (L*e**(-1*e**(-k*(x-x0))) - d)/24
 }
-
+function timeToDeriv(x){
+    let L = 71.26233440791599
+    let k = 0.05736793333166776
+    let x0 = -6.6268189270648685;
+    let e = Math.E
+    return (e**(-1*e**(-k*(x-x0))))*-1*e**(-k*(x-x0))*-k*L/24
+}
 let groupedSpreads = [
     {
-        "x": 0.38312500000000005,
-        "y": 0.5711847952764334
+        "x": 0,
+        "y": 0
     },
     {
-        "x": 1.1829166666666666,
-        "y": 1.1446202031786712
+        "x": 0.3829411764705883,
+        "y": 0.5724646115797499
     },
     {
-        "x": 3.5831249999999994,
-        "y": 2.5906057335503228
+        "x": 1.1827450980392156,
+        "y": 1.1227400133267618
     },
     {
-        "x": 5.981875,
-        "y": 3.2743540043177704
+        "x": 3.582941176470588,
+        "y": 2.5189466251847143
     },
     {
-        "x": 8.380625,
-        "y": 3.0864308147249884
+        "x": 5.981764705882353,
+        "y": 3.2077589740711896
     },
     {
-        "x": 10.780416666666667,
-        "y": 2.4578126463744714
+        "x": 8.380588235294118,
+        "y": 3.0927552945996593
     },
     {
-        "x": 13.179375,
-        "y": 2.339677316855852
+        "x": 10.779803921568629,
+        "y": 2.6258294153107333
     },
     {
-        "x": 15.578541666666666,
-        "y": 2.0225864077780664
+        "x": 13.178823529411764,
+        "y": 2.42074929070774
     },
     {
-        "x": 17.976458333333337,
-        "y": 1.8483648403631399
+        "x": 15.578039215686275,
+        "y": 2.0401112032850364
     },
     {
-        "x": 20.376458333333336,
-        "y": 1.4220962449969516
+        "x": 17.976078431372553,
+        "y": 1.8238801418310402
     },
     {
-        "x": 22.769583333333333,
-        "y": 0.7011528966251713
+        "x": 20.37549019607843,
+        "y": 1.406292068054565
     },
     {
-        "x": 23.555625,
-        "y": 0.39716963968358265
+        "x": 22.765686274509804,
+        "y": 0.7085321251222202
+    },
+    {
+        "x": 23.54588235294118,
+        "y": 0.4278609304457346
     },
     {
         "x": 24.00001,
         "y": 0
     }
 ]
+
 function timeToSpreads(x){
     for (let i = 0; i < groupedSpreads.length; i++) {
         let spread = groupedSpreads[i]
@@ -352,33 +366,32 @@ function dayToExpectedViews(date){
     if (x>36.5){
         x -= Math.floor(x/36.5)*36.5
     }
-    console.log(x)
     let points = [
-    {
-        "x": -7.649999999999999,
-        "y": 45.81230841666667
-    },
-    {
-        "x": 1.5,
-        "y": 44.593133333333334
-    },
-    {
-        "x": 10.6,
-        "y": 38.267103785714276
-    },
-    {
-        "x": 19.7,
-        "y": 47.057912214285714
-    },
-    {
-        "x": 28.85,
-        "y": 45.81230841666667
-    },
-    {
-        "x": 38,
-        "y": 44.593133333333334
-    }
-]
+        {
+            "x": -7.649999999999999,
+            "y": 45.81230841666667
+        },
+        {
+            "x": 1.5,
+            "y": 44.593133333333334
+        },
+        {
+            "x": 10.6,
+            "y": 38.267103785714276
+        },
+        {
+            "x": 19.7,
+            "y": 46.21605686666667
+        },
+        {
+            "x": 28.85,
+            "y": 45.81230841666667
+        },
+        {
+            "x": 38,
+            "y": 44.593133333333334
+        }
+    ]
     for (let i = 0; i < points.length; i++) {
         let point = points[i]
         if (x < point.x){
@@ -411,7 +424,7 @@ function initialDistrib(min, max){
 }
 
 function integrate(func, min, max){
-    let n = 50_000;
+    let n = 5_000;
     let sum = 0
     let width = (max-min)/n
     for (let i = 0; i <= n; i++) {
@@ -434,7 +447,7 @@ let releaseDate;
 let charityOdds;
 
 let minViews = 5;
-let maxViews = 110;
+let maxViews = 90;
 
 let brackets = [
     [minViews, 25],
@@ -447,6 +460,7 @@ let brackets = [
     [55, maxViews]
 ]
 let bracketedResults = []
+
 function calcOdds(){
     let possibilities = [];
     let bucketSize = 0.1
@@ -481,7 +495,6 @@ function calcOdds(){
     for (let i = 0; i < brackets.length; i++) {
         bracketedResults.push(0)
     }
-    console.log(lumpedPossibilities)
     for (let i = 0; i < lumpedPossibilities.length; i++) {
         let lumpedPossi = lumpedPossibilities[i];
         let lumpedPossiMin = lumpedPossi[0];
@@ -523,22 +536,50 @@ function calcOdds(){
         x2.push(i*5+minViews+2.5);
         y2.push(lumpedPossibilities[i][2]*100);
     }
+    console.log(possibilities, lumpedPossibilities)
     let layout = {
-        font: { family: 'Arial, sans-serif', size: 16, color: 'white' },
+        font: { 
+            family: 'Arial, sans-serif', 
+            size: 16, 
+            color: 'white'
+        },
         paper_bgcolor: 'rgb(29, 43, 58);',
         plot_bgcolor: 'rgb(29, 43, 58);',
-        showlegend: false
+        showlegend: false,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 30,
+            b: 50
+        }
     }
-    let baseline = -0.05;
+    let layout2 = {
+        font: { 
+            family: 'Arial, sans-serif', 
+            size: 16, 
+            color: 'white'
+        },
+        paper_bgcolor: 'rgb(29, 43, 58);',
+        plot_bgcolor: 'rgb(29, 43, 58);',
+        showlegend: false,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 40,
+            b: 50
+        }
+    }
+    let baseline = -0.01;
 
-let baselineTrace = {
-  x: x1,
-  y: x1.map(_ => baseline),  // horizontal line at y = baseline
-  mode: 'lines',
-  line: {color: 'rgba(0,0,0,0)'},
-  showlegend: false,
-  hoverinfo: 'skip'
-};
+    let baselineTrace = {
+        x: x1,
+        y: x1.map(_ => baseline),
+        mode: 'lines',
+        line: {color: 'rgba(0,0,0,0)'},
+        showlegend: false,
+        hoverinfo: 'skip'
+    };
+
     Plotly.newPlot('plot', 
         [baselineTrace,
             {
@@ -561,28 +602,118 @@ let baselineTrace = {
         ],
         layout
     );
+    let gr = document.getElementById("growthRate");
+    gr.innerHTML = ""
+
+    if (multipleGraphs){
+        let x3 = [];
+        let y3 = [];
+        for (let i = 0; i < submissions.length; i++) {
+            x3.push(submissions[i].time)
+            y3.push(submissions[i].views/1_000_000)
+        }
+        let extrapolatedValue = numViews/(timeToPercent(time)*1_000_000)
+        let x4 = []
+        let y4 = []
+        let numPoints = 100
+        for (let i = 0; i <= numPoints; i++) {
+            let x = 24*i/numPoints
+            x4.push(x)
+            y4.push(extrapolatedValue * timeToPercent(x))
+        }
+
+        let currSubmission = submissions[submissions.length - 1]
+        let prevSubmission = submissions[submissions.length - 2]
+
+        let growthRate = (currSubmission.views - prevSubmission.views)/(1_000_000*(currSubmission.time - prevSubmission.time))
+        let expectedGrowthRate = timeToDeriv(time)*extrapolatedValue
+        growthRate = Math.round(growthRate*100)/100
+        expectedGrowthRate = Math.round(expectedGrowthRate*100)/100
+        let newElement = document.createElement("p");
+        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/h,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/h</strong>"
+        gr.appendChild(newElement)
+
+        console.log(growthRate, expectedGrowthRate)
+        let p1 = Point(currSubmission.time, currSubmission.views/1_000_000)
+        let p2 = Point(24, prevSubmission.views/1_000_000 + (24-prevSubmission.time)*growthRate)
+        Plotly.newPlot('plot2', 
+            [
+            {
+                x: x4,
+                y: y4,
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'green'},
+                name: 'Odds'
+            },
+            {
+                x: x3,
+                y: y3,
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'rgb(167, 25, 23)'},
+                name: 'Odds'
+            },
+            {
+                x: [p1.x, p2.x],
+                y: [p1.y, p2.y],
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'pink'},
+                name: 'Odds'
+            },
+            ],
+            layout2
+        );
+    }
+    
+    if (multipleGraphs){
+        document.getElementById("plot").style.width = "50%"
+        
+        document.getElementById("plot2").style.display = "flex"
+        document.getElementById("plot2").style.width = "50%"
+        Plotly.Plots.resize('plot');
+        Plotly.Plots.resize('plot2');
+    } else {
+        document.getElementById("plot").style.width = "100%"
+        Plotly.Plots.resize('plot');
+        document.getElementById("plot2").style.display = "none"
+    }
 }
 
-
-
+let multipleGraphs = false
+let submissions = [];
+let submissionSpecs;
 let form = document.getElementById('form');
 
 form.addEventListener('submit', function(event) {
-    
     audio.play();
-    event.preventDefault(); // Prevent page reload
+    event.preventDefault();
     document.getElementById("loading").style.display = "flex";
-    setTimeout(function(){
-let hours = Number(document.getElementById("hours").value)
+    let hours = Number(document.getElementById("hours").value)
     let minutes = Number(document.getElementById("minutes").value)
     time = hours + minutes/60
     numViews = Number(document.getElementById("views").value)
     releaseDate = new Date(document.getElementById("date").value)
     charityOdds = Number(document.getElementById("charity").value)
-    calcOdds()
-    document.getElementById("loading").style.display = "none";
-    }, 10)
+
+    multipleGraphs = false
     
+    if (submissions.length === 0){
+        submissions.push({"time": time, views: numViews})
+        submissionSpecs = {date: releaseDate, charity: charityOdds}
+    } else if (!(releaseDate.getTime() === submissionSpecs.date.getTime() && charityOdds === submissionSpecs.charity)){
+        submissions = [{"time": time, views: numViews}]
+        submissionSpecs = {date: releaseDate, charity: charityOdds}
+    } else{
+        submissions.push({"time": time, views: numViews})
+        multipleGraphs = true
+    }
+    console.log(multipleGraphs)
+    setTimeout(function(){
+        calcOdds()
+        document.getElementById("loading").style.display = "none";
+    }, 10)
 });
 
 //music
@@ -623,4 +754,3 @@ function nextSong(){
 </script>
 </body>
 </html>
-
