@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Drawing</title>
+<style>
+#scene{
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+}
+.drawing{
+    background-color: black;
+    border: 5px solid rgb(192, 192, 192);
+}
+#drawingCanvas2{
+    position: relative;
+    box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.3);
+}
+#drawingCanvas{
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+body{
+    margin: 0
+}
+button{
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 30px;
+    color: white;
+    border: 2px solid black; 
+}
+#finishShapes{
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: #4CAF50;
+    
+}  
+
+#canvasWrapper {
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    align-items: flex-start;
+    position: absolute;    /* keep your current absolute positioning */
+    top: 0;
+    left: 0;
+}
+
+.circle {
+    margin-top: 10px;       /* spacing under the canvas */
+    margin-left: 5px;
+    background-color: #4c4faf;
+}
+.square {
+    margin-top: 10px;       /* spacing under the canvas */
+    margin-left: 5px;
+    background-color: #af6a4c;
+}
+.diamond {
+    margin-top: 10px;       /* spacing under the canvas */
+    margin-left: 5px;
+    background-color: #a54caf;
+}
+#canvasWrapper2 {
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    align-items: flex-start;
+    position: absolute;    /* keep your current absolute positioning */
+    top: 0;
+    right: 0;
+}
+</style>
+</head>
+<body>
+    <canvas id = "scene"></canvas>
+    <div id = "canvasWrapper">
+        <canvas id = "drawingCanvas" class = "drawing" width = "400px" height = "400px"></canvas> 
+        <div class = "buttons">
+            <button class = "circle" type="button" onclick="shape1.circle()">Circle</button>
+            <button class = "square" type="button" onclick="shape1.square()">Square</button>
+            <button class = "diamond" type="button" onclick="shape1.diamond()">Diamond</button>
+        </div>
+    </div>
+    <div id = "canvasWrapper2">
+        <canvas id = "drawingCanvas2" class = "drawing" width = "400px" height = "400px"></canvas> 
+        <div class = "buttons">
+            <button class = "circle" type="button" onclick="shape2.circle()">Circle</button>
+            <button class = "square" type="button" onclick="shape2.square()">Square</button>
+            <button class = "diamond" type="button" onclick="shape2.diamond()">Diamond</button>
+        </div>
+    </div>
+    <button id = "finishShapes" type="button" onclick="finishShapes()">Close Shapes</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+
+
+<script>
+
+function vector2(x, y){
+    return new THREE.Vector2(x, y)
+}
+function vector3(x, y, z){
+    return new THREE.Vector3(x, y, z)
+}
+function matrix3(a11, a12, a13, a21, a22, a23, a31, a32, a33){
+    let m = new THREE.Matrix3()
+    return m.set(a11, a12, a13, a21, a22, a23, a31, a32, a33)
+}
+
+function drawing(canvasId, offsetX){
+    if (!(this instanceof drawing)){
+        return new drawing(canvasId, offsetX)
+    }
+    this.canvas = document.getElementById(canvasId)
+    this.ctx = this.canvas.getContext("2d")
+    this.canvas.width = 400;
+    this.canvas.height = 400;
+    this.clickPoints = [];
+    this.userClicking = false;
+    this.canvas.onmousedown = function(event){
+        this.userClicking = true
+        this.clickPoints.push(vector2(event.clientX + offsetX, event.clientY))
+        this.draw()
+    }.bind(this)
+    this.canvas.onmouseup = function(event){
+        this.userClicking = false;
+    }.bind(this)
+    this.canvas.onmousemove = function(event){
+        if (this.userClicking){
+            this.clickPoints.push(vector2(event.clientX + offsetX, event.clientY))
+            this.draw()
+        }
+    }.bind(this)
+    this.draw = function(){
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        for (let i = 0; i < this.clickPoints.length; i++) {
+            let point = this.clickPoints[i];
+            this.ctx.beginPath();
+            this.ctx.arc(point.x, point.y, 5, 0, 2*Math.PI)
+            this.ctx.fillStyle = "white"
+            this.ctx.fill()
+        }
+        // connect dots
+        for (let i = 1; i < this.clickPoints.length; i++) {
+            let firstPoint = this.clickPoints[i-1];
+            let secondPoint = this.clickPoints[i];
+            this.ctx.beginPath()
+            this.ctx.moveTo(firstPoint.x, firstPoint.y);
+            this.ctx.lineTo(secondPoint.x, secondPoint.y);
+            this.ctx.lineWidth = 10;
+            this.ctx.strokeStyle = "white";  
+            this.ctx.stroke()
+        }
+        renderScene(this)
+    }
+    this.circle = function(){this.polygon(150, 0)}
+    this.diamond = function(){this.polygon(4, 0)}
+    this.square = function(){this.polygon(4, Math.PI/4)}
+    this.polygon = function(numpts, offset){
+        if (this.finished){
+            return
+        }
+        let totalPts = numpts;
+        let radius = 150;
+        let pts = [];
+        for (let i = 0; i <= totalPts; i++) {
+            let x = this.canvas.width/2 + radius*Math.cos(2*i*Math.PI/totalPts + offset);
+            let y = this.canvas.height/2 + radius*Math.sin(2*i*Math.PI/totalPts + offset);
+            this.clickPoints.push(vector2(x, y))
+            this.draw()
+        }
+        this.finished = true
+    }.bind(this)
+    this.finished = false;
+}
+
+let shape1 = drawing("drawingCanvas", 0)
+let shape2 = drawing("drawingCanvas2", 400 - window.innerWidth)
+let shapes = [shape1, shape2]
+
+// -------------------------------------------------------------
+
+let canvas = document.getElementById("scene");
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
+
+let renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+
+let camera = new THREE.PerspectiveCamera(75, canvas.width/canvas.height, 0.01, 1000);
+camera.position.set(0, 0, 3.4);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xEEEEEE);
+
+const light1 = new THREE.DirectionalLight( 0xFFFFFF, 0.5 );
+light1.position.set( - 1, 2, 4 );
+scene.add(light1);
+
+const light2 = new THREE.AmbientLight(0xFFFFFF, 0.4);
+scene.add(light2);
+
+let triangles = new THREE.Group()
+
+function renderScene(shape){
+
+        let copiedPoints = JSON.parse(JSON.stringify(shape.clickPoints));
+        
+        for (let i = 0; i < copiedPoints.length; i++) {
+            let pt = copiedPoints[i]
+            pt.x = (pt.x - shape.canvas.width/2)/50
+            pt.y = (-pt.y + shape.canvas.height/2)/50
+        }
+
+        if (copiedPoints.length <2){
+            return
+        }
+            let pt1 = copiedPoints[copiedPoints.length-2]
+            let pt2 = copiedPoints[copiedPoints.length-1]
+
+            let geometry = new THREE.BufferGeometry();
+            let vertices;
+            let color;
+            if (shape === shape1){
+                vertices = new Float32Array([
+                // x, y, z
+                pt1.x,  pt1.y, -4, // vertex 1
+                pt2.x,  pt2.y, -4,  // vertex 2
+                0, 0,  4   // vertex 3
+            ]);
+            color = "red"
+            } else{
+                vertices = new Float32Array([
+                // x, y, z
+                pt1.x,  pt1.y, 4, // vertex 1
+                pt2.x,  pt2.y, 4,  // vertex 2
+                0, 0,  -4   // vertex 3
+            ]);
+            color = "green"
+            }
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geometry.computeVertexNormals()
+            // 3. Define a basic material
+            const material = new THREE.MeshPhongMaterial({ color: color, depthWrite: false, side: THREE.DoubleSide,transparent: true,   // Enable transparency
+            opacity: 0.5 });
+
+            // 4. Create mesh and add to scene
+            const triangle = new THREE.Mesh(geometry, material);
+            triangles.add(triangle);
+
+}
+
+scene.add(triangles)
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
+animate();
+
+renderer.sortObjects = true
+
+const material = new THREE.LineBasicMaterial({
+	color: 0x000000,
+});
+
+
+
+function findPlane(p1, p2, p3){
+    let a = vector3()
+    let b = vector3()
+    let c = vector3()
+
+    a.subVectors(p2, p1)
+    b.subVectors(p3, p1)
+    c.crossVectors(a, b)
+    return [c, c.dot(p1)]
+
+}
+
+
+function solveSystem(m, v){
+    return v.applyMatrix3(m.invert())
+}
+
+function lineToEqs(p1, p2){
+    return [findPlane(p1, p2, vector3(1, 5, 100)), findPlane(p1, p2, vector3(5, 100, 1))]
+}
+function vecsToMatrix(v1, v2, v3){
+    return matrix3(
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z
+    )
+}
+function intersectLinePlane(l1, l2, p1, p2, p3){
+    let plane = findPlane(p1, p2, p3)
+    let line = lineToEqs(l1, l2)
+
+    return solveSystem(vecsToMatrix(plane[0], line[0][0], line[1][0]), vector3(plane[1], line[0][1], line[1][1]))
+}
+
+function intersectPlanes(p1, p2, q1, q2){
+    let t1 = [
+        vector3(p1.x,  p1.y, -4),
+        vector3(p2.x,  p2.y, -4),
+        vector3(0, 0,  4)
+    ];
+    let t2 = [
+        vector3(q1.x,  q1.y, 4),
+        vector3(q2.x,  q2.y, 4),
+        vector3(0, 0,  -4)
+    ]
+
+
+    if (!(pointsBetween(p1, p2, q1, q2) || pointsBetween(q1, q2, p1, p2))){
+        return
+    }
+    const points = [
+        intersectLinePlane(t2[0], t2[2], t1[0], t1[1], t1[2]),
+        intersectLinePlane(t2[1], t2[2], t1[0], t1[1], t1[2]),
+        intersectLinePlane(t1[0], t1[2], t2[0], t2[1], t2[2]),
+        intersectLinePlane(t1[1], t1[2], t2[0], t2[1], t2[2])
+    ]
+    console.log(points)
+    let newPoints = []
+    for (let i = 0; i < points.length; i++) {
+        let point = points[i]
+        if (Math.max(Math.abs(point.x), Math.abs(point.y), Math.abs(point.z))< 0.5){
+            console.log(point, "too close to 0")
+            continue
+        }
+        if (inTriangle(point, t1) && inTriangle(point, t2)){
+            newPoints.push(point)
+        }
+    }
+    const geometry = new THREE.BufferGeometry().setFromPoints( newPoints);
+    if (newPoints.length !== 2){
+        //return
+        console.log(newPoints.length)
+    }
+    const line = new THREE.Line( geometry, material );
+    scene.add( line );
+    for (let i = 0; i < newPoints.length; i++) {
+        let point = newPoints[i]
+        const geometry = new THREE.SphereGeometry(0.05, 16, 16)
+        const material = new THREE.MeshBasicMaterial({ color: "blue" });
+        const pt = new THREE.Mesh(geometry, material);
+
+        // Position the point
+        pt.position.set(point.x, point.y, point.z);
+        scene.add(pt);
+    }
+
+}
+function inTriangle(pt, triangle){
+    
+    let a = triangle[0];
+    let b = triangle[1];
+    let c = triangle[2];
+    let q = vector3();
+    q.subVectors(b, a);
+    let r = vector3();
+    r.subVectors(c, a);
+
+    // a + qu + rv = pt
+// a.x + q.x*u + r.x*v = pt.x
+// a.y + q.y*u + r.y*v = pt.y
+
+    let solution = 
+    solveSystem(
+        matrix3(
+            q.x, r.x, 0,
+            q.y, r.y, 0,
+            0,   0,   1
+        ),
+        vector3(pt.x - a.x, pt.y-a.y, 1)
+    )
+
+    let u = solution.x
+    let v = solution.y
+
+    if (Math.min(u, v, 1-u-v) > -0.1){
+        return true
+    }
+    return false
+}
+function findIntersections(){
+    let points = []
+    for (let i = 0; i < shapes.length; i++) {
+        let shape = shapes[i]
+
+        let copiedPoints = JSON.parse(JSON.stringify(shape.clickPoints));
+        
+        for (let i = 0; i < copiedPoints.length; i++) {
+            let pt = copiedPoints[i]
+            pt.x = (pt.x - shape.canvas.width/2)/50
+            pt.y = (-pt.y + shape.canvas.height/2)/50
+        }
+        points.push(copiedPoints)
+    }
+
+    let redPoints = points[0];
+    let greenPoints = points[1];
+
+    for (let i = 0; i < redPoints.length-1; i++) {
+        for (let j = 0; j < greenPoints.length-1; j++) {
+            intersectPlanes(redPoints[i], redPoints[i+1], greenPoints[j], greenPoints[j+1])
+            //console.log(i, j)
+        }
+    }
+    //console.log(redPoints, greenPoints)
+}
+
+window.onkeydown = function(event){
+    if (event.key === "x"){
+        finishShapes()
+    }
+    if (event.key === "a"){
+        camera.position.set(0, 0, 4);
+    }
+    if (event.key === "b"){
+        camera.position.set(0, 0, -4);
+    }
+}
+function finishShapes(){
+    for (let i = 0; i < shapes.length; i++) {
+        let shape = shapes[i]
+        if (shape.clickPoints.length < 3){
+            alert("Please add at least 3 points to each shape!")
+            return
+        }
+    }
+    for (let i = 0; i < shapes.length; i++) {
+        let shape = shapes[i]
+        if (shape.finished === true){
+            continue
+        }
+        shape.clickPoints.push(shape.clickPoints[0])
+        shape.draw()
+    }
+    findIntersections()
+}
+
+function angle(pt){
+    let x = pt.x;
+    let y = pt.y;
+
+    let atan = Math.atan(y/x)
+
+    if (x<0){
+        atan += Math.PI
+    }
+    if (atan <0){
+        atan += 2*Math.PI
+    }
+    return atan
+}
+
+function isbetween(a, b, c){
+    if (Math.abs(b-c) > Math.PI){
+        return !between(a, b, c)
+    }
+    return between(a, b, c)
+   
+}
+function between(a, b, c){
+    
+     if (a < b){
+        if (c< a){
+            return true
+        }
+        return false
+    }
+    if (a< c){
+            return true
+        }
+        return false
+}
+function pointsBetween(p1, p2, q1, q2){
+    let angles = [
+        angle(p1),
+        angle(p2),
+        angle(q1),
+        angle(q2)
+    ]
+    //console.log(p1, p2, q1, q2, (isbetween(angles[2], angles[0], angles[1]) || isbetween(angles[3], angles[0], angles[1])), angles)
+    if ((isbetween(angles[2], angles[0], angles[1]) || isbetween(angles[3], angles[0], angles[1]))){
+        return true
+    }
+    return false
+}
+
+function onSegment(p, p1, p2){
+    let errorMargin = 0.00001
+
+}
+</script>
+</body>
+</html>
