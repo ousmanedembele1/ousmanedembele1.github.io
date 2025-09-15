@@ -130,10 +130,9 @@ input[type="number"]:focus, input[type="date"]:focus {
   font-family: Arial, sans-serif;
 }
 
-input[type="submit"] {
+input[type="submit"], input[type="button"] {
   width: 100%;
   padding: 10px 0;
-  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 6px;
@@ -141,11 +140,27 @@ input[type="submit"] {
   font-weight: bold;
   transition: background-color 0.3s ease;
 }
-
+input[type="submit"] {
+  background-color: #45a049;
+}
 input[type="submit"]:hover {
   background-color: #45a049;
 }
 
+#back{
+  background-color: #af8c4c;
+  display: none;
+}
+#back:hover{
+  background-color: #a07745;
+}
+#forward{
+    background-color: #6a4caf;
+    display: none
+}
+#forward:hover{
+      background-color: #7b45a0;
+}
 #loading {
   position: fixed;        /* fixed to viewport */
   top: 0; 
@@ -200,7 +215,7 @@ input[type="submit"]:hover {
 
     <div class="form-group">
         <label for="date">Release Date:</label>
-        <input type="date" id="date" value="2025-09-13">
+        <input type="date" id="date" value="2025-09-27">
     </div>
 
     <div class="form-group">
@@ -209,6 +224,8 @@ input[type="submit"]:hover {
     </div>
 
     <input type="submit" value="Submit">
+    <input id = "back"type="button" value="Back">
+    <input id = "forward"type="button" value="Forward">
     </form>
 </div>
 
@@ -445,7 +462,7 @@ let time;
 let numViews;
 let releaseDate;
 let charityOdds;
-
+let numBack = 1;
 let minViews = 5;
 let maxViews = 90;
 
@@ -462,6 +479,17 @@ let brackets = [
 let bracketedResults = []
 
 function calcOdds(){
+    if (submissions.length > 1){
+        let s1 = submissions[submissions.length - 1]
+        let s2 = submissions[submissions.length - 2]
+        if (s1.time - s2.time <= 0){
+            return
+        }
+        if (s1.views - s2.views <= 0){
+            return
+        }
+    }
+    
     let possibilities = [];
     let bucketSize = 0.1
     for (let i = minViews; i < maxViews; i+=bucketSize) {
@@ -623,17 +651,25 @@ function calcOdds(){
         }
 
         let currSubmission = submissions[submissions.length - 1]
-        let prevSubmission = submissions[submissions.length - 2]
+        if (1+numBack > submissions.length){
+            numBack = submissions.length-1
+        }
+        if (1+numBack < 2){
+            numBack = 1
+        }
+        console.log(numBack)
+        let prevSubmission = submissions[submissions.length - 1 - numBack]
 
         let growthRate = (currSubmission.views - prevSubmission.views)/(1_000_000*(currSubmission.time - prevSubmission.time))
         let expectedGrowthRate = timeToDeriv(time)*extrapolatedValue
         growthRate = Math.round(growthRate*100)/100
         expectedGrowthRate = Math.round(expectedGrowthRate*100)/100
         let newElement = document.createElement("p");
-        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/h,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/h</strong>"
+        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/h,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/h</strong>" + " time Gap: <strong>" + Math.round((currSubmission.time - prevSubmission.time)*60) + "min</strong>"
         gr.appendChild(newElement)
 
         console.log(growthRate, expectedGrowthRate)
+        let p0 = Point(prevSubmission.time, prevSubmission.views/1_000_000)
         let p1 = Point(currSubmission.time, currSubmission.views/1_000_000)
         let p2 = Point(24, prevSubmission.views/1_000_000 + (24-prevSubmission.time)*growthRate)
         Plotly.newPlot('plot2', 
@@ -650,13 +686,13 @@ function calcOdds(){
                 x: x3,
                 y: y3,
                 type: 'scatter',
-                mode: "line",
+                mode: "markers+lines",
                 line: {color: 'rgb(167, 25, 23)'},
                 name: 'Odds'
             },
             {
-                x: [p1.x, p2.x],
-                y: [p1.y, p2.y],
+                x: [p0.x, p1.x, p2.x],
+                y: [p0.y, p1.y, p2.y],
                 type: 'scatter',
                 mode: "line",
                 line: {color: 'pink'},
@@ -674,10 +710,14 @@ function calcOdds(){
         document.getElementById("plot2").style.width = "50%"
         Plotly.Plots.resize('plot');
         Plotly.Plots.resize('plot2');
+        document.getElementById("back").style.display = "flex"
+        document.getElementById("forward").style.display = "flex"
     } else {
         document.getElementById("plot").style.width = "100%"
         Plotly.Plots.resize('plot');
         document.getElementById("plot2").style.display = "none"
+        document.getElementById("back").style.display = "none"
+        document.getElementById("forward").style.display = "none"
     }
 }
 
@@ -703,6 +743,7 @@ form.addEventListener('submit', function(event) {
         submissions.push({"time": time, views: numViews})
         submissionSpecs = {date: releaseDate, charity: charityOdds}
     } else if (!(releaseDate.getTime() === submissionSpecs.date.getTime() && charityOdds === submissionSpecs.charity)){
+
         submissions = [{"time": time, views: numViews}]
         submissionSpecs = {date: releaseDate, charity: charityOdds}
     } else{
@@ -716,6 +757,14 @@ form.addEventListener('submit', function(event) {
     }, 10)
 });
 
+document.getElementById("back").onclick = function(event){
+    numBack++
+    calcOdds()
+}
+document.getElementById("forward").onclick = function(event){
+    numBack--
+    calcOdds()
+}
 //music
 let playlist = [
     "Ahrix%20-%20Nova%20[NCS%20Release].mp3",
