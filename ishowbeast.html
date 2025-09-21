@@ -141,25 +141,25 @@ input[type="submit"], input[type="button"] {
   transition: background-color 0.3s ease;
 }
 input[type="submit"] {
-  background-color: #45a049;
+  background-color: hsl(123, 40%, 45%);
 }
 input[type="submit"]:hover {
-  background-color: #45a049;
+  background-color: hsl(123, 40%, 40%);
 }
 
 #back{
-  background-color: #af8c4c;
+  background-color: hsl(39, 40%, 45%);
   display: none;
 }
 #back:hover{
-  background-color: #a07745;
+  background-color: hsl(39, 40%, 40%);
 }
 #forward{
-    background-color: #6a4caf;
+    background-color: hsl(258, 40%, 45%);
     display: none
 }
 #forward:hover{
-      background-color: #7b45a0;
+      background-color: hsl(258, 40%, 40%);
 }
 #loading {
   position: fixed;        /* fixed to viewport */
@@ -220,7 +220,7 @@ input[type="submit"]:hover {
 
     <div class="form-group">
         <label for="charity">Charity odds</label>
-        <input type="number" id="charity" value="0.138" step="0.001" min="0" max ="1">
+        <input type="number" id="charity" value="0.136" step="0.001" min="0" max ="1">
     </div>
 
     <input type="submit" value="Submit">
@@ -244,17 +244,17 @@ function Point(x, y){
     this.y = y;
 }
 function timeToPercent(x){
-    let L = 71.26233440791599
-    let d = 35.96767580413623
-    let k = 0.05736793333166776
-    let x0 = -6.6268189270648685;
+    let L = 73.39233052494133
+    let d = 38.116167415139905
+    let k = 0.05700154665219989
+    let x0 = -7.418112514479512;
     let e = Math.E
     return (L*e**(-1*e**(-k*(x-x0))) - d)/24
 }
 function timeToDeriv(x){
-    let L = 71.26233440791599
-    let k = 0.05736793333166776
-    let x0 = -6.6268189270648685;
+    let L = 73.39233052494133
+    let k = 0.05700154665219989
+    let x0 = -7.418112514479512;
     let e = Math.E
     return (e**(-1*e**(-k*(x-x0))))*-1*e**(-k*(x-x0))*-k*L/24
 }
@@ -264,59 +264,58 @@ let groupedSpreads = [
         "y": 0
     },
     {
-        "x": 0.3829411764705883,
-        "y": 0.5724646115797499
+        "x": 0.38235294117647056,
+        "y": 0.5724464245394838
     },
     {
-        "x": 1.1827450980392156,
-        "y": 1.1227400133267618
+        "x": 1.1819607843137254,
+        "y": 1.1021340476144983
     },
     {
-        "x": 3.582941176470588,
-        "y": 2.5189466251847143
+        "x": 3.5790196078431364,
+        "y": 2.431971442689548
     },
     {
-        "x": 5.981764705882353,
-        "y": 3.2077589740711896
+        "x": 5.964117647058824,
+        "y": 2.984998886302724
     },
     {
-        "x": 8.380588235294118,
-        "y": 3.0927552945996593
+        "x": 8.362941176470587,
+        "y": 2.8005156932440656
     },
     {
-        "x": 10.779803921568629,
-        "y": 2.6258294153107333
+        "x": 10.7621568627451,
+        "y": 2.532592646752994
     },
     {
-        "x": 13.178823529411764,
-        "y": 2.42074929070774
+        "x": 13.161176470588236,
+        "y": 2.5618094220363545
     },
     {
-        "x": 15.578039215686275,
-        "y": 2.0401112032850364
+        "x": 15.560392156862745,
+        "y": 2.169206976046514
     },
     {
-        "x": 17.976078431372553,
-        "y": 1.8238801418310402
+        "x": 17.958823529411763,
+        "y": 1.8793884874775844
     },
     {
-        "x": 20.37549019607843,
-        "y": 1.406292068054565
+        "x": 20.358235294117648,
+        "y": 1.359955201376444
     },
     {
-        "x": 22.765686274509804,
-        "y": 0.7085321251222202
+        "x": 22.747058823529414,
+        "y": 0.7192923834141486
     },
     {
-        "x": 23.54588235294118,
-        "y": 0.4278609304457346
+        "x": 23.525294117647064,
+        "y": 0.4625473240667727
     },
     {
         "x": 24.00001,
         "y": 0
     }
 ]
-
 function timeToSpreads(x){
     for (let i = 0; i < groupedSpreads.length; i++) {
         let spread = groupedSpreads[i]
@@ -386,7 +385,7 @@ function dayToExpectedViews(date){
     let points = [
         {
             "x": -7.649999999999999,
-            "y": 45.81230841666667
+            "y": 45.66343853846154
         },
         {
             "x": 1.5,
@@ -402,7 +401,7 @@ function dayToExpectedViews(date){
         },
         {
             "x": 28.85,
-            "y": 45.81230841666667
+            "y": 45.66343853846154
         },
         {
             "x": 38,
