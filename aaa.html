@@ -558,6 +558,7 @@ let submissions = [];
 let form = document.getElementById('form');
 
 form.addEventListener('submit', function(event) {
+    audio.play();
     event.preventDefault();
     document.getElementById("loading").style.display = "flex";
     let hours = Number(document.getElementById("hours").value)
@@ -742,4 +743,5 @@ function last(list){
 </script>
 </body>
 </html>
+
 
