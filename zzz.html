@@ -2,8 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>Mr Beast Views</title>
-    <link rel="icon" type="image/x-icon" href="TorusLogo.png">
+    <title>Mr Beast Views Daily</title>
 <style>
 
 /* Body & general */
@@ -183,10 +182,10 @@ input[type="submit"]:hover {
 
 </style>
 </head>
-<body>
+<body onbeforeunload="return ''">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.0.3/plotly.min.js"></script>
 <div id = "title">
-    <h1>Mr. Beast views</h1>
+    <h1>Mr. Beast views daily</h1>
 </div>
 
 
@@ -422,11 +421,13 @@ function dayToExpectedViews(date){
 }
 
 function initialDistrib(min, max){
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let charityOdds = currSubmission.charity;
     // normal
     let m = Math.log(dayToExpectedViews(releaseDate));
-    //let m = Math.log(40);
     let s = 0.16177048982739653
-
     // charity
     let d = 3.3404571586757212;
     let r = 0.2742537825689307;
@@ -457,38 +458,35 @@ function integrate(func, min, max){
     }
     return sum
 }
-let time;
-let numViews;
-let releaseDate;
-let charityOdds;
+
+let releaseDate = new Date();
 let numBack = 1;
 let minViews = 5;
 let maxViews = 90;
-
-let brackets = [
-    [minViews, 25],
-    [25, 30],
-    [30, 35],
-    [35, 40],
-    [40, 45],
-    [45, 50],
-    [50, 55],
-    [55, maxViews]
-]
+let minbracket = 25;
+let maxbracket = 55;
+let bracketSize = 5;
+let brackets = []
+brackets.push([minViews, minbracket])
+for (let i = 0; i < (maxbracket-minbracket)/bracketSize; i++) {
+    brackets.push([i*bracketSize + minbracket, (i+1)*bracketSize+minbracket])
+}
+brackets.push([maxbracket, maxViews])
 let bracketedResults = []
-
 function calcOdds(){
     if (submissions.length > 1){
         let s1 = submissions[submissions.length - 1]
         let s2 = submissions[submissions.length - 2]
-        if (s1.time - s2.time <= 0){
-            return
-        }
-        if (s1.views - s2.views <= 0){
+        if (s1.time - s2.time <= 0 || s1.views - s2.views <= 0){
+            submissions.pop()
             return
         }
     }
     
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let charityOdds = currSubmission.charity;
     let possibilities = [];
     let bucketSize = 0.1
     for (let i = minViews; i < maxViews; i+=bucketSize) {
@@ -629,15 +627,102 @@ function calcOdds(){
         ],
         layout
     );
+    
+    secondGraph()
+    if (submissions.length > 1){
+        document.getElementById("plot").style.width = "50%"
+        
+        document.getElementById("plot2").style.display = "flex"
+        document.getElementById("plot2").style.width = "50%"
+        Plotly.Plots.resize('plot');
+        Plotly.Plots.resize('plot2');
+        document.getElementById("back").style.display = "flex"
+        document.getElementById("forward").style.display = "flex"
+    } else {
+        document.getElementById("plot").style.width = "100%"
+        Plotly.Plots.resize('plot');
+        document.getElementById("plot2").style.display = "none"
+        document.getElementById("back").style.display = "none"
+        document.getElementById("forward").style.display = "none"
+    }
+}
+
+let submissions = [];
+let form = document.getElementById('form');
+
+form.addEventListener('submit', function(event) {
+    audio.play();
+    event.preventDefault();
+    document.getElementById("loading").style.display = "flex";
+    let hours = Number(document.getElementById("hours").value)
+    let minutes = Number(document.getElementById("minutes").value)
+    let time = hours + minutes/60
+    let numViews = Number(document.getElementById("views").value)
+    releaseDate = new Date(document.getElementById("date").value)
+    let charityOdds = Number(document.getElementById("charity").value)
+    
+    if (submissions.length === 0){
+        submissions.push({"time": time, views: numViews, charity: charityOdds})
+    } else {
+        submissions.push({"time": time, views: numViews, charity: charityOdds})
+    }
+
+    setTimeout(function(){
+        calcOdds()
+        document.getElementById("loading").style.display = "none";
+    }, 10)
+});
+
+document.getElementById("back").onclick = function(event){
+    numBack++
+    secondGraph()
+}
+document.getElementById("forward").onclick = function(event){
+    numBack--
+    secondGraph()
+}
+
+function secondGraph(){
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let layout2 = {
+        font: { 
+            family: 'Arial, sans-serif', 
+            size: 16, 
+            color: 'white'
+        },
+        paper_bgcolor: 'rgb(29, 43, 58);',
+        plot_bgcolor: 'rgb(29, 43, 58);',
+        showlegend: false,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 40,
+            b: 50
+        }
+    }
     let gr = document.getElementById("growthRate");
     gr.innerHTML = ""
 
-    if (multipleGraphs){
+    if (submissions.length > 1){
+        let x5 = [];
+        let y5 = []
         let x3 = [];
         let y3 = [];
         for (let i = 0; i < submissions.length; i++) {
             x3.push(submissions[i].time)
             y3.push(submissions[i].views/1_000_000)
+        }
+        for (let i = 0; i < submissions.length-1; i++) {
+            let firstSub = submissions[i];
+            let secondSub = submissions[i+1]
+
+            let time = secondSub.time - firstSub.time;
+            let growth = secondSub.views - firstSub.views;
+            let pace = growth/time
+            x5.push((secondSub.time + firstSub.time)/2)
+            y5.push(pace/1_000_000)
         }
         let extrapolatedValue = numViews/(timeToPercent(time)*1_000_000)
         let x4 = []
@@ -656,7 +741,7 @@ function calcOdds(){
         if (1+numBack < 2){
             numBack = 1
         }
-        console.log(numBack)
+
         let prevSubmission = submissions[submissions.length - 1 - numBack]
 
         let growthRate = (currSubmission.views - prevSubmission.views)/(1_000_000*(currSubmission.time - prevSubmission.time))
@@ -664,22 +749,30 @@ function calcOdds(){
         growthRate = Math.round(growthRate*100)/100
         expectedGrowthRate = Math.round(expectedGrowthRate*100)/100
         let newElement = document.createElement("p");
-        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/h,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/h</strong>" + " time Gap: <strong>" + Math.round((currSubmission.time - prevSubmission.time)*60) + "min</strong>"
+        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/d,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/d</strong>" + " time Gap: <strong>" + Math.round((currSubmission.time - prevSubmission.time)*24) + "h</strong>"
         gr.appendChild(newElement)
 
-        console.log(growthRate, expectedGrowthRate)
+
         let p0 = Point(prevSubmission.time, prevSubmission.views/1_000_000)
         let p1 = Point(currSubmission.time, currSubmission.views/1_000_000)
         let p2 = Point(24, prevSubmission.views/1_000_000 + (24-prevSubmission.time)*growthRate)
         Plotly.newPlot('plot2', 
             [
             {
+                x: x5,
+                y: y5,
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'yellow'},
+                name: 'Growth Rate'
+            },
+            {
                 x: x4,
                 y: y4,
                 type: 'scatter',
                 mode: "line",
                 line: {color: 'green'},
-                name: 'Odds'
+                name: 'Normal Curve'
             },
             {
                 x: x3,
@@ -687,7 +780,7 @@ function calcOdds(){
                 type: 'scatter',
                 mode: "markers+lines",
                 line: {color: 'rgb(167, 25, 23)'},
-                name: 'Odds'
+                name: 'Submissions'
             },
             {
                 x: [p0.x, p1.x, p2.x],
@@ -695,74 +788,12 @@ function calcOdds(){
                 type: 'scatter',
                 mode: "line",
                 line: {color: 'pink'},
-                name: 'Odds'
+                name: 'Extrapolation'
             },
             ],
             layout2
         );
     }
-    
-    if (multipleGraphs){
-        document.getElementById("plot").style.width = "50%"
-        
-        document.getElementById("plot2").style.display = "flex"
-        document.getElementById("plot2").style.width = "50%"
-        Plotly.Plots.resize('plot');
-        Plotly.Plots.resize('plot2');
-        document.getElementById("back").style.display = "flex"
-        document.getElementById("forward").style.display = "flex"
-    } else {
-        document.getElementById("plot").style.width = "100%"
-        Plotly.Plots.resize('plot');
-        document.getElementById("plot2").style.display = "none"
-        document.getElementById("back").style.display = "none"
-        document.getElementById("forward").style.display = "none"
-    }
-}
-
-let multipleGraphs = false
-let submissions = [];
-let submissionSpecs;
-let form = document.getElementById('form');
-
-form.addEventListener('submit', function(event) {
-    audio.play();
-    event.preventDefault();
-    document.getElementById("loading").style.display = "flex";
-    let hours = Number(document.getElementById("hours").value)
-    let minutes = Number(document.getElementById("minutes").value)
-    time = hours + minutes/60
-    numViews = Number(document.getElementById("views").value)
-    releaseDate = new Date(document.getElementById("date").value)
-    charityOdds = Number(document.getElementById("charity").value)
-
-    multipleGraphs = false
-    
-    if (submissions.length === 0){
-        submissions.push({"time": time, views: numViews})
-        submissionSpecs = {date: releaseDate, charity: charityOdds}
-    } else if (!(releaseDate.getTime() === submissionSpecs.date.getTime() && charityOdds === submissionSpecs.charity)){
-
-        submissions = [{"time": time, views: numViews}]
-        submissionSpecs = {date: releaseDate, charity: charityOdds}
-    } else{
-        submissions.push({"time": time, views: numViews})
-        multipleGraphs = true
-    }
-    console.log(multipleGraphs)
-    setTimeout(function(){
-        calcOdds()
-        document.getElementById("loading").style.display = "none";
-    }, 10)
-});
-
-document.getElementById("back").onclick = function(event){
-    numBack++
-    calcOdds()
-}
-document.getElementById("forward").onclick = function(event){
-    numBack--
-    calcOdds()
 }
 //music
 let playlist = [
@@ -798,6 +829,9 @@ function nextSong(){
     currentSong = (currentSong + 1) % randomisedPlaylist.length;
     audio.src = randomisedPlaylist[currentSong];
     audio.play();
+}
+function last(list){
+    return list[list.length-1]
 }
 </script>
 </body>
