@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Mr Beast Views</title>
+<style>
+
+/* Body & general */
+body {
+  background-color: rgb(29, 43, 58);
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  margin-left: 15px;
+  margin-top: 0px;
+  box-sizing: border-box;
+}
+
+/* Page main title */
+#title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+/* Container holding form and plot side-by-side */
+#formplot {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start; /* align top edges */
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 15px;
+}
+
+/* Form styles */
+#form {
+  flex: 0 0 220px; /* fixed width */
+  border: 2px solid white;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 0; /* remove default margins */
+  box-sizing: border-box;
+}
+
+#plotcontainer {
+  position: relative;  /* needed for absolute positioning inside */
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: left; /* center children horizontally */
+  border: 2px solid white;
+  border-radius: 12px;
+}
+
+#plotcontainer > h1 {
+  position: absolute;
+  top: 20px; /* lift it above the plot box's top border */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(29, 43, 58, 0); /* same as background to “cut out” behind text */
+  padding: 0 10px;
+  margin: 0;
+  color: white;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  z-index: 10;
+  
+}
+p{  
+    padding: 15px;
+    font-size: 18px;
+}
+strong{
+    font-weight: 900;
+}
+#plot, #plot2 {
+  width: 50%;
+  min-height: 550px;
+  box-sizing: border-box;
+}
+
+
+
+/* Form groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: bold;
+  width: 100%;
+}
+
+input[type="number"],
+input[type="date"] {
+  border: 2px solid grey;
+  border-radius: 3px;
+  font-size: 15px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+input[type="number"]:focus, input[type="date"]:focus {
+  border: 2px solid rgb(44, 156, 219);
+  outline: none;
+  border-radius: 3px;
+  font-size: 15px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: transparent;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+input[type="submit"], input[type="button"] {
+  width: 100%;
+  padding: 10px 0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+input[type="submit"] {
+  background-color: hsl(123, 40%, 45%);
+}
+input[type="submit"]:hover {
+  background-color: hsl(123, 40%, 40%);
+}
+
+#back{
+  background-color: hsl(39, 40%, 45%);
+  display: none;
+}
+#back:hover{
+  background-color: hsl(39, 40%, 40%);
+}
+#forward{
+    background-color: hsl(258, 40%, 45%);
+    display: none
+}
+#forward:hover{
+      background-color: hsl(258, 40%, 40%);
+}
+#loading {
+  position: fixed;        /* fixed to viewport */
+  top: 0; 
+  left: 0;
+  width: 100vw;           /* full viewport width */
+  height: 100vh;          /* full viewport height */
+  background-color: rgba(99, 99, 99, 0.459); /* #4caf4f2a in rgba */
+  
+  justify-content: center;
+  align-items: center;
+
+  font-size: 55px;
+  font-weight: 800;
+  color: white;
+  z-index: 9999;
+  user-select: none;
+  pointer-events: none;   /* optional: disable interaction while loading */
+  display: none;          /* start hidden */
+}
+
+</style>
+</head>
+<body onbeforeunload="return ''">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/3.0.3/plotly.min.js"></script>
+<div id = "title">
+    <h1>Mr. Beast views weekly</h1>
+</div>
+
+
+<div id = "formplot">
+    
+    <div id = "plotcontainer">
+        <h1>Charts</h1>
+        <div id="plot"></div>
+        <div id="plot2"></div>
+    </div>
+    <form id="form">
+    <div class="form-group">
+        <label for="days">Time (days)</label>
+        <input type="number" id="days" step="1" value="0">
+    </div>
+    <div class="form-group">
+        <label for="hours">Time (hours)</label>
+        <input type="number" id="hours" step="any" value="0">
+    </div>
+    
+    <div class="form-group">
+        <label for="minutes">Time (minutes)</label>
+        <input type="number" id="minutes" step="any" value="0">
+    </div>
+
+    <div class="form-group">
+        <label for="views">Views:</label>
+        <input type="number" id="views" value="0">
+    </div>
+<div class="form-group">
+        <label for="charity">Charity odds</label>
+        <input type="number" id="charity" value="0.136" step="0.001" min="0" max ="1">
+    </div>
+    <input type="submit" value="Submit">
+    <input id = "back"type="button" value="Back">
+    <input id = "forward"type="button" value="Forward">
+    </form>
+</div>
+
+<div id = "finalOdds"></div>
+<div id = "growthRate"></div>
+
+<div id = "loading">
+    Loading...
+</div>
+<script>
+function Point(x, y){
+    if (!(this instanceof Point)){
+        return new Point(x, y)
+    }
+    this.x = x;
+    this.y = y;
+}
+function timeToPercent(x){
+    let z = 1.3914264585961686
+    let m = 1.1470431829377599
+    return (Math.atan(x+z)**m-Math.atan(z)**m)/(Math.atan(7+z)**m-Math.atan(z)**m)
+}
+function timeToDeriv(x){
+    let z = 1.3914264585961686
+    let m = 1.1470431829377599
+    return m*(Math.atan(x+z)**(m-1))/((1+(x+z)**2)*(Math.atan(7+z)**m-Math.atan(z)**m))
+}
+        
+let groupedSpreads = [
+    {
+        "x": 0,
+        "y": 0
+    },
+    {
+        "x": 0.5,
+        "y": 2.232618285391532
+    },
+    {
+        "x": 1.5,
+        "y": 3.2877283790444767
+    },
+    {
+        "x": 3.5,
+        "y": 2.4660771806188535
+    },
+    {
+        "x": 5.5,
+        "y": 2.015245018753596
+    },
+    {
+        "x": 6.5,
+        "y": 0.7340111471326837
+    },
+    {
+        "x": 7.00001,
+        "y": 0
+    }
+]
+function timeToSpreads(x){
+    for (let i = 0; i < groupedSpreads.length; i++) {
+        let spread = groupedSpreads[i]
+        if (x < spread.x){
+            let prevSpread = groupedSpreads[i-1]
+            let x1 = prevSpread.x;
+            let y1 = prevSpread.y;
+            let x2 = spread.x;
+            let y2 = spread.y;
+            return ((x-x1)*(y2-y1)/(x2-x1)+y1)/100
+        }
+    }
+}
+
+function beta(time, min, max){
+    if (min <0){
+        min = 0
+    }
+    if (max > 1){
+        max = 1
+    }
+    if (min > 1){
+        return 0
+    }
+    if (time === 0){
+        if (min === 0){
+            return 1
+        }
+        return 0
+    }
+    if (time === 7){
+        if (max === 1){
+            return 1
+        }
+        return 0
+    }
+    let k_0 = timeToSpreads(time)**2
+    let j = timeToPercent(time)
+    let r_0 = (1-j)/j
+    let alpha = (r_0/((1+r_0)**2)-k_0)/(k_0*(1+r_0))
+    let beta = r_0*alpha
+    function inputBeta(x){
+        return (x)**(alpha-1)*(1-x)**(beta-1)
+    }
+    let o = integrate(inputBeta, 0, 1)
+    let a = integrate(inputBeta, min, max)
+    return a/o
+}
+
+function dayToExpectedViews(date){
+    return 83.57876034825165 
+}
+
+function initialDistrib(min, max){
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let charityOdds = currSubmission.charity;
+    // normal
+    let m = Math.log(dayToExpectedViews(null));
+    //let m = Math.log(40);
+    let s = 0.24473319774984176
+
+    // charity
+    let d = Math.log(46.32243392291908);
+    let r = 0.1490506023392539 ;
+    function inputLogNormal(x){
+        return 1/(s*Math.sqrt(2*Math.PI))*1/x*Math.E**(-1*(Math.log(x)-m)**2/(2*s**2))
+    }
+    function inputCharityNormal(x){
+        return 1/(r*Math.sqrt(2*Math.PI))*1/x*Math.E**(-1*(Math.log(x)-d)**2/(2*r**2))
+    }
+    return ((1-charityOdds)*integrate(inputLogNormal, min, max)+ charityOdds*integrate(inputCharityNormal, min, max))
+}
+
+function integrate(func, min, max){
+    let n = 5_000;
+    let sum = 0
+    let width = (max-min)/n
+    for (let i = 0; i <= n; i++) {
+        let x = min+width*i
+        let multiplier;
+        if (i === 0 || i===n){
+            multiplier = 1
+        } else if (i%2 === 1){
+            multiplier = 4
+        } else{
+            multiplier = 2
+        }
+        sum+=multiplier*func(x)*width/3
+    }
+    return sum
+}
+
+let numBack = 1;
+let minViews = 20;
+let maxViews = 160;
+let minbracket = 60;
+let maxbracket = 110;
+let bracketSize = 10;
+let brackets = []
+brackets.push([minViews, minbracket])
+for (let i = 0; i < (maxbracket-minbracket)/bracketSize; i++) {
+    brackets.push([i*bracketSize + minbracket, (i+1)*bracketSize+minbracket])
+}
+brackets.push([maxbracket, maxViews])
+let bracketedResults = []
+
+function calcOdds(){
+
+    if (submissions.length > 1){
+        let s1 = submissions[submissions.length - 1]
+        let s2 = submissions[submissions.length - 2]
+        if (s1.time - s2.time <= 0 || s1.views - s2.views <= 0){
+            submissions.pop()
+            return
+        }
+    }
+    
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let charityOdds = currSubmission.charity;
+    let possibilities = [];
+    let bucketSize = 0.1
+    for (let i = minViews; i < maxViews; i+=bucketSize) {
+        
+        let prior = initialDistrib(i, i+bucketSize)
+        console.log(prior)
+        multiplier = 1/((i+bucketSize/2)*1_000_000)
+        let betaResult = beta(time, (numViews*0.999)*multiplier, (numViews*1.001)*multiplier)
+        possibilities.push(prior*betaResult)
+
+    }
+    let totalp = 0
+    for (let i = 0; i < possibilities.length; i++) {
+        totalp+=possibilities[i]
+    }
+    for (let i = 0; i < possibilities.length; i++) {
+        possibilities[i] = possibilities[i]/totalp
+    }
+
+    let lumpedPossibilities = []
+    
+    let sums = 0
+    let mod = bracketSize/bucketSize
+    for (let i = 0; i < possibilities.length; i++) {
+        sums += possibilities[i]
+        if (i%mod === mod-1){
+            lumpedPossibilities.push([(i-mod+1)*bucketSize+minViews, (i+1)*bucketSize+minViews, sums])
+            sums = 0
+        }
+    }
+    bracketedResults = [];
+    for (let i = 0; i < brackets.length; i++) {
+        bracketedResults.push(0)
+    }
+    for (let i = 0; i < lumpedPossibilities.length; i++) {
+        let lumpedPossi = lumpedPossibilities[i];
+        let lumpedPossiMin = lumpedPossi[0];
+        let lumpedPossiMax = lumpedPossi[1];
+        let lumpedPossiOdds = lumpedPossi[2];
+        for (let j = 0; j < brackets.length; j++) {
+            let bracket = brackets[j]
+            let bracketMin = bracket[0];
+            let bracketMax = bracket[1];
+            if (lumpedPossiMin >= bracketMin && lumpedPossiMax <= bracketMax){
+                bracketedResults[j] += lumpedPossiOdds
+                break
+            }
+        }
+    }
+
+    let container = document.getElementById("finalOdds");
+    container.innerHTML = ""
+    let text = ""
+    for (let i = 0; i < brackets.length; i++) {
+        let bracketMin = brackets[i][0]
+        let bracketMax = brackets[i][1];
+        text += "[" + bracketMin + ",  " + bracketMax + "): <strong>" + Math.round(bracketedResults[i]*10000)/100 + "%</strong>, "
+    }
+    let newElement = document.createElement("p");
+    newElement.innerHTML = text.slice(0,-2)
+    container.appendChild(newElement)
+
+    let x1 = [];
+    let y1 = [];
+    let x2 = [];
+    let y2 = [];
+    for (let i = 0; i < possibilities.length; i += 1) {
+        x1.push(i*bucketSize+minViews+bucketSize/2);
+        y1.push(possibilities[i]*100*1/bucketSize);
+    }
+    
+    for (let i = 0; i < Math.round(possibilities.length/bracketSize*bucketSize); i += 1) {
+        x2.push(i*bracketSize+minViews+bracketSize/2);
+        y2.push(lumpedPossibilities[i][2]*100);
+    }
+    console.log(possibilities, lumpedPossibilities)
+    let layout = {
+        font: { 
+            family: 'Arial, sans-serif', 
+            size: 16, 
+            color: 'white'
+        },
+        paper_bgcolor: 'rgb(29, 43, 58);',
+        plot_bgcolor: 'rgb(29, 43, 58);',
+        showlegend: false,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 30,
+            b: 50
+        }
+    }
+    
+    let baseline = -0.01;
+
+    let baselineTrace = {
+        x: x1,
+        y: x1.map(_ => baseline),
+        mode: 'lines',
+        line: {color: 'rgba(0,0,0,0)'},
+        showlegend: false,
+        hoverinfo: 'skip'
+    };
+
+    Plotly.newPlot('plot', 
+        [baselineTrace,
+            {
+                x: x1,
+                y: y1,
+                type: 'scatter',
+                mode: "line",
+                fill: "tonexty",
+                fillcolor: 'rgb(31, 119, 180)', // semi-transparent fill color
+                line: {color: 'rgb(31, 119, 180)'},
+                name: 'Odds'
+            },
+            {
+                x: x2,
+                y: y2,
+                type: 'bar',
+                marker: {color: 'rgb(255, 127, 14)'}, 
+                name: 'Odds (bucketed)'
+            }
+        ],
+        layout
+    );
+
+
+    
+        secondGraph()
+    
+    if (submissions.length > 1){
+        document.getElementById("plot").style.width = "50%"
+        
+        document.getElementById("plot2").style.display = "flex"
+        document.getElementById("plot2").style.width = "50%"
+        Plotly.Plots.resize('plot');
+        Plotly.Plots.resize('plot2');
+        document.getElementById("back").style.display = "flex"
+        document.getElementById("forward").style.display = "flex"
+    } else {
+        document.getElementById("plot").style.width = "100%"
+        Plotly.Plots.resize('plot');
+        document.getElementById("plot2").style.display = "none"
+        document.getElementById("back").style.display = "none"
+        document.getElementById("forward").style.display = "none"
+    }
+}
+
+
+let submissions = [];
+let form = document.getElementById('form');
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    document.getElementById("loading").style.display = "flex";
+    let hours = Number(document.getElementById("hours").value)
+    let minutes = Number(document.getElementById("minutes").value)
+    let days = Number(document.getElementById("days").value)
+    let time = days + (hours + minutes/60)/24
+    let numViews = Number(document.getElementById("views").value)
+    let charityOdds = Number(document.getElementById("charity").value)
+    
+    if (submissions.length === 0){
+        submissions.push({"time": time, views: numViews, charity: charityOdds})
+    } else {
+        submissions.push({"time": time, views: numViews, charity: charityOdds})
+    }
+ 
+    setTimeout(function(){
+        calcOdds()
+        document.getElementById("loading").style.display = "none";
+    }, 10)
+});
+
+document.getElementById("back").onclick = function(event){
+    numBack++
+    secondGraph()
+}
+document.getElementById("forward").onclick = function(event){
+    numBack--
+    secondGraph()
+}
+
+function secondGraph(){
+    let currSubmission = last(submissions);
+    let time = currSubmission.time;
+    let numViews = currSubmission.views;
+    let layout2 = {
+        font: { 
+            family: 'Arial, sans-serif', 
+            size: 16, 
+            color: 'white'
+        },
+        paper_bgcolor: 'rgb(29, 43, 58);',
+        plot_bgcolor: 'rgb(29, 43, 58);',
+        showlegend: false,
+        margin: {
+            l: 50,
+            r: 30,
+            t: 40,
+            b: 50
+        }
+    }
+    let gr = document.getElementById("growthRate");
+    gr.innerHTML = ""
+
+    if (submissions.length > 1){
+        let x5 = [];
+        let y5 = []
+        let x3 = [];
+        let y3 = [];
+        for (let i = 0; i < submissions.length; i++) {
+            x3.push(submissions[i].time)
+            y3.push(submissions[i].views/1_000_000)
+        }
+        for (let i = 0; i < submissions.length-1; i++) {
+            let firstSub = submissions[i];
+            let secondSub = submissions[i+1]
+
+            let time = secondSub.time - firstSub.time;
+            let growth = secondSub.views - firstSub.views;
+            let pace = growth/time
+            x5.push((secondSub.time + firstSub.time)/2)
+            y5.push(pace/1_000_000)
+        }
+        let extrapolatedValue = numViews/(timeToPercent(time)*1_000_000)
+        let x4 = []
+        let y4 = []
+        let numPoints = 100
+        for (let i = 0; i <= numPoints; i++) {
+            let x = 7*i/numPoints
+            x4.push(x)
+            y4.push(extrapolatedValue * timeToPercent(x))
+        }
+
+        let currSubmission = submissions[submissions.length - 1]
+        if (1+numBack > submissions.length){
+            numBack = submissions.length-1
+        }
+        if (1+numBack < 2){
+            numBack = 1
+        }
+
+        let prevSubmission = submissions[submissions.length - 1 - numBack]
+
+        let growthRate = (currSubmission.views - prevSubmission.views)/(1_000_000*(currSubmission.time - prevSubmission.time))
+        let expectedGrowthRate = timeToDeriv(time)*extrapolatedValue
+        growthRate = Math.round(growthRate*100)/100
+        expectedGrowthRate = Math.round(expectedGrowthRate*100)/100
+        let newElement = document.createElement("p");
+        newElement.innerHTML = "Growth rate: <strong>" + growthRate + "M/d,</strong> expected growth rate: <strong>" + expectedGrowthRate + "M/d</strong>" + " time Gap: <strong>" + Math.round((currSubmission.time - prevSubmission.time)*24) + "h</strong>"
+        gr.appendChild(newElement)
+
+
+        let p0 = Point(prevSubmission.time, prevSubmission.views/1_000_000)
+        let p1 = Point(currSubmission.time, currSubmission.views/1_000_000)
+        let p2 = Point(7, prevSubmission.views/1_000_000 + (7-prevSubmission.time)*growthRate)
+        Plotly.newPlot('plot2', 
+            [
+            {
+                x: x5,
+                y: y5,
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'yellow'},
+                name: 'Growth Rate'
+            },
+            {
+                x: x4,
+                y: y4,
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'green'},
+                name: 'Normal Curve'
+            },
+            {
+                x: x3,
+                y: y3,
+                type: 'scatter',
+                mode: "markers+lines",
+                line: {color: 'rgb(167, 25, 23)'},
+                name: 'Submissions'
+            },
+            {
+                x: [p0.x, p1.x, p2.x],
+                y: [p0.y, p1.y, p2.y],
+                type: 'scatter',
+                mode: "line",
+                line: {color: 'pink'},
+                name: 'Extrapolation'
+            },
+            ],
+            layout2
+        );
+    }
+}
+
+function last(list){
+    return list[list.length-1]
+}
+</script>
+</body>
+</html>
